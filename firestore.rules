@@ -1,0 +1,10 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signed() { return request.auth != null; }
+    match /pmcUsuarios/{uid} { allow read: if signed(); allow write: if signed(); }
+    match /pmcSolicitacoes/{id} { allow read: if signed(); allow create: if signed(); allow update: if signed(); allow delete: if signed(); }
+    match /pmcConfig/{id} { allow read, write: if signed(); }
+    match /pmcHistorico/{id} { allow read, write: if signed(); }
+  }
+}

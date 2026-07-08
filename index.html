@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PMC Digital | SESI SENAI SJDR</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="toast" class="toast hidden"></div>
+  <section id="loginView" class="login-shell">
+    <div class="login-card">
+      <div class="brand-badge">PMC</div>
+      <h1>PMC Digital</h1>
+      <p>Sistema de Solicitação e Acompanhamento de Compras<br>SESI / SENAI São João del-Rei</p>
+      <form id="loginForm" class="form-grid compact">
+        <label>E-mail<input id="loginEmail" type="email" value="admin@pmc.local" required></label>
+        <label>Senha<input id="loginSenha" type="password" value="123456" required></label>
+        <button class="primary" type="submit">Entrar</button>
+      </form>
+      <small>Primeiro acesso local: <b>admin@pmc.local</b> / <b>123456</b>. Depois cadastre os usuários no painel Admin.</small>
+    </div>
+  </section>
+
+  <main id="appView" class="app hidden">
+    <aside class="sidebar">
+      <div class="logo"><span>PMC</span><strong>Digital</strong></div>
+      <button data-page="dashboard" class="nav active">Painel</button>
+      <button data-page="nova" class="nav">Nova Solicitação</button>
+      <button data-page="solicitacoes" class="nav">Solicitações</button>
+      <button data-page="referencias" class="nav">Referências PMC</button>
+      <button data-page="usuarios" class="nav admin-only">Usuários</button>
+      <button data-page="config" class="nav admin-only">Configurações</button>
+      <div class="sidebar-footer"><span id="userBox"></span><button id="logoutBtn">Sair</button></div>
+    </aside>
+
+    <section class="content">
+      <header class="topbar">
+        <div><h2 id="pageTitle">Painel</h2><p id="pageSubtitle">Acompanhe as compras solicitadas e evite fragmentação.</p></div>
+        <div class="top-actions"><button id="exportCsvBtn">Exportar CSV</button><button onclick="window.print()">Imprimir/PDF</button></div>
+      </header>
+
+      <section id="dashboard" class="page active">
+        <div class="cards">
+          <div class="card kpi"><span>Total</span><b id="kpiTotal">0</b></div>
+          <div class="card kpi"><span>Pendentes</span><b id="kpiPendentes">0</b></div>
+          <div class="card kpi"><span>Em cotação/compra</span><b id="kpiAndamento">0</b></div>
+          <div class="card kpi danger"><span>Alertas 90 dias</span><b id="kpiAlertas">0</b></div>
+        </div>
+        <div class="panel two-col">
+          <div><h3>Solicitações recentes</h3><div id="recentList" class="mini-list"></div></div>
+          <div><h3>Compras por família</h3><div id="familiaBars" class="bars"></div></div>
+        </div>
+      </section>
+
+      <section id="nova" class="page">
+        <form id="solicitacaoForm" class="panel form-grid">
+          <h3>Formulário PMC</h3>
+          <label>Solicitante<input id="solicitante" required></label>
+          <label>Setor<input id="setor" placeholder="Ex.: TI, Secretaria, Pedagogia" required></label>
+          <label>Unidade<select id="unidade" required><option>SESI</option><option>SENAI</option><option>SESI/SENAI</option></select></label>
+          <label>Entidade<select id="entidade" required><option value="">Selecione</option><option>SESI</option><option>SENAI</option></select></label>
+          <label>Centro de custo / Classe<select id="centroCusto" required></select></label>
+          <label>Finalidade da compra<select id="finalidade" required></select></label>
+          <label>Família do produto<input id="familia" list="familiasList" placeholder="Ex.: Material de Computação" required></label>
+          <datalist id="familiasList"></datalist>
+          <label>Código Protheus / Produto<input id="codigoProduto" list="produtosList" placeholder="Digite código ou descrição"></label>
+          <datalist id="produtosList"></datalist>
+          <label>Descrição do produto<textarea id="descricao" rows="3" required></textarea></label>
+          <label>Unidade de medida<input id="unMedida" placeholder="UN, CX, M, SERV"></label>
+          <label>Quantidade<input id="quantidade" type="number" step="0.01" min="0.01" required></label>
+          <label>Valor estimado total<input id="valorEstimado" type="number" step="0.01" min="0"></label>
+          <label>Urgência<select id="urgencia"><option>Normal</option><option>Alta</option><option>Baixa</option></select></label>
+          <label class="wide">Justificativa técnica<textarea id="justificativa" rows="4" required></textarea></label>
+          <label class="wide">Link de anexo/orçamento<input id="anexo" placeholder="Cole o link do Drive/OneDrive, se houver"></label>
+          <div class="wide actions"><button class="primary" type="submit">Salvar solicitação</button><button type="reset">Limpar</button></div>
+        </form>
+      </section>
+
+      <section id="solicitacoes" class="page">
+        <div class="panel filters">
+          <input id="busca" placeholder="Buscar por produto, solicitante, família...">
+          <select id="filtroStatus"><option value="">Todos os status</option></select>
+          <select id="filtroFamilia"><option value="">Todas as famílias</option></select>
+        </div>
+        <div class="panel table-wrap"><table id="solTable"><thead><tr><th>Data</th><th>Solicitante</th><th>Família</th><th>Código</th><th>Produto</th><th>Qtd</th><th>Status</th><th>Alerta</th><th>Ações</th></tr></thead><tbody></tbody></table></div>
+      </section>
+
+      <section id="referencias" class="page">
+        <div class="panel"><h3>Referências importadas da PMC</h3><p>Foram carregadas finalidades, serviços Protheus e centros/classes de valor da planilha enviada.</p><input id="refBusca" placeholder="Buscar referência"><div id="refList" class="ref-list"></div></div>
+      </section>
+
+      <section id="usuarios" class="page">
+        <form id="userForm" class="panel form-grid compact"><h3>Cadastrar usuário</h3><label>Nome<input id="uNome" required></label><label>E-mail<input id="uEmail" type="email" required></label><label>Senha inicial<input id="uSenha" required value="123456"></label><label>Perfil<select id="uPerfil"><option>solicitante</option><option>compras</option><option>gestor</option><option>admin</option></select></label><label>Setor<input id="uSetor"></label><div class="wide actions"><button class="primary">Salvar usuário</button></div></form>
+        <div class="panel table-wrap"><table id="userTable"><thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Setor</th><th>Ação</th></tr></thead><tbody></tbody></table></div>
+      </section>
+
+      <section id="config" class="page">
+        <div class="panel"><h3>Configurações da regra</h3><label>Dias mínimos por família<input id="diasRegra" type="number" value="90"></label><button id="salvarConfig" class="primary">Salvar</button><hr><button id="limparDemo" class="danger-btn">Apagar solicitações de demonstração</button></div>
+      </section>
+    </section>
+  </main>
+
+  <dialog id="detailDialog"><div id="detailContent"></div><form method="dialog"><button>Fechar</button></form></dialog>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,3459 @@
+{
+  "geradoEm": "2026-07-08",
+  "origem": "26.03.09-Modelo PMC-cr-finalid-c$-CBS_IBS.xlsx",
+  "finalidades": [
+    {
+      "codigo": "1",
+      "descricao": "LOCACAO DE IMOVEIS",
+      "conta": "31010201001",
+      "contaDescricao": "LOCAÇÃO DE IMÓVEIS"
+    },
+    {
+      "codigo": "2",
+      "descricao": "CONDOMINIO",
+      "conta": "31010202001",
+      "contaDescricao": "CONDOMÍNIO"
+    },
+    {
+      "codigo": "3",
+      "descricao": "ENERGIA ELETRICA",
+      "conta": "31010203001",
+      "contaDescricao": "ENERGIA ELÉTRICA"
+    },
+    {
+      "codigo": "4",
+      "descricao": "AGUA E SERVICO DE ESGOTO",
+      "conta": "31010204001",
+      "contaDescricao": "ÁGUA E SERVIÇO DE ESGOTO"
+    },
+    {
+      "codigo": "5",
+      "descricao": "TELEFONIA FIXA",
+      "conta": "31010206001",
+      "contaDescricao": "TELEFONIA FIXA"
+    },
+    {
+      "codigo": "6",
+      "descricao": "TELEFONIA CELULAR",
+      "conta": "31010206002",
+      "contaDescricao": "TELEFONIA CELULAR"
+    },
+    {
+      "codigo": "7",
+      "descricao": "LOCACAO DE ESPACO P/ EVENTOS",
+      "conta": "31010299001",
+      "contaDescricao": "LOCAÇÃO DE ESPAÇO P/ EVENTOS"
+    },
+    {
+      "codigo": "8",
+      "descricao": "MATERIAL DE EXPEDIENTE",
+      "conta": "31010301001",
+      "contaDescricao": "MATERIAL DE EXPEDIENTE"
+    },
+    {
+      "codigo": "9",
+      "descricao": "MATERIAL DIDATICO",
+      "conta": "31010302001",
+      "contaDescricao": "MATERIAL DIDÁTICO"
+    },
+    {
+      "codigo": "10",
+      "descricao": "MATERIAL PARA CURSOS",
+      "conta": "31010302002",
+      "contaDescricao": "MATERIAL PARA CURSOS"
+    },
+    {
+      "codigo": "11",
+      "descricao": "COMBUSTIVEIS LUBRIF. E GAS ENG",
+      "conta": "31010303001",
+      "contaDescricao": "COMBUSTÍVEIS LUBRIF. E GÁS ENGARRAFADO"
+    },
+    {
+      "codigo": "12",
+      "descricao": "MATERIAL DE COMPUTACAO",
+      "conta": "31010304001",
+      "contaDescricao": "MATERIAL DE COMPUTAÇÃO"
+    },
+    {
+      "codigo": "13",
+      "descricao": "MATERIAL P/ MANUTENCAO DE EQUIPAMENTOS INFORMATICA",
+      "conta": "31010304002",
+      "contaDescricao": "MATERIAL P/ MANUTENÇÃO DE EQUIP INFORMÁT"
+    },
+    {
+      "codigo": "14",
+      "descricao": "GENEROS ALIMENTICIOS",
+      "conta": "31010306001",
+      "contaDescricao": "GÊNEROS ALIMENTÍCIOS"
+    },
+    {
+      "codigo": "15",
+      "descricao": "VESTUARIO",
+      "conta": "31010307001",
+      "contaDescricao": "VESTUÁRIO"
+    },
+    {
+      "codigo": "16",
+      "descricao": "ROUPA DE CAMA E MESA E BANHO",
+      "conta": "31010307002",
+      "contaDescricao": "ROUPA DE CAMA ,MESA E BANHO"
+    },
+    {
+      "codigo": "17",
+      "descricao": "MATERIAL DE LIMPEZA E HIGIENE",
+      "conta": "31010308001",
+      "contaDescricao": "MATERIAL DE LIMPEZA E HIGIENE"
+    },
+    {
+      "codigo": "18",
+      "descricao": "MATERIAL MEDICO",
+      "conta": "31010309001",
+      "contaDescricao": "MATERIAL MÉDICO"
+    },
+    {
+      "codigo": "19",
+      "descricao": "MATERIAL ODONTOLOGICO",
+      "conta": "31010309002",
+      "contaDescricao": "MATERIAL ODONTOLÓGICO"
+    },
+    {
+      "codigo": "20",
+      "descricao": "MATERIAL QUIMICO E LABORATORIA",
+      "conta": "31010309004",
+      "contaDescricao": "MATERIAL QUÍMICO E LABORATORIAL"
+    },
+    {
+      "codigo": "21",
+      "descricao": "EMBALAGENS",
+      "conta": "31010310001",
+      "contaDescricao": "EMBALAGENS"
+    },
+    {
+      "codigo": "22",
+      "descricao": "MATERIAL P/ MANUTENCAO DE BENS MOVEIS",
+      "conta": "31010311002",
+      "contaDescricao": "MATERIAL P/ MANUTENÇÃO DE BENS MÓVEIS"
+    },
+    {
+      "codigo": "23",
+      "descricao": "MATERIAL P/ MANUTENCAO DE BENS IMOVEIS",
+      "conta": "31010311003",
+      "contaDescricao": "MATERIAL P/ MANUTENÇÃO DE BENS IMÓVEIS"
+    },
+    {
+      "codigo": "24",
+      "descricao": "MATERIAL P/ MANUTENCAO DE EQUIPAMENTOS",
+      "conta": "31010311004",
+      "contaDescricao": "MATERIAL P/ MANUTENÇÃO DE EQUIPAMENTOS"
+    },
+    {
+      "codigo": "25",
+      "descricao": "MATERIAL P/ MANUTENCAO DE VEICULOS",
+      "conta": "31010311005",
+      "contaDescricao": "MATERIAL P/ MANUTENÇÃO DE VEÍCULOS"
+    },
+    {
+      "codigo": "26",
+      "descricao": "MATERIAL PARA ESPORTE E LAZER",
+      "conta": "31010313001",
+      "contaDescricao": "MATERIAL PARA ESPORTE E LAZER"
+    },
+    {
+      "codigo": "27",
+      "descricao": "MATERIAL P/ COPA, COZINHA E UTENSILIOS",
+      "conta": "31010314001",
+      "contaDescricao": "MATERIAL P/ COPA, COZINHA E UTENSÍLIOS"
+    },
+    {
+      "codigo": "28",
+      "descricao": "EQUIPAMENTO DE PROTECAO INDIVIDUAL",
+      "conta": "31010315001",
+      "contaDescricao": "EQUIPAMENTO DE PROTEÇÃO INDIVIDUAL"
+    },
+    {
+      "codigo": "29",
+      "descricao": "MATERIAL P/ COQUETEL, RECEPCAO",
+      "conta": "31010399001",
+      "contaDescricao": "MATERIAL P/ COQUETEL, RECEPÇÃO E EVENTO"
+    },
+    {
+      "codigo": "30",
+      "descricao": "MATERIAL P/ ORNAMENTACAO",
+      "conta": "31010399002",
+      "contaDescricao": "MATERIAL P/ ORNAMENTAÇÃO"
+    },
+    {
+      "codigo": "31",
+      "descricao": "MATERIAI P/AUDIO, VIDEO E FOTO",
+      "conta": "31010399003",
+      "contaDescricao": "MATERIAL P/ ÁUDIO, VÍDEO E FOTOGRAFIA"
+    },
+    {
+      "codigo": "32",
+      "descricao": "LIVROS, REVISTAS E JORNAIS",
+      "conta": "31010399004",
+      "contaDescricao": "LIVROS, REVISTAS E JORNAIS"
+    },
+    {
+      "codigo": "33",
+      "descricao": "BENS DE PEQUENO VALOR",
+      "conta": "31010399005",
+      "contaDescricao": "BENS DE PEQUENO VALOR"
+    },
+    {
+      "codigo": "34",
+      "descricao": "ANIMAIS E PRODUTOS AGRO-VETERINARIOS",
+      "conta": "31010399006",
+      "contaDescricao": "ANIMAIS E PRODUTOS AGRO-VETERINÁRIOS"
+    },
+    {
+      "codigo": "35",
+      "descricao": "DIARIAS E REPRESENTACOES DE TERCEIROS",
+      "conta": "31010406001",
+      "contaDescricao": "DIÁRIAS E REPRESENTAÇÕES DE TERCEIROS"
+    },
+    {
+      "codigo": "36",
+      "descricao": "REEMBOLSO PELA UTILIZ DE VEICULO",
+      "conta": "31010408001",
+      "contaDescricao": "REEMBOLSO PELA UTILIZ DE VEÍCULO PRÓPRIO"
+    },
+    {
+      "codigo": "37",
+      "descricao": "LOCOMOCAO",
+      "conta": "31010409001",
+      "contaDescricao": "LOCOMOÇÃO"
+    },
+    {
+      "codigo": "38",
+      "descricao": "ALIMENTACAO",
+      "conta": "31010499001",
+      "contaDescricao": "ALIMENTAÇÃO EM VIAGENS"
+    },
+    {
+      "codigo": "39",
+      "descricao": "TELEFONEMAS E INTERNET",
+      "conta": "31010499002",
+      "contaDescricao": "TELEFONEMAS E INTERNET"
+    },
+    {
+      "codigo": "40",
+      "descricao": "LAVANDERIA EM VIAGENS",
+      "conta": "31010499003",
+      "contaDescricao": "LAVANDERIA EM VIAGENS"
+    },
+    {
+      "codigo": "41",
+      "descricao": "TAXA DE AGENCIAMENTO DE VIAGENS",
+      "conta": "31010499004",
+      "contaDescricao": "TAXA DE AGENCIAMENTO DE VIAGENS"
+    },
+    {
+      "codigo": "42",
+      "descricao": "BAGAGEM DESPACHADA EM TRANSPORTE",
+      "conta": "31010499005",
+      "contaDescricao": "BAGAGEM DESPACHADA EM TRANSPORTE AÉREO"
+    },
+    {
+      "codigo": "43",
+      "descricao": "PREMIOS, CONDECORACOES E BRINDES",
+      "conta": "31010501001",
+      "contaDescricao": "PRÊMIOS, CONDECORAÇÕES E BRINDES"
+    },
+    {
+      "codigo": "44",
+      "descricao": "TRADUCOES - P.J.",
+      "conta": "31010601001",
+      "contaDescricao": "TRADUÇÕES - P.J."
+    },
+    {
+      "codigo": "45",
+      "descricao": "SERVICOS DE TRADUCOES - P.F.",
+      "conta": "31010601002",
+      "contaDescricao": "SERVIÇOS E TRADUÇÕES - P.F"
+    },
+    {
+      "codigo": "46",
+      "descricao": "ASSESSORIA E CONSULTORIA - P.J",
+      "conta": "31010602001",
+      "contaDescricao": "ASSESSORIA E CONSULTORIA - P.J."
+    },
+    {
+      "codigo": "47",
+      "descricao": "SERVICOS DE ASSESSORIA E CONSULTORIA - PF",
+      "conta": "31010602002",
+      "contaDescricao": "SERVIÇOS DE ASSESSORIA E CONSULTORIA - P.F"
+    },
+    {
+      "codigo": "48",
+      "descricao": "AUDITORIA",
+      "conta": "31010603001",
+      "contaDescricao": "AUDITORIA"
+    },
+    {
+      "codigo": "49",
+      "descricao": "ALUGUEL DE EQUIPAMENTOS DE TI",
+      "conta": "31010604001",
+      "contaDescricao": "ALUGUEL DE EQUIPAMENTOS DE TI"
+    },
+    {
+      "codigo": "50",
+      "descricao": "SERVICO DE MANUTENCAO DE BANCO",
+      "conta": "31010604002",
+      "contaDescricao": "SERVIÇO DE MANUTENÇÃO DE BANCO DE DADOS"
+    },
+    {
+      "codigo": "51",
+      "descricao": "SERVICOS DE MANUT. DE CORREIO",
+      "conta": "31010604003",
+      "contaDescricao": "SERVIÇOS DE MANUT. DE CORREIO ELETRÔNICO"
+    },
+    {
+      "codigo": "52",
+      "descricao": "SERVICOS DE MANUTENCAO DE HARD",
+      "conta": "31010604004",
+      "contaDescricao": "SERVIÇOS DE MANUTENÇÃO DE HARDWARE"
+    },
+    {
+      "codigo": "53",
+      "descricao": "SERVICOS DE MANUTENCAO DE REDE",
+      "conta": "31010604005",
+      "contaDescricao": "SERVIÇOS DE MANUTENÇÃO DE REDES"
+    },
+    {
+      "codigo": "54",
+      "descricao": "SERVICOS DE MANUTENCAO DE SERVIDORES",
+      "conta": "31010604006",
+      "contaDescricao": "SERVIÇOS DE MANUTENÇÃO DE SERVIDORES"
+    },
+    {
+      "codigo": "55",
+      "descricao": "SERVICOS MANUTENCAO E DESENVOLVIMENTO SOFTWARES",
+      "conta": "31010604007",
+      "contaDescricao": "SERVIÇOS MANUTENÇÃO E DESENV.SOFTWARES"
+    },
+    {
+      "codigo": "56",
+      "descricao": "MEDICOS E LABORATORIAIS",
+      "conta": "31010605001",
+      "contaDescricao": "MÉDICOS E LABORATORIAIS"
+    },
+    {
+      "codigo": "57",
+      "descricao": "SERVICOS MEDICOS - P.F.",
+      "conta": "31010605002",
+      "contaDescricao": "SERVIÇOS MÉDICOS - P.F."
+    },
+    {
+      "codigo": "58",
+      "descricao": "ODONTOLOGICOS - P.J.",
+      "conta": "31010606001",
+      "contaDescricao": "ODONTOLÓGICOS - P.J."
+    },
+    {
+      "codigo": "59",
+      "descricao": "SERVICOS ODONTOLOGICOS - P.F.",
+      "conta": "31010606002",
+      "contaDescricao": "SERVIÇOS ODONTOLÓGICOS - P.F."
+    },
+    {
+      "codigo": "60",
+      "descricao": "PUBLICIDADE E PROPAGANDA - P.J",
+      "conta": "31010607001",
+      "contaDescricao": "PUBLICIDADE E PROPAGANDA - P.J."
+    },
+    {
+      "codigo": "61",
+      "descricao": "PUBLICIDADE E PROPAGANDA - P.F",
+      "conta": "31010607002",
+      "contaDescricao": "PUBLICIDADE E PROPAGANDA - P.F."
+    },
+    {
+      "codigo": "62",
+      "descricao": "SERVICOS DE LIMPEZA E CONSERVA CAO - PJ",
+      "conta": "31010610001",
+      "contaDescricao": "SERVIÇOS DE LIMPEZA E CONSERVAÇÃO"
+    },
+    {
+      "codigo": "63",
+      "descricao": "SERVICOS DE LIMPEZA - P.F.",
+      "conta": "31010610002",
+      "contaDescricao": "SERVIÇOS DE LIMPEZA - P.F"
+    },
+    {
+      "codigo": "64",
+      "descricao": "SERVICOS DE LAVANDERIA",
+      "conta": "31010610003",
+      "contaDescricao": "SERVIÇOS DE LAVANDERIA - P.F."
+    },
+    {
+      "codigo": "65",
+      "descricao": "MANUTENCAO E REPAROS DE BENS IMOVEIS",
+      "conta": "31010611001",
+      "contaDescricao": "MANUTENÇÃO E REPAROS DE BENS IMÓVEIS"
+    },
+    {
+      "codigo": "66",
+      "descricao": "MANUTENCAO E REPAROS DE BENS MOVEIS",
+      "conta": "31010611002",
+      "contaDescricao": "MANUTENÇÃO E REPAROS DE BENS MÓVEIS"
+    },
+    {
+      "codigo": "67",
+      "descricao": "MANUTENCAO E REPAROS DE EQUIPAMENTOS",
+      "conta": "31010611003",
+      "contaDescricao": "MANUTENÇÃO E REPAROS DE EQUIPAMENTOS"
+    },
+    {
+      "codigo": "68",
+      "descricao": "MANUTENCAO DE VEICULOS",
+      "conta": "31010611004",
+      "contaDescricao": "MANUTENÇÃO DE VEÍCULOS"
+    },
+    {
+      "codigo": "69",
+      "descricao": "SERVICOS DE PINTURA - P.F.",
+      "conta": "31010611005",
+      "contaDescricao": "SERVIÇOS DE PINTURA - P.F."
+    },
+    {
+      "codigo": "70",
+      "descricao": "SERVICOS DE PEDREIRO - P.F.",
+      "conta": "31010611006",
+      "contaDescricao": "SERVIÇOS DE PEDREIRO - P.F."
+    },
+    {
+      "codigo": "71",
+      "descricao": "SERVICOS DE MARCENEIRO - P.F.",
+      "conta": "31010611007",
+      "contaDescricao": "SERVIÇOS DE MARCENEIRO - P.F."
+    },
+    {
+      "codigo": "72",
+      "descricao": "SERVICOS DE ELETRICISTA - P.F.",
+      "conta": "31010611008",
+      "contaDescricao": "SERVIÇOS DE ELETRICISTA - P.F."
+    },
+    {
+      "codigo": "73",
+      "descricao": "SERVICOS DE JARDINAGEM - P.F.",
+      "conta": "31010611009",
+      "contaDescricao": "SERVIÇOS DE JARDINAGEM - P.F."
+    },
+    {
+      "codigo": "74",
+      "descricao": "SEGURANCA E VIGILANCIA-PJ",
+      "conta": "31010612001",
+      "contaDescricao": "SEGURANÇA E VIGILÂNCIA  - PJ"
+    },
+    {
+      "codigo": "75",
+      "descricao": "LOCACAO DE MAQUINAS E EQUIPAMENTOS",
+      "conta": "31010613001",
+      "contaDescricao": "LOCAÇÃO DE MÁQUINAS E EQUIPAMENTOS"
+    },
+    {
+      "codigo": "76",
+      "descricao": "LOCACAO DE VEICULOS E AERONAVE",
+      "conta": "31010614001",
+      "contaDescricao": "LOCAÇÃO DE VEÍCULOS E AERONAVES"
+    },
+    {
+      "codigo": "77",
+      "descricao": "ASSINATURA DE PERIODICOS E ANUIDADE",
+      "conta": "31010616001",
+      "contaDescricao": "ASSINATURA DE PERIÓDICOS E ANUIDADES"
+    },
+    {
+      "codigo": "78",
+      "descricao": "SEGURO DE VEICULOS",
+      "conta": "31010617001",
+      "contaDescricao": "SEGURO DE VEÍCULOS"
+    },
+    {
+      "codigo": "79",
+      "descricao": "SEGURO DE IMOVEIS",
+      "conta": "31010617002",
+      "contaDescricao": "SEGURO DE IMÓVEIS"
+    },
+    {
+      "codigo": "80",
+      "descricao": "OUTROS SEGUROS",
+      "conta": "31010617999",
+      "contaDescricao": "OUTROS SEGUROS"
+    },
+    {
+      "codigo": "81",
+      "descricao": "SERVICOS GRAFICOS - P.J.",
+      "conta": "31010618001",
+      "contaDescricao": "SERVIÇOS GRÁFICOS - P.J."
+    },
+    {
+      "codigo": "82",
+      "descricao": "SERVICOS DE COPIAS E REPRODUCO",
+      "conta": "31010618002",
+      "contaDescricao": "SERVIÇOS DE CÓPIAS E REPRODUÇÕES"
+    },
+    {
+      "codigo": "83",
+      "descricao": "ANUNCIOS E PUBLICACOES",
+      "conta": "31010619001",
+      "contaDescricao": "ANÚNCIOS E PUBLICAÇÕES"
+    },
+    {
+      "codigo": "84",
+      "descricao": "SERVICOS TECNICOS PROFISSIONAIS- PJ",
+      "conta": "31010620001",
+      "contaDescricao": "SERVIÇOS TÉCNICOS PROFISSIONAIS - P.J."
+    },
+    {
+      "codigo": "85",
+      "descricao": "SERVICOS TECNICOS PROFISSIONAIS - PF",
+      "conta": "31010620002",
+      "contaDescricao": "SERVIÇOS TÉCNICOS PROFISSIONAIS - P.F."
+    },
+    {
+      "codigo": "86",
+      "descricao": "SERVICOS DE MUSICOS PROFISSIONAIS -PJ",
+      "conta": "31010620004",
+      "contaDescricao": "SERVIÇOS DE MÚSICOS PROFISSIONAIS - P.J."
+    },
+    {
+      "codigo": "87",
+      "descricao": "SERVICOS DE MUSICOS PROFISSIONAIS - PF",
+      "conta": "31010620005",
+      "contaDescricao": "SERVIÇOS DE MÚSICOS PROFISSIONAIS - P.F."
+    },
+    {
+      "codigo": "88",
+      "descricao": "SERVICOS DE ESPETACULOS TEATRAIS",
+      "conta": "31010620006",
+      "contaDescricao": "SERVIÇOS DE ESPETÁCULOS TEATRAIS - P.J."
+    },
+    {
+      "codigo": "89",
+      "descricao": "SERVICOS DE MONITORIA - P.J.",
+      "conta": "31010620007",
+      "contaDescricao": "SERVIÇOS DE MONITORIA - P.J."
+    },
+    {
+      "codigo": "90",
+      "descricao": "SERVICOS ADVOCATICIOS - P.J.",
+      "conta": "31010620008",
+      "contaDescricao": "SERVIÇOS ADVOCATÍCIOS - P.J."
+    },
+    {
+      "codigo": "91",
+      "descricao": "SERVICOS DE MONITORES - P.F.",
+      "conta": "31010620018",
+      "contaDescricao": "SERVIÇOS DE MONITORES - P.F."
+    },
+    {
+      "codigo": "92",
+      "descricao": "SERVICOS DE AUDIO, VIDEO E FOT",
+      "conta": "31010620020",
+      "contaDescricao": "SERVIÇOS DE ÁUDIO, VÍDEO E FOTOGRAFIA"
+    },
+    {
+      "codigo": "93",
+      "descricao": "SERVICOS FOTOGRAFICOS - P.F.",
+      "conta": "31010620021",
+      "contaDescricao": "SERVIÇOS FOTOGRÁFICOS - P.F."
+    },
+    {
+      "codigo": "94",
+      "descricao": "FRETE E TRANSPORTE DE ENCOMENDAS",
+      "conta": "31010621001",
+      "contaDescricao": "FRETE E TRANSPORTE DE ENCOMENDAS"
+    },
+    {
+      "codigo": "95",
+      "descricao": "SERVICOS POSTAIS",
+      "conta": "31010621002",
+      "contaDescricao": "SERVIÇOS POSTAIS"
+    },
+    {
+      "codigo": "96",
+      "descricao": "CARGA E GUARDA DE BENS OU VALORES",
+      "conta": "31010621003",
+      "contaDescricao": "CARGA E GUARDA DE BENS"
+    },
+    {
+      "codigo": "97",
+      "descricao": "COLETA DE DOCUMENTOS, BENS OU VALORES",
+      "conta": "31010621004",
+      "contaDescricao": "COLETA DE DOCUMENTOS, BENS OU VALORES"
+    },
+    {
+      "codigo": "98",
+      "descricao": "TRANSPORTE INTERMUNICIPAL",
+      "conta": "31010621005",
+      "contaDescricao": "TRANSPORTE INTERMUNICIPAL / INTERESTADUAL"
+    },
+    {
+      "codigo": "99",
+      "descricao": "TRANSPORTES URBANOS",
+      "conta": "31010624001",
+      "contaDescricao": "TRANSPORTES URBANOS"
+    },
+    {
+      "codigo": "100",
+      "descricao": "SERVICOS DE ALIMENTACAO",
+      "conta": "31010626001",
+      "contaDescricao": "SERVIÇO DE ALIMENTAÇÃO"
+    },
+    {
+      "codigo": "101",
+      "descricao": "CURSOS E TREINAMENTOS",
+      "conta": "31010627001",
+      "contaDescricao": "CURSOS E TREINAMENTOS"
+    },
+    {
+      "codigo": "102",
+      "descricao": "DIREITO DE AQUISICAO AO USO DE  SOFTWARE",
+      "conta": "31010628001",
+      "contaDescricao": "DIREITO DE AQUISIÇÃO AO USO DE SOFTWARE"
+    },
+    {
+      "codigo": "103",
+      "descricao": "SERVICO DE APOIO ADMINISTRATIVO - PJ",
+      "conta": "31010699001",
+      "contaDescricao": "SERVIÇO DE APOIO ADMINISTRATIVO - P.J."
+    },
+    {
+      "codigo": "104",
+      "descricao": "SERVICO DE APOIO ADMINISTRATIVO - PF",
+      "conta": "31010699002",
+      "contaDescricao": "SERVIÇO DE APOIO ADMINISTRATIVO - P.F."
+    },
+    {
+      "codigo": "105",
+      "descricao": "CONFECCAO DE UNIFORMES E BANDEIRAS",
+      "conta": "31010699004",
+      "contaDescricao": "CONFECÇÃO DE UNIFORMES E BANDEIRAS"
+    },
+    {
+      "codigo": "106",
+      "descricao": "OBRIGACOES PATRONAIS S/ SERVICICOS - PJ",
+      "conta": "31010699005",
+      "contaDescricao": "OBRIGAÇÕES PATRONAIS S/ SERVIÇOS - P.J"
+    },
+    {
+      "codigo": "107",
+      "descricao": "LAVANDERIA",
+      "conta": "31010699006",
+      "contaDescricao": "LAVANDERIA"
+    },
+    {
+      "codigo": "108",
+      "descricao": "SERVICOS DE PESSOAL REQUISITADO",
+      "conta": "31010699008",
+      "contaDescricao": "SERVIÇOS DE PESSOAL REQUISITADO"
+    },
+    {
+      "codigo": "109",
+      "descricao": "SERVICOS DE TRANSPORTES POR COOPERATIVA",
+      "conta": "31010699009",
+      "contaDescricao": "SERVIÇOS DE TRANSPORTES POR COOPERATIVAS"
+    },
+    {
+      "codigo": "110",
+      "descricao": "SERVICOS DE FRETE - P.F.",
+      "conta": "31010699010",
+      "contaDescricao": "SERVIÇOS DE FRETE - P.F."
+    },
+    {
+      "codigo": "111",
+      "descricao": "SERVICOS DE TAXI - P.F",
+      "conta": "31010699011",
+      "contaDescricao": "SERVIÇOS DE TÁXI - P.F"
+    },
+    {
+      "codigo": "112",
+      "descricao": "LOCUTORES - P.F.",
+      "conta": "31010699012",
+      "contaDescricao": "LOCUTORES - P.F."
+    },
+    {
+      "codigo": "113",
+      "descricao": "LOCACAO DE MATERIAIS P/ EVENTO",
+      "conta": "31010699013",
+      "contaDescricao": "LOCAÇÃO DE MATERIAIS P/ EVENTOS"
+    },
+    {
+      "codigo": "114",
+      "descricao": "DESPESAS COM IMPORTACAO",
+      "conta": "31010699014",
+      "contaDescricao": "DESPESAS COM IMPORTAÇÃO"
+    },
+    {
+      "codigo": "115",
+      "descricao": "ORGANIZACAO E MANUTENCAO EM EVENTOS",
+      "conta": "31010699015",
+      "contaDescricao": "ORGANIZAÇÃO E MANUTENÇÃO EM EVENTOS"
+    },
+    {
+      "codigo": "116",
+      "descricao": "TARIFAS DE ADMINISTRACAO DE CARTAO",
+      "conta": "31010899001",
+      "contaDescricao": "TARIFAS DE ADMINISTRAÇÃO DE CARTÃO"
+    },
+    {
+      "codigo": "117",
+      "descricao": "IMPOSTOS ESTADUAIS",
+      "conta": "31010902001",
+      "contaDescricao": "IMPOSTOS ESTADUAIS"
+    },
+    {
+      "codigo": "118",
+      "descricao": "IMPOSTOS MUNICIPAIS",
+      "conta": "31010903001",
+      "contaDescricao": "IMPOSTOS MUNICIPAIS"
+    },
+    {
+      "codigo": "119",
+      "descricao": "TAXAS",
+      "conta": "31010904001",
+      "contaDescricao": "TAXAS"
+    },
+    {
+      "codigo": "120",
+      "descricao": "TAXA RECRUT. E SELECAO DE ESTAGIARIOS",
+      "conta": "31010904002",
+      "contaDescricao": "TAXA RECRUTAMENTO E SELEÇÃO DE ESTAGIÁRIOS"
+    },
+    {
+      "codigo": "121",
+      "descricao": "CONTRIBUICOES PARA COFINS",
+      "conta": "31010905001",
+      "contaDescricao": "CONTRIBUIÇÕES P/ COFINS"
+    },
+    {
+      "codigo": "122",
+      "descricao": "OUTRAS CONTRIBUICOES",
+      "conta": "31010999001",
+      "contaDescricao": "OUTRAS CONTRIBUIÇÕES"
+    },
+    {
+      "codigo": "123",
+      "descricao": "DESPESAS JUDICIAIS CARTORIAIS",
+      "conta": "31011002001",
+      "contaDescricao": "DESPESAS JUDICIAIS CARTORIAIS E EDITAIS"
+    },
+    {
+      "codigo": "124",
+      "descricao": "INDENIZACOES A TERCEIROS",
+      "conta": "31011002002",
+      "contaDescricao": "INDENIZAÇÕES A TERCEIROS"
+    },
+    {
+      "codigo": "125",
+      "descricao": "DESPESAS COM MULTAS DE TRANSITO",
+      "conta": "31011003001",
+      "contaDescricao": "DESPESAS COM MULTAS DE TRÂNSITO"
+    },
+    {
+      "codigo": "126",
+      "descricao": "ESTACIONAMENTO E PEDAGIO",
+      "conta": "31011007001",
+      "contaDescricao": "ESTACIONAMENTO E PEDÁGIO"
+    },
+    {
+      "codigo": "127",
+      "descricao": "CONVENIOS (DESPESA)",
+      "conta": "31020399001",
+      "contaDescricao": "DESPESAS DE CONVÊNIOS"
+    },
+    {
+      "codigo": "128",
+      "descricao": "AUXILIO A TERCEIROS",
+      "conta": "31020501001",
+      "contaDescricao": "AUXÍLIOS A TERCEIROS"
+    },
+    {
+      "codigo": "129",
+      "descricao": "AUXILIOS E PREMIACOES A COMPETICOES",
+      "conta": "31020501002",
+      "contaDescricao": "AUXÍLIOS E PREMIAÇÕES A COMPETIDORES"
+    },
+    {
+      "codigo": "130",
+      "descricao": "TORNEIOS DE FORMACAO PROFISSIONAL",
+      "conta": "31020501004",
+      "contaDescricao": "TORNEIO DE FORMAÇÃO PROFISSIONAL"
+    },
+    {
+      "codigo": "131",
+      "descricao": "BOLSAS DE ESTUDO - UNIDADES PARCEIRIZADA",
+      "conta": "31020501005",
+      "contaDescricao": "BOLSAS DE ESTUDO - UNIDADES PARCEIRIZADA"
+    },
+    {
+      "codigo": "132",
+      "descricao": "AUXILIO A ESTUDANTES",
+      "conta": "31020501006",
+      "contaDescricao": "AUXÍLIO A ESTUDANTES"
+    },
+    {
+      "codigo": "133",
+      "descricao": "ACOES",
+      "conta": "32010101001",
+      "contaDescricao": "AÇÕES"
+    },
+    {
+      "codigo": "134",
+      "descricao": "TERRENOS",
+      "conta": "32010102001",
+      "contaDescricao": "TERRENO"
+    },
+    {
+      "codigo": "135",
+      "descricao": "IMOVEIS",
+      "conta": "32010102002",
+      "contaDescricao": "IMÓVEIS"
+    },
+    {
+      "codigo": "136",
+      "descricao": "CONSTRUCOES EM ANDAMENTO",
+      "conta": "32010102003",
+      "contaDescricao": "CONSTRUÇÕES EM ANDAMENTO"
+    },
+    {
+      "codigo": "137",
+      "descricao": "MOBILIARIOS EM GERAL",
+      "conta": "32010103001",
+      "contaDescricao": "MOBILIÁRIOS EM GERAL"
+    },
+    {
+      "codigo": "138",
+      "descricao": "INSTRUMENTOS MUSICAIS",
+      "conta": "32010103004",
+      "contaDescricao": "INSTRUMENTOS MUSICAIS"
+    },
+    {
+      "codigo": "139",
+      "descricao": "VEICULOS",
+      "conta": "32010103005",
+      "contaDescricao": "VEÍCULOS"
+    },
+    {
+      "codigo": "140",
+      "descricao": "MAQUINAS E EQUIPAMENTOS EM GERAL",
+      "conta": "32010103006",
+      "contaDescricao": "MÁQUINAS E EQUIPAMENTOS EM GERAL"
+    },
+    {
+      "codigo": "141",
+      "descricao": "EQUIPAMENTOS DE SAUDE",
+      "conta": "32010103007",
+      "contaDescricao": "EQUIPAMENTOS DE SAÚDE"
+    },
+    {
+      "codigo": "142",
+      "descricao": "EQUIPAMENTOS DE INFORMATICA",
+      "conta": "32010103008",
+      "contaDescricao": "EQUIPAMENTOS DE INFORMÁTICA"
+    },
+    {
+      "codigo": "143",
+      "descricao": "EQUIPAMENTOS DE LAZER",
+      "conta": "32010103009",
+      "contaDescricao": "EQUIPAMENTOS DE LAZER"
+    },
+    {
+      "codigo": "144",
+      "descricao": "EQUIPAMENTOS DE COMUNICACAO",
+      "conta": "32010103010",
+      "contaDescricao": "EQUIPAMENTOS DE COMUNICAÇÃO"
+    },
+    {
+      "codigo": "145",
+      "descricao": "OUTROS EQUIPAMENTOS E MAT PERMANENTE",
+      "conta": "32010103999",
+      "contaDescricao": "OUTROS EQUIPAMENTOS E MAT PERMANENTES"
+    },
+    {
+      "codigo": "146",
+      "descricao": "GENEROS PARA INDUSTRIALIZACAO",
+      "conta": "32010202001",
+      "contaDescricao": "GÊNEROS PARA INDUSTRIALIZAÇÃO"
+    },
+    {
+      "codigo": "147",
+      "descricao": "CUSTO DA MERCADORIA VENDIDA",
+      "conta": "32010202003",
+      "contaDescricao": "CUSTO DE MERCADORIA VENDIDA"
+    },
+    {
+      "codigo": "148",
+      "descricao": "CUSTO DE MATERIAL DE USO E CONSUMO",
+      "conta": "32010202004",
+      "contaDescricao": "CUSTO DE MATERIAL DE USO E CONSUMO"
+    },
+    {
+      "codigo": "149",
+      "descricao": "VALE TRANSPORTE",
+      "conta": "31010102010",
+      "contaDescricao": "VALE TRANSPORTE"
+    },
+    {
+      "codigo": "150",
+      "descricao": "VALE REFEICAO/ALIMENTACAO",
+      "conta": "31010103001",
+      "contaDescricao": "VALE REFEIÇÃO/ALIMENTAÇÃO"
+    },
+    {
+      "codigo": "151",
+      "descricao": "PLANO DE ASSISTENCIA MEDICA",
+      "conta": "31010103002",
+      "contaDescricao": "PLANO DE ASSISTÊNCIA MÉDICA"
+    },
+    {
+      "codigo": "153",
+      "descricao": "SEGURO DE VIDA EM GRUPO",
+      "conta": "31010103005",
+      "contaDescricao": "SEGURO DE VIDA EM GRUPO"
+    },
+    {
+      "codigo": "154",
+      "descricao": "AUXILIO CRECHE",
+      "conta": "31010103007",
+      "contaDescricao": "AUXÍLIO CRECHE"
+    },
+    {
+      "codigo": "155",
+      "descricao": "BENEFICIOS E AUXILIOS A EMPREGADOS",
+      "conta": "31010103999",
+      "contaDescricao": "BENEFÍCIOS E AUXÍLIOS A EMPREGADOS"
+    },
+    {
+      "codigo": "156",
+      "descricao": "HOSPEDAGENS",
+      "conta": "31010403001",
+      "contaDescricao": "HOSPEDAGENS"
+    },
+    {
+      "codigo": "157",
+      "descricao": "AUXILIOS ESPECIAIS E DONATIVOS",
+      "conta": "31020201003",
+      "contaDescricao": "AUXÍLIOS ESPECIAIS E DONATIVOS"
+    },
+    {
+      "codigo": "158",
+      "descricao": "PASSAGENS NACIONAIS",
+      "conta": "31010401001",
+      "contaDescricao": "PASSAGENS NACIONAIS"
+    },
+    {
+      "codigo": "159",
+      "descricao": "PASSAGENS INTERNACIONAIS",
+      "conta": "31010402001",
+      "contaDescricao": "PASSAGENS INTERNACIONAIS"
+    },
+    {
+      "codigo": "160",
+      "descricao": "DIARIAS VIAGENS NO PAIS",
+      "conta": "31010404001",
+      "contaDescricao": "DIÁRIAS E VIAGENS NO PAÍS"
+    },
+    {
+      "codigo": "161",
+      "descricao": "DIARIAS VIAGENS INTERNACIONAL",
+      "conta": "31010405001",
+      "contaDescricao": "DIÁRIAS E VIAGENS NO EXTERIOR"
+    },
+    {
+      "codigo": "168",
+      "descricao": "SERV PORTARIA, RECEPCAO, ASCENSORISTA PJ",
+      "conta": "31010612002",
+      "contaDescricao": "SERV PORTARIA, RECEPCAO, ASCENSORISTA - PJ"
+    },
+    {
+      "codigo": "169",
+      "descricao": "AUXILIOS A BOLSISTAS E ESTAGIARIOS",
+      "conta": "31010105002",
+      "contaDescricao": "AUXÍLIOS A BOLSISTAS E ESTAGIÁRIOS"
+    }
+  ],
+  "servicosProtheus": [
+    {
+      "codigo": "882754",
+      "descricao": "SERV ANALISE DESENVOLVIMENTO SOFTWARE",
+      "tipo": "Informática e Tecnologia",
+      "uso": "Serviços de informática voltados para análise e desenvolvimento de sistemas/software",
+      "codIss": "01.01"
+    },
+    {
+      "codigo": "871790",
+      "descricao": "SERV PROCESSAMENTO, HOSPEDAGEM DADOS",
+      "tipo": "Informática e Tecnologia",
+      "uso": "Serviços de informática voltados para:\nProcessamento, armazenamento ou hospedagem de dados, textos, imagens, vídeos, páginas eletrônicas, aplicativos e sistemas de informação, entre outros formatos e serviços de data center",
+      "codIss": "01.03"
+    },
+    {
+      "codigo": "882748",
+      "descricao": "SERV ELABORACAO PROGRAMAS COMPUTADOR",
+      "tipo": "Informática e Tecnologia",
+      "uso": "Serviços de Informática voltados para elaboração de programas de computadores, inclusive de jogos eletrônicos, independentemente da arquitetura construtiva da máquina em que o programa será executado, incluindo tablets, smartphones e congêneres",
+      "codIss": "01.04"
+    },
+    {
+      "codigo": "934237",
+      "descricao": "SERV AQUISICAO, USO SOFTWARE ENCOMENDA",
+      "tipo": "Informática e Tecnologia",
+      "uso": "Serviços de licenciamento ou cessão de direito de uso de programas de computação por encomenda.Ou seja, software desenvolvida especialmente para a empresa contratante.",
+      "codIss": "01.05"
+    },
+    {
+      "codigo": "98362",
+      "descricao": "SERV AQUISICAO, USO SOFTWARE PRATELEIRA",
+      "tipo": "Informática e Tecnologia",
+      "uso": "Serviços de licenciamento ou cessão de direito de uso de programas de computação de prateleira,ou seja, software que atende o mercado.",
+      "codIss": "01.05"
+    },
+    {
+      "codigo": "841979",
+      "descricao": "MICROSOFT - COMPRA EXCLUSIVA SUPRIMENTOS",
+      "tipo": "Informática e Tecnologia",
+      "uso": "Serviço Exclusivo do Suprimentos",
+      "codIss": "01.05"
+    },
+    {
+      "codigo": "915870",
+      "descricao": "SERV ASSESSORIA, CONSULTORIA INFORMATICA",
+      "tipo": "Informática e Tecnologia",
+      "uso": "Serviços de assessoria e consultoria específicas em informática",
+      "codIss": "01.06"
+    },
+    {
+      "codigo": "900986",
+      "descricao": "SERV SUPORTE TECNICO INFORMATICA",
+      "tipo": "Informática e Tecnologia",
+      "uso": "Serviços de suporte técnico em informática, inclusive instalação, configuração e manutenção de programas de computação e bancos de dados",
+      "codIss": "01.07"
+    },
+    {
+      "codigo": "915505",
+      "descricao": "SERV PLANEJAMENTO, MANUT PAG ELETRONICAS",
+      "tipo": "Informática e Tecnologia",
+      "uso": "Serviço de planejamento, confecção, manutenção e atualização de páginas eletrônicas, Web Design",
+      "codIss": "01.08"
+    },
+    {
+      "codigo": "98408",
+      "descricao": "ASSINATURA DE PERIODICOS E ANUIDADES- PJ",
+      "tipo": "Informática e Tecnologia",
+      "uso": "Serviços de assinaturas de períódicos digitais",
+      "codIss": "01.09"
+    },
+    {
+      "codigo": "906786",
+      "descricao": "SERV DISPONIBILIZACAO CONTEUDO INTERNET",
+      "tipo": "Informática e Tecnologia",
+      "uso": "Serviço de disponibilização, sem cessão definitiva, de conteúdos de áudio, vídeo, imagem e texto por meio da internet, respeitada a imunidade de livros, jornais e periódicos",
+      "codIss": "01.09"
+    },
+    {
+      "codigo": "913075",
+      "descricao": "SERV DE PESQUISA E DESENVOLVIMENTO",
+      "tipo": "Serviços Técnicos Profissionais",
+      "uso": "Serviços de pesquisas e desenvolvimento de qualquer natureza, experimental em ciências físicas e naturais ou para aplicação industrial",
+      "codIss": "02.01"
+    },
+    {
+      "codigo": "875685",
+      "descricao": "SERV CESSAO DIREITO DE USO MARCAS",
+      "tipo": "Cessão de Espaço e Uso",
+      "uso": "Serviços de cessão de direito de uso de marcas, de sinais de propaganda e de uso de som e imagem",
+      "codIss": "03.02"
+    },
+    {
+      "codigo": "98316",
+      "descricao": "SERV EXPLORACAO ESPACOS PARA EVENTOS",
+      "tipo": "Cessão de Espaço e Uso",
+      "uso": "Serviços de exploração de salões de festas, centro de convenções, escritórios virtuais, stands, quadras esportivas, estádios, ginásios, auditórios, casas de espetáculos, parques de diversões, canchas e congêneres, para realização de eventos ou negócios de qualquer natureza. São espaços específicos para as atividades, não se confundindo com aluguel",
+      "codIss": "03.03"
+    },
+    {
+      "codigo": "98346",
+      "descricao": "SERV CESSAO DE ANDAIMES, PALCOS,COBERTU",
+      "tipo": "Cessão de Espaço e Uso",
+      "uso": "Serviços de cessão de andaimes, palcos, coberturas, tendas e outras estruturas de uso temporário",
+      "codIss": "03.05"
+    },
+    {
+      "codigo": "934244",
+      "descricao": "SERV BIOMEDICINA",
+      "tipo": "Serviços de Saúde",
+      "uso": "Contratação de servicos de biomedicina",
+      "codIss": "04.01"
+    },
+    {
+      "codigo": "914924",
+      "descricao": "SERV DE MEDICINA",
+      "tipo": "Serviços de Saúde",
+      "uso": "* Serviços de Medicina - Atendimento em clínicas;\n* Atividade médica ambulatorial com recursos para realização de procedimentos cirúrgicos;\n* Atividade médica ambulatorial restrita a consultas;\n* Atividades de profissionais da área de saúde",
+      "codIss": "04.01"
+    },
+    {
+      "codigo": "872178",
+      "descricao": "SERV ANALISES CLINICAS, PATALOGIA",
+      "tipo": "Serviços de Saúde",
+      "uso": "Serviços de análises clínicas, patologia, eletricidade médica, radioterapia, quimioterapia, ultra-sonografia, ressonância magnética, radiologia, tomografia e congêneres",
+      "codIss": "04.02"
+    },
+    {
+      "codigo": "98161",
+      "descricao": "SERV MEDICOS E LABORATORIAIS",
+      "tipo": "Serviços de Saúde",
+      "uso": "* Serviços de Hospitais, clínicas, laboratórios, sanatórios, manicômios, casas de saúde, prontos-socorros, ambulatórios e congêneres;\n* Atividades de atendimento em pronto-socorro e unidades hospitalares para atendimento a urgências;\n* Serviços de vacinação e imunização humana;\n* Atividades médica ambulatorial com recursos para realização de exames complementares;\n* Atividades de assistencia a deficientes físicos, imunodeprimidos e convalescentes",
+      "codIss": "04.03"
+    },
+    {
+      "codigo": "934263",
+      "descricao": "SERV MEDICOS EXCLUSIVO COOPERATIVAS",
+      "tipo": "Serviços de Saúde",
+      "uso": "Serviços de saúde prestados por cooperativas, pagos a cooperativas de trabalho relativas a serviços pessoais que lhes forem prestados por associados/cooperados pessoas física.",
+      "codIss": "04.03"
+    },
+    {
+      "codigo": "923096",
+      "descricao": "SERV FARMACEUTICOS",
+      "tipo": "Serviços de Saúde",
+      "uso": "Serviços farmacêuticos, manipulação de fórmulas",
+      "codIss": "04.07"
+    },
+    {
+      "codigo": "935634",
+      "descricao": "SERVICOS DE ACUPUNTURA",
+      "tipo": "Serviços de Saúde",
+      "uso": "Utilizar quando realizar a contratação de serviços de cupuntura.",
+      "codIss": "04.05"
+    },
+    {
+      "codigo": "934250",
+      "descricao": "SERV TERAPIA OCUPACIONAL",
+      "tipo": "Serviços de Saúde",
+      "uso": "Serviços de Terapia ocupacional",
+      "codIss": "04.08"
+    },
+    {
+      "codigo": "934252",
+      "descricao": "SERV FISIOTERAPIA",
+      "tipo": "Serviços de Saúde",
+      "uso": "Serviços de fisioterapia",
+      "codIss": "04.08"
+    },
+    {
+      "codigo": "914743",
+      "descricao": "SERV FONAUDIOLOGIA",
+      "tipo": "Serviços de Saúde",
+      "uso": "Serviços de fonoaudiologia",
+      "codIss": "04.08"
+    },
+    {
+      "codigo": "909103",
+      "descricao": "SERV TERAPIAS DE QUALQUER ESPECIE",
+      "tipo": "Serviços de Saúde",
+      "uso": "Serviços de terapias de qualquer espécie destinadas ao tratamento físico, orgânico e mental, terapia de nutrição enteral e parenteral.",
+      "codIss": "04.09"
+    },
+    {
+      "codigo": "929563",
+      "descricao": "SERVICOS DE NUTRICAO",
+      "tipo": "Serviços de Saúde",
+      "uso": "Serviços Nutrição",
+      "codIss": "04.10"
+    },
+    {
+      "codigo": "98163",
+      "descricao": "SERV ODONTOLOGICOS",
+      "tipo": "Serviços de Saúde",
+      "uso": "Serviços odontológicos",
+      "codIss": "04.12"
+    },
+    {
+      "codigo": "914828",
+      "descricao": "SERV DE PSICOLOGIA - PJ",
+      "tipo": "Serviços de Saúde",
+      "uso": "Serviços de psicologia",
+      "codIss": "04.16"
+    },
+    {
+      "codigo": "880945",
+      "descricao": "SERV AMBULANCIA, TRATAMENTO MOVEL",
+      "tipo": "Serviços de Saúde",
+      "uso": "* Serviços de unidade de atendimento, assistência ou tratamento móvel e congêneres;\n* Apoio e assistência a paciente no domicílio;\n* Home care;\n* UTI móvel, ambulância e remoção, por via aérea ou terrestre para atendimento;",
+      "codIss": "04.21"
+    },
+    {
+      "codigo": "98135",
+      "descricao": "SERV PLANO SAUDE",
+      "tipo": "Serviços de Saúde",
+      "uso": "Serviços de planos de medicina de grupo ou individual e convênios para prestação de assistência médica, hospitalar, odontológica e congêneres",
+      "codIss": "04.22"
+    },
+    {
+      "codigo": "934258",
+      "descricao": "SERV PLANO SAUDE EXCLUSIVO COOPERATIVAS",
+      "tipo": "Serviços de Saúde",
+      "uso": "Serviços de planos de medicina de grupo ou individual e convênios, pagos a cooperativas de trabalho relativas a serviços pessoais que lhes forem prestados por associados/cooperados pessoas física.",
+      "codIss": "04.22"
+    },
+    {
+      "codigo": "915966",
+      "descricao": "SERV PLANOS SAUDE POR TERCEIROS",
+      "tipo": "Serviços de Saúde",
+      "uso": "Serviços de planos de saúde que se cumpram através de serviços de terceiros contratados, credenciados, cooperados ou apenas pagos pelo operador do plano mediante indicação do beneficiário;\nServiços de sociedade seguradora de seguros de saúde",
+      "codIss": "04.23"
+    },
+    {
+      "codigo": "935670",
+      "descricao": "SERV PLANOS SAUDE ODONTOINDUSTRIA",
+      "tipo": "Serviços de Saúde",
+      "uso": "Utilização exclusiva para a prestação de serviços de planos de saude da Odontoindustria",
+      "codIss": "04.23"
+    },
+    {
+      "codigo": "918428",
+      "descricao": "SERV VETERINARIOS AMESTRAMENTO, EMBELEZ",
+      "tipo": "Serviços de Veterinária",
+      "uso": "Serviços de veterinária referentes a guarda, tratamento, adestramento, embelezamento e alojamento",
+      "codIss": "05.08"
+    },
+    {
+      "codigo": "929956",
+      "descricao": "SERV. DE BARBEARIA, CABELEIR. MANICUROS",
+      "tipo": "Cuidados Pessoais, Estéticos e Físicos",
+      "uso": "Serviço de barbearia, cabeleireiros, manicuros, pedicuros e congêneres",
+      "codIss": "06.01"
+    },
+    {
+      "codigo": "921799",
+      "descricao": "SERV ESTETICISTAS, TRATAMENTO PELE",
+      "tipo": "Cuidados Pessoais, Estéticos e Físicos",
+      "uso": "Serviços de esteticistas, tratamento de pele, depilação e\ncongêneres",
+      "codIss": "06.02"
+    },
+    {
+      "codigo": "915212",
+      "descricao": "SERV GINASTICA, DANCA, ESPORTES, NATACAO",
+      "tipo": "Cuidados Pessoais, Estéticos e Físicos",
+      "uso": "Serviços de ginástica, dança, esportes, natação, artes marciais, yoga e demais atividades de condicionamento físico",
+      "codIss": "06.04"
+    },
+    {
+      "codigo": "869117",
+      "descricao": "SERV DE ARQUITETURA",
+      "tipo": "Engenharia, Obras, Agronomia, Agrimensura, Arquitetura, Geologia, Urbanismo e Paisagismo",
+      "uso": "Serviço de Arquitetura, exceto execução material de obra",
+      "codIss": "07.01"
+    },
+    {
+      "codigo": "906613",
+      "descricao": "SERV ENGENHARIA, AGRONOMIA, AGRIMENSURA",
+      "tipo": "Engenharia, Obras, Agronomia, Agrimensura, Arquitetura, Geologia, Urbanismo e Paisagismo",
+      "uso": "Serviço de Engenharia, agronomia, agrimensura, geologia, urbanismo, paisagismo e congêneres, exceto execução material de obra",
+      "codIss": "07.01"
+    },
+    {
+      "codigo": "98419",
+      "descricao": "SERV CONSTRUCOES EM ANDAMENTO",
+      "tipo": "Engenharia, Obras, Agronomia, Agrimensura, Arquitetura, Geologia, Urbanismo e Paisagismo",
+      "uso": "Serviços de execução, por administração, empreitada ou subempreitada, de obras de construção civil, hidráulica ou elétrica e de outras obras semelhantes, inclusive sondagem, perfuração de poços, escavação, drenagem e irrigação, terraplanagem, pavimentação, concretagem e a instalação e montagem de produtos, peças e equipamentos. Todo serviço voltado para execução de obra de construção civil.",
+      "codIss": "07.02"
+    },
+    {
+      "codigo": "910692",
+      "descricao": "SERV OBRA - HIDRAULICA, ELETRICA, INSTAL",
+      "tipo": "Engenharia, Obras, Agronomia, Agrimensura, Arquitetura, Geologia, Urbanismo e Paisagismo",
+      "uso": "Pode ser utilizado para serviços que se enquadram como de construção civil, voltados para obras. Executados por administração, empreitada ou subempreitada:\n* Serviço de manutenção de redes de distribuição de energia elétrica;\n* Serviço de manutenção de estações e redes de telecomunicações; \n* Serviço de irrigação;\n* Serviço de montagem industrial;\n* Serviço de preparação e limpeza de canteiro de obra;\n* Serviço de perfurações e sondagem;\n* Serviço de Terraplanagem;\n* Serviço de instalação e manutenção elétrica;\n* Serviço de instalação hidraúlica, sanitária e de gás;\n* Serviço de instalação e manutenção de sistema de ar condicionado e refrigeração, incorporados à obra;\n* Serviço de instalação de sistema de prevenção contra incêndios, incorporados à obra;\n* Serviço de instalação, manutenção e reparos da estrutura de elevadores incorporados a construção;\n* Serviço de impermeabilização de obras;\n* Serviço de pintura de edifícios;\n* Serviços de acabamento de construção.",
+      "codIss": "07.02"
+    },
+    {
+      "codigo": "871153",
+      "descricao": "SERV ELABORACAO DE PROJETOS",
+      "tipo": "Engenharia, Obras, Agronomia, Agrimensura, Arquitetura, Geologia, Urbanismo e Paisagismo",
+      "uso": "* Serviço de elaboração de planos diretores, estudos de viabilidade, estudos organizacionais e outros, relacionados com obras e serviços de engenharia; \n* Elaboração de anteprojetos, projetos básicos e projetos executivos para trabalhos de engenharia.",
+      "codIss": "07.03"
+    },
+    {
+      "codigo": "98273",
+      "descricao": "SERV REPARO E REFORMA DE IMOVEIS",
+      "tipo": "Engenharia, Obras, Agronomia, Agrimensura, Arquitetura, Geologia, Urbanismo e Paisagismo",
+      "uso": "Serviço de reparação, conservação e reforma de edifícios, estradas, pontes e congêneres",
+      "codIss": "07.05"
+    },
+    {
+      "codigo": "924179",
+      "descricao": "SERV DE PINTURA",
+      "tipo": "Engenharia, Obras, Agronomia, Agrimensura, Arquitetura, Geologia, Urbanismo e Paisagismo",
+      "uso": "Serviço de Pintura em Imóveis",
+      "codIss": "07.05"
+    },
+    {
+      "codigo": "910764",
+      "descricao": "SERV INSTALACAO TAPETES, DIVISORIAS, VIDROS",
+      "tipo": "Engenharia, Obras, Agronomia, Agrimensura, Arquitetura, Geologia, Urbanismo e Paisagismo",
+      "uso": "Serviços de colocação e instalação de tapetes, carpetes, assoalhos, cortinas, revestimentos de parede, vidros, divisórias, placas de gesso, com material fornecido pelo tomador do serviço",
+      "codIss": "07.06"
+    },
+    {
+      "codigo": "928582",
+      "descricao": "SERV RECUPERACAO, RASPAGEM, POLIM PISOS",
+      "tipo": "Engenharia, Obras, Agronomia, Agrimensura, Arquitetura, Geologia, Urbanismo e Paisagismo",
+      "uso": "Recuperação, raspagem, polimento e lustração de pisos e congêneres",
+      "codIss": "07.07"
+    },
+    {
+      "codigo": "105596",
+      "descricao": "SERV COLETA, RECICLAGEM DE LIXO OU RESIDUO",
+      "tipo": "Limpeza",
+      "uso": "Serviços de varrição, coleta, remoção, incineração, tratamento, reciclagem, separação e destinação final de lixo, rejeitos e outros resíduos quaisquer",
+      "codIss": "07.09"
+    },
+    {
+      "codigo": "98295",
+      "descricao": "SERV DE LIMPEZA E CONSERVACAO",
+      "tipo": "Limpeza",
+      "uso": "Serviços de Limpeza, manutenção e conservação de vias e logradouros públicos, imóveis, chaminés, piscinas, parques, jardins e congêneres",
+      "codIss": "07.10"
+    },
+    {
+      "codigo": "907142",
+      "descricao": "SERV DECORACAO E JARDINAGEM, CORTE, PODA",
+      "tipo": "Engenharia, Obras, Agronomia, Agrimensura, Arquitetura, Geologia, Urbanismo e Paisagismo",
+      "uso": "Serviços de decoração e jardinagem, inclusive corte e poda de árvores",
+      "codIss": "07.11"
+    },
+    {
+      "codigo": "923895",
+      "descricao": "SERV TRATAMENTO EFLUENTES",
+      "tipo": "Limpeza",
+      "uso": "Serviços de controle e tratamento de efluentes de qualquer natureza e de agentes físicos, químicos e biológicos",
+      "codIss": "07.12"
+    },
+    {
+      "codigo": "914672",
+      "descricao": "SERV DE DEDETIZACAO, DESINFECCAO",
+      "tipo": "Limpeza",
+      "uso": "Serviços de dedetização, desinfecção, desinsetização, imunização, higienização, desratização, pulverização e controle de pragas",
+      "codIss": "07.13"
+    },
+    {
+      "codigo": "933284",
+      "descricao": "SERV DE FLORESTAMENTO E REFLORESTAMENTO",
+      "tipo": "Serviços Rurais",
+      "uso": "Serviços de florestamento, reflorestamento, semeadura, adubação, reparação de solo, plantio, silagem, colheita, corte e descascamento de árvores, silvicultura, exploração florestal e dos serviços congêneres indissociáveis da formação, manutenção e colheita de florestas, para quaisquer fins e por quaisquer meios",
+      "codIss": "07.16"
+    },
+    {
+      "codigo": "918761",
+      "descricao": "SERV DE CARTOGRAFIA, TOPOGRAFIA E GEOL",
+      "tipo": "Engenharia, Obras, Agronomia, Agrimensura, Arquitetura, Geologia, Urbanismo e Paisagismo",
+      "uso": "Serviços de cartografia, mapeamento, levantamentos topográficos, batimétricos, geográficos, geodésicos, geológicos e geofísicos",
+      "codIss": "07.20"
+    },
+    {
+      "codigo": "98149",
+      "descricao": "SERV CURSOS E TREINAMENTOS - EMPREGADOS",
+      "tipo": "Treinamento, Instrução, Cursos, Palestras e Seminários",
+      "uso": "Serviços de Instrução, treinamento, orientação pedagógica e educacional, avaliação de conhecimentos de qualquer natureza, certificados",
+      "codIss": "08.02"
+    },
+    {
+      "codigo": "908273",
+      "descricao": "SERV CURSOS E TREINAMENTOS - TERCEIROS",
+      "tipo": "Treinamento, Instrução, Cursos, Palestras e Seminários",
+      "uso": "Serviços de Instrução, treinamento, orientação pedagógica e educacional, avaliação de conhecimentos de qualquer natureza, certificados",
+      "codIss": "08.02"
+    },
+    {
+      "codigo": "98300",
+      "descricao": "SERV DE HOSPEDAGENS",
+      "tipo": "Hospedagens, Turismo e Viagens",
+      "uso": "Serviços de hospedagem de qualquer natureza em hotéis, apart-service condominiais, flat, apart-hotéis, hotéis residência, residence-service, suite service, hotelaria marítima e pensões",
+      "codIss": "09.01"
+    },
+    {
+      "codigo": "819726",
+      "descricao": "SERV AGENCIAMENTO INTERMEDIACAO VIAGENS",
+      "tipo": "Hospedagens, Turismo e Viagens",
+      "uso": "Serviços de agenciamento, organização, promoção, intermediação e execução de programas de turismo, passeios, viagens, excursões, hospedagens e translados",
+      "codIss": "09.02"
+    },
+    {
+      "codigo": "927954",
+      "descricao": "SERV AGENDIAMENTO, INTERMED CONTRATOS",
+      "tipo": "Agenciamento e Intermediação",
+      "uso": "Serviços de agenciamento, corretagem ou intermediação de títulos em geral, valores mobiliários e contratos quaisquer",
+      "codIss": "10.02"
+    },
+    {
+      "codigo": "903897",
+      "descricao": "SERV AGENCIAMENTO, CORRETAGEM DE BENS",
+      "tipo": "Agenciamento e Intermediação",
+      "uso": "Serviço de agenciamento, corretagem ou intermediação de bens móveis ou imóveis, inclusive aqueles realizados no âmbito de Bolsas de Mercadorias e Futuros, por quaisquer meios",
+      "codIss": "10.05"
+    },
+    {
+      "codigo": "915554",
+      "descricao": "SERV AGENCIAMENTO PUBLICIDADE E PROPAG",
+      "tipo": "Publicidade",
+      "uso": "Serviços de agenciamento de publicidade e propaganda, inclusive o agenciamento de veiculação por quaisquer meios. há prestação de serviços de agenciamento, existindo a intermediação na contratação de outras atividades que não são desenvolvidas pela agência.\n\"EX: Tomador contrata agência que intermedia a contratação de veículo de comunicação para publicação de conteúdos (avisos, editais, anúncios, propaganda, etc.) Fonte: Open treinamentos e Editora\"",
+      "codIss": "10.08"
+    },
+    {
+      "codigo": "98341",
+      "descricao": "SERV ANUNCIO PUBLIC EXCETO PROPAGANDA",
+      "tipo": "Publicidade",
+      "uso": "Uso exclusivo da Gerência de Comunicação",
+      "codIss": "10.08"
+    },
+    {
+      "codigo": "934299",
+      "descricao": "SERVICO DE AGENCIAMENTO DE NOTICIAS",
+      "tipo": "Agenciamento e Intermediação",
+      "uso": "Serviços de agenciamneto de notícias",
+      "codIss": "10.07"
+    },
+    {
+      "codigo": "877512",
+      "descricao": "SERV GUARDA E ESTACIONAMENTO VEICULOS",
+      "tipo": "Guarda, Estacionamento, Armazenamento e Vigilância",
+      "uso": "Serviços de guarda e estacionamento de veículos terrestres automotores, de aeronaves e de embarcações, manobrista",
+      "codIss": "11.01"
+    },
+    {
+      "codigo": "98297",
+      "descricao": "SERV SEGURANCA E VIGILANCIA",
+      "tipo": "Guarda, Estacionamento, Armazenamento e Vigilância",
+      "uso": "Serviços de vigilância, que visa a segurança ou monitoramento de bens e pessoas, rondas. São serviços prestados por empresa especializada e autorizada a desenvolver essa atividade. Inclui nesse serviço o monitorameno e rastreamento eletrônico",
+      "codIss": "11.02"
+    },
+    {
+      "codigo": "899470",
+      "descricao": "SERV RASTREAMENTO ELETRONICO VEICULO DIS",
+      "tipo": "Guarda, Estacionamento, Armazenamento e Vigilância",
+      "uso": "Utilizar para monitoramente à distancia de veículos",
+      "codIss": "11.02"
+    },
+    {
+      "codigo": "927968",
+      "descricao": "SERV MONITORAMENTO A DISTANCIA",
+      "tipo": "Guarda, Estacionamento, Armazenamento e Vigilância",
+      "uso": "Serviços de monitoramento a distância de qualquer bem ou pessoas que não estejam em circulação ou movimento",
+      "codIss": "11.02"
+    },
+    {
+      "codigo": "814668",
+      "descricao": "SERV ARMAZENAMENTO, CARGA, DESCARGA",
+      "tipo": "Guarda, Estacionamento, Armazenamento e Vigilância",
+      "uso": "Serviços de armazenamento, depósito, carga, descarga, arrumação e guarda de bens de qualquer espécie",
+      "codIss": "11.04"
+    },
+    {
+      "codigo": "927957",
+      "descricao": "SERV RASTREAMENTO A DISTANCIA MOVIMENTO",
+      "tipo": "Guarda, Estacionamento, Armazenamento e Vigilância",
+      "uso": "Serviços relacionados ao monitoramento e rastreamento a distância, em qualquer via ou local, de veículos, cargas, pessoas e semoventes em circulação ou movimento, realizados por meio de telefonia móvel, transmissão de satélites, rádio ou qualquer outro meio, inclusive pelas empresas de Tecnologia da Informação Veicular, independentemente de o prestador de serviços ser proprietário ou não da infraestrutura de telecomunicações que utiliza",
+      "codIss": "11.05"
+    },
+    {
+      "codigo": "98187",
+      "descricao": "SERV DE ESPETACULOS TEATRAIS",
+      "tipo": "Diversões, lazer e Entretenimento",
+      "uso": "Serviços de Espetáculos teatrais",
+      "codIss": "12.01"
+    },
+    {
+      "codigo": "931000",
+      "descricao": "SERVICOS DE EXIBICOES CINEMATOGRAFICAS",
+      "tipo": "Diversões, lazer e Entretenimento",
+      "uso": "Serviços de exibições cinematográficas",
+      "codIss": "12.02"
+    },
+    {
+      "codigo": "931687",
+      "descricao": "SERVICOS DE ESPETACULOS CIRCENSES",
+      "tipo": "Diversões, lazer e Entretenimento",
+      "uso": "Serviços de espetáculos circenses",
+      "codIss": "12.03"
+    },
+    {
+      "codigo": "931762",
+      "descricao": "SERV PARQUES DE DIVERS, CENTROS DE LAZER",
+      "tipo": "Diversões, lazer e Entretenimento",
+      "uso": "Serviços de parques de diversões, centros de lazer e congêneres",
+      "codIss": "12.05"
+    },
+    {
+      "codigo": "928999",
+      "descricao": "SERV SHOWS, DANCAS, DESFILES, CONCERTOS",
+      "tipo": "Diversões, lazer e Entretenimento",
+      "uso": "Serviço de Shows, ballet, danças, desfiles, bailes, óperas, concertos, recitais, festivais e congêneres",
+      "codIss": "12.07"
+    },
+    {
+      "codigo": "907032",
+      "descricao": "SERV FEIRAS, EXPOSICOES, CONGRESSOS",
+      "tipo": "Diversões, lazer e Entretenimento",
+      "uso": "Serviços de Feiras, exposições e congressos",
+      "codIss": "12.08"
+    },
+    {
+      "codigo": "926320",
+      "descricao": "SERV COMPETICOES ESPORTIVAS OU DESTREZA",
+      "tipo": "Diversões, lazer e Entretenimento",
+      "uso": "Serviços de competições esportivas ou de destreza física ou intelectual, com ou sem a participação do espectador",
+      "codIss": "12.11"
+    },
+    {
+      "codigo": "98185",
+      "descricao": "SERV DE MUSICOS PROFISSIONAIS",
+      "tipo": "Diversões, lazer e Entretenimento",
+      "uso": "Serviços de execução de música, individualmente ou por conjunto.",
+      "codIss": "12.12"
+    },
+    {
+      "codigo": "98335",
+      "descricao": "SERV ORGANIZACAO DE EVENTOS ESPETACULOS",
+      "tipo": "Diversões, lazer e Entretenimento",
+      "uso": "Serviços de produção, mediante ou sem encomenda prévia, de eventos, espetáculos, entrevistas, shows, ballet, danças, desfiles, bailes, teatros, óperas, concertos, recitais e festivais",
+      "codIss": "12.13"
+    },
+    {
+      "codigo": "919636",
+      "descricao": "SERV FORNECIMENTO DE MUSICA",
+      "tipo": "Diversões, lazer e Entretenimento",
+      "uso": "Serviços de fornecimento de música para ambientes fechados ou não, mediante transmissão por qualquer processo",
+      "codIss": "12.14"
+    },
+    {
+      "codigo": "900672",
+      "descricao": "SERV EXIBICAO DE FILME, ENTREVISTA, MUSICA",
+      "tipo": "Diversões, lazer e Entretenimento",
+      "uso": "Serviços de exibição de filmes, entrevistas, musicais, espetáculos, shows, concertos, desfiles, óperas, competições esportivas, de destreza intelectual",
+      "codIss": "12.16"
+    },
+    {
+      "codigo": "880465",
+      "descricao": "SERV RECREACAO E ANIMACAO EM EVENTO",
+      "tipo": "Diversões, lazer e Entretenimento",
+      "uso": "Serviços de recreação, animação e monitoria, inclusive em festas e eventos de qualquer natureza",
+      "codIss": "12.17"
+    },
+    {
+      "codigo": "922088",
+      "descricao": "SERV FONOGRAFIA OU GRAVACAO DE SONS",
+      "tipo": "Gráfica, Chaveiro, Fonografia, Fotografia, Cinematografia, Desenho e Reprografia",
+      "uso": "Serviços de Fonografia ou gravação de sons, inclusive trucagem, dublagem, mixagem e congêneres",
+      "codIss": "13.02"
+    },
+    {
+      "codigo": "98256",
+      "descricao": "SERV FOTOGRAFIA E CINEMATOGRAFIA",
+      "tipo": "Gráfica, Chaveiro, Fonografia, Fotografia, Cinematografia, Desenho e Reprografia",
+      "uso": "Serviços de fotografia e cinematografia, inclusive revelação, ampliação, cópia, reprodução, trucagem, gravação e mixagem de vídeos.",
+      "codIss": "13.03"
+    },
+    {
+      "codigo": "866383",
+      "descricao": "SERV REPOGRAFIA, MICROFILMAGEM, DIGIT",
+      "tipo": "Gráfica, Chaveiro, Fonografia, Fotografia, Cinematografia, Desenho e Reprografia",
+      "uso": "Serviços de reprografia, microfilmagem e digitalização",
+      "codIss": "13.04"
+    },
+    {
+      "codigo": "98340",
+      "descricao": "SERV GRAFICOS",
+      "tipo": "Gráfica, Chaveiro, Fonografia, Fotografia, Cinematografia, Desenho e Reprografia",
+      "uso": "*Serviços de composição gráfica, inclusive confecção de impressos gráficos, fotocomposição, clicheria, zincografia, litografia, fotolitografia, serigrafia;\n* Serviços de acabamento gráfico incluindo corte, recorte, dobra e perfuração;\n* Serviços de plotagem;\n* Serviços de impressão.",
+      "codIss": "13.05"
+    },
+    {
+      "codigo": "934328",
+      "descricao": "SERV MANUTENCAO PREVENTIVA DE BENS",
+      "tipo": "Manutenção, Instalação, Reparo e Assistência Técnica de Bens Móveis",
+      "uso": "* Serviço de Manutenção preventiva de equipamnetos",
+      "codIss": "14.01"
+    },
+    {
+      "codigo": "98274",
+      "descricao": "SERV MANUT REPAROS VEICULO MAQ EQUIP",
+      "tipo": "Manutenção, Instalação, Reparo e Assistência Técnica de Bens Móveis",
+      "uso": "* Serviços de lubrificação, limpeza, lustração, revisão, carga e recarga, conserto, restauração, blindagem, manutenção e conservação de máquinas, veículos, aparelhos, equipamentos, motores, computadores, elevadores ou de qualquer objeto.\n* Serviços de carga e recarga de extintores, cilindros, cartuchos de impressão.",
+      "codIss": "14.01"
+    },
+    {
+      "codigo": "917215",
+      "descricao": "SERV ASSISTENCIA TECNICA",
+      "tipo": "Manutenção, Instalação, Reparo e Assistência Técnica de Bens Móveis",
+      "uso": "Serviços de Assistencia Técnica",
+      "codIss": "14.02"
+    },
+    {
+      "codigo": "920706",
+      "descricao": "SERV RECONDICIONAMENTO DE MOTORES",
+      "tipo": "Manutenção, Instalação, Reparo e Assistência Técnica de Bens Móveis",
+      "uso": "Utilizar para recondicionamento de motores (exceto peças\ne partes empregadas, que ficam sujeitas ao ICMS)",
+      "codIss": "14.03"
+    },
+    {
+      "codigo": "919699",
+      "descricao": "SERV RECAUCHUTAGEM, REGENERACAO DE PNEUS",
+      "tipo": "Manutenção, Instalação, Reparo e Assistência Técnica de Bens Móveis",
+      "uso": "Serviços de recauchutagem ou regeneração de pneus,\ninclusive serviços de borracharia",
+      "codIss": "14.04"
+    },
+    {
+      "codigo": "906115",
+      "descricao": "SERV RESTAURACAO, RECONDICION, USINAGEM",
+      "tipo": "Manutenção, Instalação, Reparo e Assistência Técnica de Bens Móveis",
+      "uso": "* Serviço de restauração, recondicionamento, acondicionamento, pintura, beneficiamento, lavagem, secagem, tingimento, galvanoplastia, anodização, corte, recorte, plastificação, costura, acabamento, polimento de objetos quaisquer;\n* Serviços de usinagem, solda, corte, estiramento e torneamento de objetos.",
+      "codIss": "14.05"
+    },
+    {
+      "codigo": "901762",
+      "descricao": "SERV INSTALACAO APARELHOS, MAQUINAS, EQUI",
+      "tipo": "Manutenção, Instalação, Reparo e Assistência Técnica de Bens Móveis",
+      "uso": "Serviços de instalação e montagem de aparelhos, máquinas, painéis, stands, equipamentos, móveis, inclusive montagem industrial, prestados a usuário final, exclusivamente com material fornecido pelo tomador dos serviços",
+      "codIss": "14.06"
+    },
+    {
+      "codigo": "915502",
+      "descricao": "SERV ENCADERNACAO, GRAVACAO E DOURACAO",
+      "tipo": "Manutenção, Instalação, Reparo e Assistência Técnica de Bens Móveis",
+      "uso": "Serviços de encadernação, gravação e douração de livros, revistas e congêneres",
+      "codIss": "14.08"
+    },
+    {
+      "codigo": "909511",
+      "descricao": "SERV DE ALFAIATARIA E COSTURA",
+      "tipo": "Costura, Lavanderia e Tinturaria",
+      "uso": "Serviços de alfaiataria, costura e bordados, quando o material for fornecido pelo tomador dos serviços, exceto aviamento",
+      "codIss": "14.09"
+    },
+    {
+      "codigo": "98205",
+      "descricao": "SERV DE LAVANDERIA E TINTURARIA",
+      "tipo": "Costura, Lavanderia e Tinturaria",
+      "uso": "Serviços de Tinturaria e lavanderia",
+      "codIss": "14.10"
+    },
+    {
+      "codigo": "914243",
+      "descricao": "SERV DE TAPECARIA REFORMA ESTOFAMENTO",
+      "tipo": "Manutenção, Instalação, Reparo e Assistência Técnica de Bens Móveis",
+      "uso": "Serviços de Tapeçaria e reforma de estofamentos em geral",
+      "codIss": "14.11"
+    },
+    {
+      "codigo": "919570",
+      "descricao": "SERV FUNILARIA E LANTERNAGEM",
+      "tipo": "Manutenção, Instalação, Reparo e Assistência Técnica de Bens Móveis",
+      "uso": "Serviços de Funilaria e lanternagem",
+      "codIss": "14.12"
+    },
+    {
+      "codigo": "899469",
+      "descricao": "SERV MARCENARIA, CARPINTARIA, SERRALHERIA",
+      "tipo": "Engenharia, Obras, Agronomia, Agrimensura, Arquitetura, Geologia, Urbanismo e Paisagismo",
+      "uso": "Serviços de Carpintaria e serralheria",
+      "codIss": "14.13"
+    },
+    {
+      "codigo": "915493",
+      "descricao": "SERV GUINCHO INTRAMUNICIPAL, GUINDASTE",
+      "tipo": "Guincho e Guindaste",
+      "uso": "Serviços de Guincho intramunicipal, guindaste e içamento",
+      "codIss": "14.14"
+    },
+    {
+      "codigo": "923040",
+      "descricao": "SERV MANUTENCAO DE COFRES PARTICULARES",
+      "tipo": "Setor Bancário ou Financeiro",
+      "uso": "Serviços de locação e manutenção de cofres particulares,\nde terminais eletrônicos, de terminais de atendimento e de\nbens e equipamentos em geral",
+      "codIss": "15.03"
+    },
+    {
+      "codigo": "98409",
+      "descricao": "SERV ARRENDAMENTO MERCANTIL, LEASING",
+      "tipo": "Setor Bancário ou Financeiro",
+      "uso": "Serviços de arrendamento mercantil (leasing) de quaisquer bens, inclusive cessão de direitos e obrigações, substituição de garantia, alteração, cancelamento e registro de contrato, e demais serviços relacionados ao arrendamento mercantil (leasing)",
+      "codIss": "15.09"
+    },
+    {
+      "codigo": "98409",
+      "descricao": "SERV ARRENDAMENTO MERCANTIL, LEASING",
+      "tipo": "Setor Bancário ou Financeiro",
+      "uso": "Serviços de arrendamento mercantil (leasing) de quaisquer bens, inclusive cessão de direitos e obrigações, substituição de garantia, alteração, cancelamento e registro de contrato, e demais serviços relacionados ao arrendamento mercantil (leasing)",
+      "codIss": "15.09"
+    },
+    {
+      "codigo": "869926",
+      "descricao": "SERV CREDITO IMOBILIARIO",
+      "tipo": "Setor Bancário ou Financeiro",
+      "uso": "Serviços relacionados a crédito imobiliário, avaliação e vistoria de imóvel ou obra, análise técnica e jurídica, emissão, reemissão, alteração, transferência e renegociação de contrato, emissão e reemissão do termo de quitação e demais serviços relacionados a crédito imobiliário",
+      "codIss": "15.18"
+    },
+    {
+      "codigo": "98311",
+      "descricao": "SERV TRANSPORTE MUNICIPAL PASSAGEIROS",
+      "tipo": "Transporte",
+      "uso": "Serviços de transporte coletivo municipal rodoviário, metroviário de passageiros",
+      "codIss": "16.01"
+    },
+    {
+      "codigo": "934221",
+      "descricao": "SERV TRANSPORTE MUNIC PASSAG COOPERATIVA",
+      "tipo": "Transporte",
+      "uso": "Serviço de transporte coletivo municipal (dentro do município - Nota fiscal de serviços) pagos a cooperativas de trabalho relativas a serviços pessoais que lhes forem prestados por associados/cooperados pessoas física.",
+      "codIss": "16.01"
+    },
+    {
+      "codigo": "98309",
+      "descricao": "LOCACAO VEICULOS E AERONAVE COM CONDUTOR",
+      "tipo": "Transporte",
+      "uso": "Serviços de locação de veículos para transporte de passageiros com condutor dentro do Município. Serviço Prestado por locadoras de veículos.",
+      "codIss": "16.02"
+    },
+    {
+      "codigo": "909100",
+      "descricao": "SERV TRANSPORTE MUNICIPAL CARGAS E TAXI",
+      "tipo": "Transporte",
+      "uso": "Serviço de transporte municipal de mudanças, rodoviário municipal de bens,  transporte particular de passageiros (dentro do município), moto-taxi por se caracterizar um transporte individual, taxi",
+      "codIss": "16.02"
+    },
+    {
+      "codigo": "98158",
+      "descricao": "SERV DE ASSESSORIA E CONSULTORIA",
+      "tipo": "Serviços Técnicos Profissionais",
+      "uso": "Serviços de assessoria ou consultoria de qualquer natureza, análise, exame, pesquisa, coleta, compilação e fornecimento de dados e informações de qualquer natureza, inclusive cadastro e similares",
+      "codIss": "17.01"
+    },
+    {
+      "codigo": "98156",
+      "descricao": "SERV DE TRADUCOES",
+      "tipo": "Serviços Técnicos Profissionais",
+      "uso": "Serviços de Traduções",
+      "codIss": "17.02"
+    },
+    {
+      "codigo": "98196",
+      "descricao": "SERV SECRETARIA GERAL, EXPEDIENTE APOIO",
+      "tipo": "Serviços Técnicos Profissionais",
+      "uso": "Serviços de expediente, secretaria em geral, resposta audível, apoio e infra-estrutura administrativa",
+      "codIss": "17.02"
+    },
+    {
+      "codigo": "907031",
+      "descricao": "SERV DATILOGRAFIA,DIGITACAO,ESTENOGRAFIA",
+      "tipo": "Serviços Técnicos Profissionais",
+      "uso": "Serviços de datilografia, digitação, estenografia",
+      "codIss": "17.02"
+    },
+    {
+      "codigo": "917213",
+      "descricao": "SERV REDACAO, REVISAO, INTERPRETACAO",
+      "tipo": "Serviços Técnicos Profissionais",
+      "uso": "Serviços de redação, revisão, edição e interpretação",
+      "codIss": "17.02"
+    },
+    {
+      "codigo": "868539",
+      "descricao": "SERV DE COORDENACAO TECNICA",
+      "tipo": "Serviços Técnicos Profissionais",
+      "uso": "Serviços de planejamento, coordenação, programação ou organização técnica, financeira ou administrativa",
+      "codIss": "17.03"
+    },
+    {
+      "codigo": "98152",
+      "descricao": "SERV RECRUTAMENTO E SELECAO ESTAGIARIO",
+      "tipo": "Serviços Técnicos Profissionais",
+      "uso": "Serviços de recrutamento, agenciamento, seleção e colocação de mão-de-obra",
+      "codIss": "17.04"
+    },
+    {
+      "codigo": "866389",
+      "descricao": "SERV DE COPA, GARCOM, COZIN, COPEIRO",
+      "tipo": "Fornecimento de Mão de Obra",
+      "uso": "Serviços de copa, garcom, cozinheiro e copeiro, por fornecimento de mão de obra",
+      "codIss": "17.05"
+    },
+    {
+      "codigo": "903009",
+      "descricao": "SERV FORNECIMENTO DE MAO DE OBRA",
+      "tipo": "Fornecimento de Mão de Obra",
+      "uso": "Serviços prestados por empresas que apresentam enquadramento legal para contratar profissionais, inclusive avulsos e temporários para atender a demanda do cliente. No fornecimento de mão de obra, a empresa fornecedora  é mera intermediária para contratação de pessoas físicas determinadas. Envolve sempre, a empresa prestadora dos serviços (contratada), o trabalhador contratado por ela para prestar os serviços e o tomador dos serviços (contatante). Essa modalidade de prestação de serviços está enquadrada como trabalho temporário na forma da Lei nº 6.019, de janeiro de 1974. É importante verificar se o prestador se enquadra nesta modalidade em relação as pessoas que irão prestar os serviços no contratante.",
+      "codIss": "17.05"
+    },
+    {
+      "codigo": "866401",
+      "descricao": "SERV PORTARIA, RECEPCAO, ASCENSORISTA",
+      "tipo": "Fornecimento de Mão de Obra",
+      "uso": "Serviço de portaria, recepção, ascensorista cuja empresa contratada seja enquadrada como uma agencia de fornecimento de mão de obra",
+      "codIss": "17.05"
+    },
+    {
+      "codigo": "98318",
+      "descricao": "SERV PUBLICIDADE E PROPAGANDA",
+      "tipo": "Publicidade",
+      "uso": "* Serviços de propaganda e publicidade, inclusive promoção de vendas, planejamento de campanhas ou sistemas de publicidade, elaboração de desenhos, textos e demais materiais publicitários\n* Anúncios e Publicações;\n\"Ex: Tomador contrata empresa de publicidade para elaborar o conteúdo de uma mensagem a ser veiculada em jornal ou revista. Fonte: Open treinamentos e Editora\"",
+      "codIss": "17.06"
+    },
+    {
+      "codigo": "870610",
+      "descricao": "SERV DE TESTE, LAUDO, ANALISE, PERICIA",
+      "tipo": "Serviços Técnicos Profissionais",
+      "uso": "* Serviços de perícias, laudos, exames técnicos e análises técnicas de profissional qualificado na área;\n* Serviços de SST quando é realizado análises técnicas, exames e laudos emitidos por profissinal qualificado.",
+      "codIss": "17.09"
+    },
+    {
+      "codigo": "923763",
+      "descricao": "SERV PLANEJ, ORGANIZ FEIRA, CONGRESSO",
+      "tipo": "Serviços Técnicos Profissionais",
+      "uso": "Serviços de planejamento, organização e administração de feiras, exposições, congressos",
+      "codIss": "17.10"
+    },
+    {
+      "codigo": "98195",
+      "descricao": "SERV ORGANIZACAO FESTAS E RECEPCOES, BUFE",
+      "tipo": "Diversões, lazer e Entretenimento",
+      "uso": "* Serviços de organização de festas e recepções;  \n* Bufê",
+      "codIss": "17.11"
+    },
+    {
+      "codigo": "98134",
+      "descricao": "VALE TRANSPORTE - RECIBO",
+      "tipo": "Transporte",
+      "uso": "Serviços de Vale Transporte",
+      "codIss": "17.12"
+    },
+    {
+      "codigo": "935587",
+      "descricao": "SERV ADM DE BENS E NEGOCIOS DE TERCEIROS",
+      "tipo": "Serviços Técnicos Profissionais",
+      "uso": "Administração em geral, inclusive de bens e negócios de terceiros",
+      "codIss": "17.12"
+    },
+    {
+      "codigo": "98191",
+      "descricao": "SERV ADVOCATICIOS",
+      "tipo": "Serviços Técnicos Profissionais",
+      "uso": "Serviços de advocacia",
+      "codIss": "17.14"
+    },
+    {
+      "codigo": "867404",
+      "descricao": "SERV DE ARBITRAGEM",
+      "tipo": "Serviços Técnicos Profissionais",
+      "uso": "Serviços de arbitragem de qualquer espécie, inclusive jurídica (Arbitragem é um sistema especial de julgamento para resolução de conflitos)",
+      "codIss": "17.15"
+    },
+    {
+      "codigo": "98160",
+      "descricao": "SERV AUDITORIA",
+      "tipo": "Serviços Técnicos Profissionais",
+      "uso": "Serviços de Auditoria",
+      "codIss": "17.16"
+    },
+    {
+      "codigo": "932844",
+      "descricao": "SERVICOS DE CONTABILIDADE",
+      "tipo": "Serviços Técnicos Profissionais",
+      "uso": "Serviços de Contabilidade, inclusive serviços técnicos e auxiliares",
+      "codIss": "17.19"
+    },
+    {
+      "codigo": "98337",
+      "descricao": "SERV CONGRESSOS, SEMINARIOS",
+      "tipo": "Treinamento, Instrução, Cursos, Palestras e Seminários",
+      "uso": "Serviços de congressos, conferências e seminários",
+      "codIss": "17.24"
+    },
+    {
+      "codigo": "907196",
+      "descricao": "SERV APRESENTACAO DE PALESTRAS",
+      "tipo": "Treinamento, Instrução, Cursos, Palestras e Seminários",
+      "uso": "Serviços de apresentação de palestras",
+      "codIss": "17.24"
+    },
+    {
+      "codigo": "920577",
+      "descricao": "SERV INSERCAO TEXTOS, DESENHOS E OUTROS",
+      "tipo": "Publicidade",
+      "uso": "Serviços de inserção de textos, desenhos e outros\nmateriais de propaganda e publicidade, em qualquer meio\n(exceto em livros, jornais, periódicos e nas modalidades\nde serviços de radiodifusão sonora e de sons e imagens\nde recepção livre e gratuita",
+      "codIss": "17.25"
+    },
+    {
+      "codigo": "98259",
+      "descricao": "SERV DE SEGUROS",
+      "tipo": "Seguros e Sinistros",
+      "uso": "* Serviços de regulação de sinistros vinculados a contratos de seguros; \n* Inspeção e avaliação de riscos para cobertura de contratos de seguros;\n* Prevenção e gerência de riscos seguráveis",
+      "codIss": "18.01"
+    },
+    {
+      "codigo": "932845",
+      "descricao": "SERVICOS AEROPORTUARIOS",
+      "tipo": "Serviços Técnicos Profissionais",
+      "uso": "Serviços aeroportuários, utilização de aeroporto, movimentação de passageiros, armazenagem de qualquer natureza, capatazia, movimentação de aeronaves, serviços de apoio aeroportuários, serviços acessórios, movimentação de mercadorias, logística e congêneres.",
+      "codIss": "20.02"
+    },
+    {
+      "codigo": "877506",
+      "descricao": "SERV DE DESIGN",
+      "tipo": "Gráfica, Chaveiro, Fonografia, Fotografia, Cinematografia, Desenho e Reprografia",
+      "uso": "* Serviços de programação e comunicação visual;\n* Desenho industrial e congêneres",
+      "codIss": "23.01"
+    },
+    {
+      "codigo": "887247",
+      "descricao": "SERV CHAVEIROS,CARIMBOS, PLACAS",
+      "tipo": "Gráfica, Chaveiro, Fonografia, Fotografia, Cinematografia, Desenho e Reprografia",
+      "uso": "Serviços de chaveiros, confecção de carimbos, placas, sinalização visual, banners, adesivos, etc...",
+      "codIss": "24.01"
+    },
+    {
+      "codigo": "908337",
+      "descricao": "SERV FUNERARIOS",
+      "tipo": "Serviços Funerários",
+      "uso": "Serviços de funerais, inclusive fornecimento de caixão, urna ou esquifes, aluguel de capela, transporte do corpo cadavérico, fornecimento de flores, coroas e outros paramentos, desembaraço de certidão de óbito, fornecimento de véu e outros adornos, embalsamento, embelezamento, conservação ou restauração de cadáveres",
+      "codIss": "25.01"
+    },
+    {
+      "codigo": "814431",
+      "descricao": "SERV DE COLETA, REMESSA OU ENTREGA",
+      "tipo": "Transporte",
+      "uso": "Serviços de coleta, remessa ou entrega de correspondências, documentos, objetos, bens ou transporte de valoreS. Serviço de motoboy, serviço de entrega rápida, inclusive serviços de entrega das agências franqueadas dos correios",
+      "codIss": "26.01"
+    },
+    {
+      "codigo": "872622",
+      "descricao": "SERV ASSISTENCIAIS",
+      "tipo": "Serviços Assistenciais",
+      "uso": "Serviços de assistência social",
+      "codIss": "27.01"
+    },
+    {
+      "codigo": "913286",
+      "descricao": "SERV DE AVALIACAO DE BENS E SERVICOS",
+      "tipo": "Serviços Técnicos Profissionais",
+      "uso": "Serviços de avaliação de bens e serviços de qualquer natureza",
+      "codIss": "28.01"
+    },
+    {
+      "codigo": "932672",
+      "descricao": "SERVIÇOS DE BIBLIOTECONOMIA",
+      "tipo": "Serviços de Biblioteconomia",
+      "uso": "Serviços de Biblioteconomia",
+      "codIss": "29.01"
+    },
+    {
+      "codigo": "931967",
+      "descricao": "SERV DE BIOLOGIA,BIOTECNOLOGIA E QUIMICA",
+      "tipo": "Serviços de biologia, biotecnologia e química",
+      "uso": "Serviços de biologia, biotecnologia e química",
+      "codIss": "30.01"
+    },
+    {
+      "codigo": "903959",
+      "descricao": "SERV TECNICOS EM EDIFICACOES",
+      "tipo": "Serviços Técnicos Profissionais",
+      "uso": "* Serviços técnicos em edificações;\n* Serviços técnicos de instalações Hidraulicas, sanitárias e de Gás; \n* Serviços técnicos de instalações de sistema de prevenção contra incêndio;\nOBS: Não são serviços de edificação, mas de serviços técnicos em edificações existentes.",
+      "codIss": "31.01"
+    },
+    {
+      "codigo": "920086",
+      "descricao": "SERV TECNICOS EM ELETRONICA E MECANICA",
+      "tipo": "Serviços Técnicos Profissionais",
+      "uso": "* Serviços Técnicos em manutenção de redes de distribuição de energia elétrica,\n* Serviços de instalação e assistência técnica em televisão por assinatura, inclusive a habilitação e desabilitação de decodificadores;\n* Serviços técnicos de manutenção e reparo de aparelhos e instrumentos de medida, teste e controle.",
+      "codIss": "31.01"
+    },
+    {
+      "codigo": "920092",
+      "descricao": "SERV TECNICOS EM TELECOMUNICACOES",
+      "tipo": "Serviços Técnicos Profissionais",
+      "uso": "Serviços técnicos de manutenção de estações e redes de telecomunicações",
+      "codIss": "31.01"
+    },
+    {
+      "codigo": "919326",
+      "descricao": "SERV DESENHOS TECNICOS",
+      "tipo": "Gráfica, Chaveiro, Fonografia, Fotografia, Cinematografia, Desenho e Reprografia",
+      "uso": "Serviços de desenhos técnicos em geral, inclusive\narquitetônico e de engenharia",
+      "codIss": "32.01"
+    },
+    {
+      "codigo": "915452",
+      "descricao": "SERV DE DESEMBARACO ADUANEIRO",
+      "tipo": "Aduana",
+      "uso": "Serviços de desembaraço aduaneiro, comissários e despachantes",
+      "codIss": "33.01"
+    },
+    {
+      "codigo": "915211",
+      "descricao": "SERV REPORTAGEM, JORNALISMO, R.PUBLICAS",
+      "tipo": "Publicidade",
+      "uso": "Serviços de reportagem, assessoria de imprensa, jornalismo e relações públicas",
+      "codIss": "35.01"
+    },
+    {
+      "codigo": "931267",
+      "descricao": "SERV ARTISTAS, ATLET.MODELOS E MANEQUINS",
+      "tipo": "Arte e Cultura",
+      "uso": "Serviços de artistas, atletas, modelos e manequins",
+      "codIss": "37.01"
+    },
+    {
+      "codigo": "927760",
+      "descricao": "SERVICOS DE MUSEOLOGIA",
+      "tipo": "Arte e Cultura",
+      "uso": "Serviços de museologia",
+      "codIss": "38.01"
+    },
+    {
+      "codigo": "923342",
+      "descricao": "SERV OBRAS DE ARTE SOB ENCOMENDA",
+      "tipo": "Arte e Cultura",
+      "uso": "Serviços de obras de arte sob encomenda",
+      "codIss": "40.01"
+    },
+    {
+      "codigo": "98267",
+      "descricao": "FRETE E TRANSPORTE INTER PRODUTOS, BENS",
+      "tipo": "Transporte",
+      "uso": "Utilizar para serviço de transporte de cargas intermunicipais e interestaduais. (Utilizar para classificar os transporte modelo 57 - CTe - Conhecimento de Transporte Eletrônico)",
+      "codIss": "N/A"
+    },
+    {
+      "codigo": "817677",
+      "descricao": "TRANSPORTE INTER PASSAGEIROS E VALORES",
+      "tipo": "Transporte",
+      "uso": "Utilizar para classificar Transporte Intermunicipal e interestadual de passageiros e valores (Utilizar para classificar os transporte modelo 67 -  CTEOs - Conhecimento de Transporte Eletrônico Outros Serviços). Usado quando inicia em um município e termina em outro.",
+      "codIss": "N/A"
+    },
+    {
+      "codigo": "934226",
+      "descricao": "SERV TRANSPORTE INTER PASSAG COOPERATIVA",
+      "tipo": "Transporte",
+      "uso": "Serviço de transporte intermunicipal (entre municipios - CTEOs) de passageiros pagos a cooperativas de trabalho relativas a serviços pessoais que lhes forem prestados por associados/cooperados pessoas física.",
+      "codIss": "N/A"
+    },
+    {
+      "codigo": "934830",
+      "descricao": "SERV TRANSP INTER PASSAG VALORES - MEI",
+      "tipo": "Transporte",
+      "uso": "Serviço de transporte intermunicipal (entre municipios - CTEOs) de passageiros realizados por Micro Empreendedor Individual - MEI",
+      "codIss": "N/A"
+    },
+    {
+      "codigo": "98153",
+      "descricao": "PREMIOS A COMPETIDORES - DINHEIRO",
+      "tipo": "Prêmios",
+      "uso": "Utilizar para classificar pagamento de prêmios em dinheiro oriundos de competições",
+      "codIss": "N/A"
+    },
+    {
+      "codigo": "98217",
+      "descricao": "ENERGIA ELETRICA",
+      "tipo": "Energia Elétrica",
+      "uso": "Utilizar para classificar faturas de energia elétrica",
+      "codIss": "N/A"
+    },
+    {
+      "codigo": "98218",
+      "descricao": "AGUA E SERVICO DE ESGOTO",
+      "tipo": "Água",
+      "uso": "Utilizar para classifcar faturas de água e esgoto",
+      "codIss": "N/A"
+    },
+    {
+      "codigo": "98220",
+      "descricao": "TELEFONIA FIXA",
+      "tipo": "Comunicação, Telecomunicação",
+      "uso": "Utilizar para classifcar faturas de tefefone fixo",
+      "codIss": "N/A"
+    },
+    {
+      "codigo": "98221",
+      "descricao": "TELEFONIA CELULAR",
+      "tipo": "Comunicação, Telecomunicação",
+      "uso": "Utilizar para classifcar faturas de telefone celular",
+      "codIss": "N/A"
+    },
+    {
+      "codigo": "928479",
+      "descricao": "SERVICOS DE CONEXAO A INTERNET",
+      "tipo": "Comunicação, Telecomunicação",
+      "uso": "Fornecimento de internet para contratos com pagamentos por meio de faturas. Processo que é conduzido pelo suprimentos (fusion).",
+      "codIss": "N/A"
+    },
+    {
+      "codigo": "929855",
+      "descricao": "COMUNICACAO",
+      "tipo": "Comunicação, Telecomunicação",
+      "uso": "Utilizar para classificar faturas de cobranças de serviços de comunicação de qualquer natureza, como: emissoras de rádio e televisão (incluindo TV por assinatura), portais de notícias, jornais e revistas impressos, na geração, emissão, recepção, transmissão, retransmissão, repetição e ampliação de comunicação de qualquer natureza entre outros.\n\nOBS: Não utilizar para classificar notas fiscais de serviços municipais.",
+      "codIss": "N/A"
+    },
+    {
+      "codigo": "98258",
+      "descricao": "LOCACAO DE MAQUINAS, EQUIPAMENTOS E BENS",
+      "tipo": "Locação de Bens",
+      "uso": "Utilizar para classificar faturas de locação sem mão de obra, ou seja, sem caracterização de serviços",
+      "codIss": "N/A"
+    },
+    {
+      "codigo": "918220",
+      "descricao": "LOCACAO DE VEICULOS SEM CONDUTOR",
+      "tipo": "Locação de Bens",
+      "uso": "Utilizar para classificar faturas de locação de veículos sem mão de obra",
+      "codIss": "N/A"
+    },
+    {
+      "codigo": "931606",
+      "descricao": "APOLICE SEGUROS – RECIBO",
+      "tipo": "Seguros e Sinistros",
+      "uso": "Utilizar para classificação de apólices de seguros quando não existe emissão de nota fiscal de serviços.",
+      "codIss": "N/A"
+    },
+    {
+      "codigo": "934434",
+      "descricao": "SERV USO MARCAS, RAYALTIES - EXTERIOR",
+      "tipo": "Serviços Exterior",
+      "uso": "Importâncias pagas, creditadas, entregues, empregadas ou remetidas para o exterior a título de direio de uso de marcas, royalties.",
+      "codIss": "03.02"
+    },
+    {
+      "codigo": "98302",
+      "descricao": "DIARIAS E VIAGENS NO EXTERIOR",
+      "tipo": "Serviços Exterior",
+      "uso": "Utilizar somente para diárias e viagens realizadas no exterior com paramento realizado pela entidade a domiciliado no exterior.",
+      "codIss": "N/A"
+    },
+    {
+      "codigo": "934435",
+      "descricao": "SERV DIREITO USO SOFTWARE - EXTERIOR",
+      "tipo": "Serviços Exterior",
+      "uso": "Importâncias pagas, creditadas, entregues, empregadas ou remetidas a residente ou domiciliado no exterior em contraprestação pelo licenciamento de software de prateleira que se destina ao uso do próprio adquirente e que não será comercializado para terceiros.",
+      "codIss": "01.05"
+    },
+    {
+      "codigo": "934436",
+      "descricao": "SERV TECNICOS - EXTERIOR",
+      "tipo": "Serviços Exterior",
+      "uso": "Importancias pagas, creditadas, entregues empregadas ou remetidas para exterior a título de execução de serviço que dependa de conhecimentos técnicos especializados ou que envolva assistência administrativa ou prestação de consultoria, inclusive decorrente de estruturas automatizadas com claro conteúdo tecnológico",
+      "codIss": "17.01"
+    },
+    {
+      "codigo": "935747",
+      "descricao": "JUROS - PAGAMENTOS EXTERIOR",
+      "tipo": "Serviços Exterior",
+      "uso": "Utilizar esse cadastro para classificar juros oriundos de atrasos nos pagamentos via remessas bancária ao exterior.",
+      "codIss": "N/A"
+    },
+    {
+      "codigo": "935748",
+      "descricao": "TAXAS INSC CONGRESSO,SEMINARIO EXTERIOR",
+      "tipo": "Serviços Exterior",
+      "uso": "Utilizar para classificar taxas de inscrições em congressos e seminários realizados no exterior.",
+      "codIss": "08.02"
+    },
+    {
+      "codigo": "934437",
+      "descricao": "SERV ASSISTENCIA TECNICA - EXTERIOR",
+      "tipo": "Serviços Exterior",
+      "uso": "Importancias pagas, creditadas, entregues empregadas ou remetidas para exterior a título de assistência técnica, sendo a assessoria permanente prestada pela cedente de processo ou fórmula secreta à concessionária, mediante técnicos, desenhos, estudos, instruções enviadas ao País e outros serviços semelhantes, os quais possibilitem a efetiva utilização do processo ou fórmula cedidos.",
+      "codIss": "14.02"
+    }
+  ],
+  "centrosClasseValor": [
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "2201",
+      "centroCustoNome": "Administracao de Unidades de Servicos",
+      "classeValor": "010100100",
+      "classeValorNome": "ADM LOCAL",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "01MG0034",
+      "uo": "11980",
+      "centroCusto": "2201",
+      "centroCustoNome": "Administracao de Unidades de Servicos",
+      "classeValor": "010100100",
+      "classeValorNome": "ADM LOCAL",
+      "entidade": "SESI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "2201",
+      "centroCustoNome": "Administracao de Unidades de Servicos",
+      "classeValor": "020900631",
+      "classeValorNome": "000000000144121-000907194 ANGELA CRISTIN",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "01MG0034",
+      "uo": "11980",
+      "centroCusto": "2201",
+      "centroCustoNome": "Administracao de Unidades de Servicos",
+      "classeValor": "020102432",
+      "classeValorNome": "000000144121.01-000907194 ANGELA CRISTIN",
+      "entidade": "SESI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3172",
+      "centroCustoNome": "Biblioteca",
+      "classeValor": "010900024",
+      "classeValorNome": "BIBLIOTECA - SENAI",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "01MG0034",
+      "uo": "11980",
+      "centroCusto": "3113",
+      "centroCustoNome": "ENSINO MEDIO – ITINERARIOS",
+      "classeValor": "010103002",
+      "classeValorNome": "2O ANO - ENSINO MEDIO ITINERARIOS",
+      "entidade": "SESI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3182",
+      "centroCustoNome": "Aprendizagem Industrial Presencial",
+      "classeValor": "010900021",
+      "classeValorNome": "NUCLEO COMPARTILHADO ENSINO TECNICO",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "01MG0034",
+      "uo": "11980",
+      "centroCusto": "3113",
+      "centroCustoNome": "ENSINO MEDIO – ITINERARIOS",
+      "classeValor": "010103006",
+      "classeValorNome": "3O ANO - ENSINO MEDIO ITINERARIOS",
+      "entidade": "SESI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3182",
+      "centroCustoNome": "Aprendizagem Industrial Presencial",
+      "classeValor": "010900063",
+      "classeValorNome": "ENS.PROF.ELETRONICA E AUTOMACAO",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "01MG0034",
+      "uo": "11980",
+      "centroCusto": "3113",
+      "centroCustoNome": "ENSINO MEDIO – ITINERARIOS",
+      "classeValor": "010103100",
+      "classeValorNome": "NUCLEO COMPARTILHADO - MEDIO ITINERARIOS",
+      "entidade": "SESI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3182",
+      "centroCustoNome": "Aprendizagem Industrial Presencial",
+      "classeValor": "010900064",
+      "classeValorNome": "ENS.PROF.GERENCIAL",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "01MG0034",
+      "uo": "11980",
+      "centroCusto": "3113",
+      "centroCustoNome": "ENSINO MEDIO – ITINERARIOS",
+      "classeValor": "010103101",
+      "classeValorNome": "1o ANO - ENSINO MEDIO ITINERARIOS",
+      "entidade": "SESI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3182",
+      "centroCustoNome": "Aprendizagem Industrial Presencial",
+      "classeValor": "010900069",
+      "classeValorNome": "ENS.PROF.MANUFATURA",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "01MG0034",
+      "uo": "11980",
+      "centroCusto": "3113",
+      "centroCustoNome": "ENSINO MEDIO – ITINERARIOS",
+      "classeValor": "010105010",
+      "classeValorNome": "PROJETO RECRIAR - SESI",
+      "entidade": "SESI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3182",
+      "centroCustoNome": "Aprendizagem Industrial Presencial",
+      "classeValor": "010900070",
+      "classeValorNome": "ENS.PROF.MANUTENCAO E OPERACAO",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "01MG0034",
+      "uo": "11980",
+      "centroCusto": "3127",
+      "centroCustoNome": "Educacao Infantil - Creche",
+      "classeValor": "010101003",
+      "classeValorNome": "EDUCACAO INFANTIL - MATERNAL 3",
+      "entidade": "SESI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3192",
+      "centroCustoNome": "Aperfeicoamento",
+      "classeValor": "010900060",
+      "classeValorNome": "ENS.PROF.CONSTRUCAO DE OBRAS",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "01MG0034",
+      "uo": "11980",
+      "centroCusto": "3127",
+      "centroCustoNome": "Educacao Infantil - Creche",
+      "classeValor": "010101004",
+      "classeValorNome": "EDUCACAO INFANTIL - MATERNAL 3 (INTEGRAL",
+      "entidade": "SESI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3192",
+      "centroCustoNome": "Aperfeicoamento",
+      "classeValor": "010900061",
+      "classeValorNome": "ENS.PROF.DESENVOL. DE SISTEMAS",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "01MG0034",
+      "uo": "11980",
+      "centroCusto": "3127",
+      "centroCustoNome": "Educacao Infantil - Creche",
+      "classeValor": "010101005",
+      "classeValorNome": "EDUCACAO INFANTIL - 1o PERIODO",
+      "entidade": "SESI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3192",
+      "centroCustoNome": "Aperfeicoamento",
+      "classeValor": "010900063",
+      "classeValorNome": "ENS.PROF.ELETRONICA E AUTOMACAO",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "01MG0034",
+      "uo": "11980",
+      "centroCusto": "3127",
+      "centroCustoNome": "Educacao Infantil - Creche",
+      "classeValor": "010101006",
+      "classeValorNome": "EDUCACAO INFANTIL - 1o PERIODO (INTEGRAL",
+      "entidade": "SESI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3192",
+      "centroCustoNome": "Aperfeicoamento",
+      "classeValor": "010900064",
+      "classeValorNome": "ENS.PROF.GERENCIAL",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "01MG0034",
+      "uo": "11980",
+      "centroCusto": "3136",
+      "centroCustoNome": "Educacao Infantil - Pre Escola",
+      "classeValor": "010101000",
+      "classeValorNome": "NUCLEO COMPARTILHADO EDUCACAO INFANTIL",
+      "entidade": "SESI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3192",
+      "centroCustoNome": "Aperfeicoamento",
+      "classeValor": "010900069",
+      "classeValorNome": "ENS.PROF.MANUFATURA",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "01MG0034",
+      "uo": "11980",
+      "centroCusto": "3136",
+      "centroCustoNome": "Educacao Infantil - Pre Escola",
+      "classeValor": "010101005",
+      "classeValorNome": "EDUCACAO INFANTIL - 1o PERIODO",
+      "entidade": "SESI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3192",
+      "centroCustoNome": "Aperfeicoamento",
+      "classeValor": "010900070",
+      "classeValorNome": "ENS.PROF.MANUTENCAO E OPERACAO",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "01MG0034",
+      "uo": "11980",
+      "centroCusto": "3136",
+      "centroCustoNome": "Educacao Infantil - Pre Escola",
+      "classeValor": "010101006",
+      "classeValorNome": "EDUCACAO INFANTIL - 1o PERIODO (INTEGRAL",
+      "entidade": "SESI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3192",
+      "centroCustoNome": "Aperfeicoamento",
+      "classeValor": "010900073",
+      "classeValorNome": "ENS.PROF.METALMECANICA",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "01MG0034",
+      "uo": "11980",
+      "centroCusto": "3136",
+      "centroCustoNome": "Educacao Infantil - Pre Escola",
+      "classeValor": "010101007",
+      "classeValorNome": "EDUCACAO INFANTIL - 2o PERIODO",
+      "entidade": "SESI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3192",
+      "centroCustoNome": "Aperfeicoamento",
+      "classeValor": "010900079",
+      "classeValorNome": "ENS.PROF.PROTECAO/REABILITACAO ECOSISTEM",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "01MG0034",
+      "uo": "11980",
+      "centroCusto": "3136",
+      "centroCustoNome": "Educacao Infantil - Pre Escola",
+      "classeValor": "010101008",
+      "classeValorNome": "EDUCACAO INFANTIL - 2o PERIODO (INTEGRAL",
+      "entidade": "SESI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3192",
+      "centroCustoNome": "Aperfeicoamento",
+      "classeValor": "010900081",
+      "classeValorNome": "ENS.PROF.SEGURANCA",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "01MG0034",
+      "uo": "11980",
+      "centroCusto": "3142",
+      "centroCustoNome": "Ensino Fundamental - 1? ao 5? Ano",
+      "classeValor": "010102001",
+      "classeValorNome": "1a SERIE - FUNDAMENTAL",
+      "entidade": "SESI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3192",
+      "centroCustoNome": "Aperfeicoamento",
+      "classeValor": "010900082",
+      "classeValorNome": "ENS.PROF.SISTEMAS DE ENERGIA",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "01MG0034",
+      "uo": "11980",
+      "centroCusto": "3142",
+      "centroCustoNome": "Ensino Fundamental - 1? ao 5? Ano",
+      "classeValor": "010102002",
+      "classeValorNome": "2a SERIE - FUNDAMENTAL",
+      "entidade": "SESI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3192",
+      "centroCustoNome": "Aperfeicoamento",
+      "classeValor": "020901416",
+      "classeValorNome": "000000000148295-000029785 COMPANHIA DE S",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "01MG0034",
+      "uo": "11980",
+      "centroCusto": "3142",
+      "centroCustoNome": "Ensino Fundamental - 1? ao 5? Ano",
+      "classeValor": "010102003",
+      "classeValorNome": "3a SERIE - FUNDAMENTAL",
+      "entidade": "SESI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3192",
+      "centroCustoNome": "Aperfeicoamento",
+      "classeValor": "020902032",
+      "classeValorNome": "000000000153399-000027600 ARCELORMITTAL",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "01MG0034",
+      "uo": "11980",
+      "centroCusto": "3142",
+      "centroCustoNome": "Ensino Fundamental - 1? ao 5? Ano",
+      "classeValor": "010102004",
+      "classeValorNome": "4a SERIE - FUNDAMENTAL",
+      "entidade": "SESI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3192",
+      "centroCustoNome": "Aperfeicoamento",
+      "classeValor": "020902035",
+      "classeValorNome": "000000000153351-000568885 PRODUTOS ALIME",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "01MG0034",
+      "uo": "11980",
+      "centroCusto": "3142",
+      "centroCustoNome": "Ensino Fundamental - 1? ao 5? Ano",
+      "classeValor": "010102005",
+      "classeValorNome": "5a SERIE - FUNDAMENTAL",
+      "entidade": "SESI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3192",
+      "centroCustoNome": "Aperfeicoamento",
+      "classeValor": "020903245",
+      "classeValorNome": "000000000159259-001003695 BOSTON ELECTRO",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "01MG0034",
+      "uo": "11980",
+      "centroCusto": "3142",
+      "centroCustoNome": "Ensino Fundamental - 1? ao 5? Ano",
+      "classeValor": "010102011",
+      "classeValorNome": "NUCLEO COMPARTILHADO - FUNDAMENTAL 1",
+      "entidade": "SESI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3192",
+      "centroCustoNome": "Aperfeicoamento",
+      "classeValor": "020903734",
+      "classeValorNome": "000000000161346-000568885 PRODUTOS ALIME",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "01MG0034",
+      "uo": "11980",
+      "centroCusto": "3142",
+      "centroCustoNome": "Ensino Fundamental - 1? ao 5? Ano",
+      "classeValor": "010105010",
+      "classeValorNome": "PROJETO RECRIAR - SESI",
+      "entidade": "SESI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3192",
+      "centroCustoNome": "Aperfeicoamento",
+      "classeValor": "020903801",
+      "classeValorNome": "000000000161622-000141465 AMG BRASIL S/A",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "01MG0034",
+      "uo": "11980",
+      "centroCusto": "3147",
+      "centroCustoNome": "Ensino Fundamental - 6? ao 9? Ano",
+      "classeValor": "010102006",
+      "classeValorNome": "6a SERIE - FUNDAMENTAL",
+      "entidade": "SESI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3192",
+      "centroCustoNome": "Aperfeicoamento",
+      "classeValor": "020903829",
+      "classeValorNome": "000000000161722-000141465 AMG BRASIL S/A",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "01MG0034",
+      "uo": "11980",
+      "centroCusto": "3147",
+      "centroCustoNome": "Ensino Fundamental - 6? ao 9? Ano",
+      "classeValor": "010102007",
+      "classeValorNome": "7a SERIE - FUNDAMENTAL",
+      "entidade": "SESI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3192",
+      "centroCustoNome": "Aperfeicoamento",
+      "classeValor": "020903881",
+      "classeValorNome": "000000000161956-000141465 AMG BRASIL S/A",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "01MG0034",
+      "uo": "11980",
+      "centroCusto": "3147",
+      "centroCustoNome": "Ensino Fundamental - 6? ao 9? Ano",
+      "classeValor": "010102008",
+      "classeValorNome": "8a SERIE - FUNDAMENTAL",
+      "entidade": "SESI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3192",
+      "centroCustoNome": "Aperfeicoamento",
+      "classeValor": "020903926",
+      "classeValorNome": "000000000162159-000141465 AMG BRASIL S/A",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "01MG0034",
+      "uo": "11980",
+      "centroCusto": "3147",
+      "centroCustoNome": "Ensino Fundamental - 6? ao 9? Ano",
+      "classeValor": "010102009",
+      "classeValorNome": "9a SERIE - FUNDAMENTAL",
+      "entidade": "SESI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3192",
+      "centroCustoNome": "Aperfeicoamento",
+      "classeValor": "020903932",
+      "classeValorNome": "000000000162173-000141465 AMG BRASIL S/A",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "01MG0034",
+      "uo": "11980",
+      "centroCusto": "3147",
+      "centroCustoNome": "Ensino Fundamental - 6? ao 9? Ano",
+      "classeValor": "010102012",
+      "classeValorNome": "NUCLEO COMPARTILHADO - FUNDAMENTAL 2",
+      "entidade": "SESI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3192",
+      "centroCustoNome": "Aperfeicoamento",
+      "classeValor": "020904099",
+      "classeValorNome": "000000000163216-000568885 PRODUTOS ALIME",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "01MG0034",
+      "uo": "11980",
+      "centroCusto": "3147",
+      "centroCustoNome": "Ensino Fundamental - 6? ao 9? Ano",
+      "classeValor": "010105010",
+      "classeValorNome": "PROJETO RECRIAR - SESI",
+      "entidade": "SESI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3192",
+      "centroCustoNome": "Aperfeicoamento",
+      "classeValor": "020904122",
+      "classeValorNome": "000000000163292-000141465 AMG BRASIL S/A",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "01MG0034",
+      "uo": "11980",
+      "centroCusto": "3148",
+      "centroCustoNome": "ROBOTICA - OLIMPIADA",
+      "classeValor": "010105004",
+      "classeValorNome": "OLIMPIADAS ROBOTICA",
+      "entidade": "SESI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3192",
+      "centroCustoNome": "Aperfeicoamento",
+      "classeValor": "020904288",
+      "classeValorNome": "000000000163709-000736350 VLI MULTIMODAL",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "01MG0034",
+      "uo": "11980",
+      "centroCusto": "3149",
+      "centroCustoNome": "OFICINAS DE ROBOTICA",
+      "classeValor": "010105001",
+      "classeValorNome": "OFICINAS DE ROBOTICA  GRATUIDADE",
+      "entidade": "SESI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3192",
+      "centroCustoNome": "Aperfeicoamento",
+      "classeValor": "020904429",
+      "classeValorNome": "000000000164465-000141465 AMG BRASIL S/A",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "01MG0034",
+      "uo": "11980",
+      "centroCusto": "3149",
+      "centroCustoNome": "OFICINAS DE ROBOTICA",
+      "classeValor": "020107746",
+      "classeValorNome": "000000000170153-001074877 SECRETARIA MUN",
+      "entidade": "SESI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3192",
+      "centroCustoNome": "Aperfeicoamento",
+      "classeValor": "020904432",
+      "classeValorNome": "000000000163370-000141465 AMG BRASIL S/A",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "01MG0034",
+      "uo": "11980",
+      "centroCusto": "3149",
+      "centroCustoNome": "OFICINAS DE ROBOTICA",
+      "classeValor": "020108711",
+      "classeValorNome": "000000000174593-000955391 MUNICIPIO DE C",
+      "entidade": "SESI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3192",
+      "centroCustoNome": "Aperfeicoamento",
+      "classeValor": "020904760",
+      "classeValorNome": "000000000165474-000071177 AVIVAR ALIMENT",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "01MG0034",
+      "uo": "11980",
+      "centroCusto": "3149",
+      "centroCustoNome": "OFICINAS DE ROBOTICA",
+      "classeValor": "020109137",
+      "classeValorNome": "000000000176068-001021911 MUNICIPIO DE N",
+      "entidade": "SESI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3192",
+      "centroCustoNome": "Aperfeicoamento",
+      "classeValor": "020904880",
+      "classeValorNome": "000000000166127-001003695 BOSTON ELECTRO",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "01MG0034",
+      "uo": "11980",
+      "centroCusto": "3172",
+      "centroCustoNome": "Biblioteca",
+      "classeValor": "010100500",
+      "classeValorNome": "BIBLIOTECA - SESI",
+      "entidade": "SESI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3192",
+      "centroCustoNome": "Aperfeicoamento",
+      "classeValor": "020904914",
+      "classeValorNome": "000000000166309-000755340 CAVALCANTE PEI",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "01MG0034",
+      "uo": "11980",
+      "centroCusto": "3189",
+      "centroCustoNome": "ROTAS DO ENEM",
+      "classeValor": "010103010",
+      "classeValorNome": "ROTAS DO ENEM",
+      "entidade": "SESI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3192",
+      "centroCustoNome": "Aperfeicoamento",
+      "classeValor": "020904952",
+      "classeValorNome": "000000000166375-001003695 BOSTON ELECTRO",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "01MG0034",
+      "uo": "11980",
+      "centroCusto": "3189",
+      "centroCustoNome": "ROTAS DO ENEM",
+      "classeValor": "010105006",
+      "classeValorNome": "PLANTAO SESI",
+      "entidade": "SESI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3192",
+      "centroCustoNome": "Aperfeicoamento",
+      "classeValor": "020904987",
+      "classeValorNome": "000000000166400-000568885 PRODUTOS ALIME",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "01MG0034",
+      "uo": "11980",
+      "centroCusto": "3190",
+      "centroCustoNome": "ENSINO FUNDAMENTAL - MONITORIAS",
+      "classeValor": "010105002",
+      "classeValorNome": "SESI ADAPTA FUND 2",
+      "entidade": "SESI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3192",
+      "centroCustoNome": "Aperfeicoamento",
+      "classeValor": "020905296",
+      "classeValorNome": "000000000166680-000028442 SECRETARIA DE",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "01MG0034",
+      "uo": "11980",
+      "centroCusto": "3190",
+      "centroCustoNome": "ENSINO FUNDAMENTAL - MONITORIAS",
+      "classeValor": "010105005",
+      "classeValorNome": "SESI ADAPTA FUND 1",
+      "entidade": "SESI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3192",
+      "centroCustoNome": "Aperfeicoamento",
+      "classeValor": "020905337",
+      "classeValorNome": "000000000166956-001003695 BOSTON ELECTRO",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "01MG0034",
+      "uo": "11980",
+      "centroCusto": "3190",
+      "centroCustoNome": "ENSINO FUNDAMENTAL - MONITORIAS",
+      "classeValor": "010105006",
+      "classeValorNome": "PLANTAO SESI",
+      "entidade": "SESI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3192",
+      "centroCustoNome": "Aperfeicoamento",
+      "classeValor": "020905485",
+      "classeValorNome": "000000000168904-000029785 COMPANHIA DE S",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "01MG0034",
+      "uo": "11980",
+      "centroCusto": "3193",
+      "centroCustoNome": "SESI WAY",
+      "classeValor": "010105007",
+      "classeValorNome": "SESI WAY",
+      "entidade": "SESI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3192",
+      "centroCustoNome": "Aperfeicoamento",
+      "classeValor": "020905625",
+      "classeValorNome": "000000000169424-000293020 VLI MULTIMODAL",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "01MG0034",
+      "uo": "11980",
+      "centroCusto": "3410",
+      "centroCustoNome": "ESCOLA DE ESPORTES",
+      "classeValor": "010100137",
+      "classeValorNome": "ESPORTES COLETIVOS",
+      "entidade": "SESI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3192",
+      "centroCustoNome": "Aperfeicoamento",
+      "classeValor": "020905672",
+      "classeValorNome": "000000000169720-000004295 CEMIG DISTRIBU",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "01MG0034",
+      "uo": "11980",
+      "centroCusto": "3434",
+      "centroCustoNome": "FORMACAO CULTURAL",
+      "classeValor": "010106003",
+      "classeValorNome": "FORMACAO CULTURAL - DANCA",
+      "entidade": "SESI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3192",
+      "centroCustoNome": "Aperfeicoamento",
+      "classeValor": "020906537",
+      "classeValorNome": "000000000173894-000568885 PRODUTOS ALIME",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "01MG0034",
+      "uo": "11980",
+      "centroCusto": "3434",
+      "centroCustoNome": "FORMACAO CULTURAL",
+      "classeValor": "010106004",
+      "classeValorNome": "FORMACAO CULTURAL – MUSICA",
+      "entidade": "SESI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3192",
+      "centroCustoNome": "Aperfeicoamento",
+      "classeValor": "020906665",
+      "classeValorNome": "000000000174393-000568885 PRODUTOS ALIME",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3192",
+      "centroCustoNome": "Aperfeicoamento",
+      "classeValor": "020906815",
+      "classeValorNome": "000000000175442-000141465 AMG BRASIL S.A",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3192",
+      "centroCustoNome": "Aperfeicoamento",
+      "classeValor": "020906922",
+      "classeValorNome": "000000000176091-000632976 BACCARINI E BA",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3484",
+      "centroCustoNome": "Consultoria Processo Produtivo",
+      "classeValor": "010100158",
+      "classeValorNome": "BRASIL MAIS PRODUTIVO",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3484",
+      "centroCustoNome": "Consultoria Processo Produtivo",
+      "classeValor": "020900222",
+      "classeValorNome": "SEBRAE-00123618-000030751 SERVICO DE APO",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3484",
+      "centroCustoNome": "Consultoria Processo Produtivo",
+      "classeValor": "020901890",
+      "classeValorNome": "000000000145854-000578159 GRANHA LIGAS L",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3484",
+      "centroCustoNome": "Consultoria Processo Produtivo",
+      "classeValor": "020902328",
+      "classeValorNome": "000000000154778-000062179 BOZEL BRASIL S",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3484",
+      "centroCustoNome": "Consultoria Processo Produtivo",
+      "classeValor": "020903605",
+      "classeValorNome": "000000000160753-000820766 AMG BRASIL SA",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3484",
+      "centroCustoNome": "Consultoria Processo Produtivo",
+      "classeValor": "020906459",
+      "classeValorNome": "000000000172951-001085743 RENOVADORA DE",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3484",
+      "centroCustoNome": "Consultoria Processo Produtivo",
+      "classeValor": "020906462",
+      "classeValorNome": "000000000172954-001085745 RMG RETIFICA D",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3484",
+      "centroCustoNome": "Consultoria Processo Produtivo",
+      "classeValor": "020906509",
+      "classeValorNome": "000000000172948-001085653 MANTIQUEIRA RE",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3484",
+      "centroCustoNome": "Consultoria Processo Produtivo",
+      "classeValor": "020906515",
+      "classeValorNome": "000000000172968-000141465 AMG BRASIL S A",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3484",
+      "centroCustoNome": "Consultoria Processo Produtivo",
+      "classeValor": "020906672",
+      "classeValorNome": "000000000174464-000062179 BOZEL BRASIL S",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3614",
+      "centroCustoNome": "Curso Tecnico de Nivel Medio Presencial",
+      "classeValor": "010900060",
+      "classeValorNome": "ENS.PROF.CONSTRUCAO DE OBRAS",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3614",
+      "centroCustoNome": "Curso Tecnico de Nivel Medio Presencial",
+      "classeValor": "010900061",
+      "classeValorNome": "ENS.PROF.DESENVOL. DE SISTEMAS",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3614",
+      "centroCustoNome": "Curso Tecnico de Nivel Medio Presencial",
+      "classeValor": "010900062",
+      "classeValorNome": "ENS.PROF.DESIGN",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3614",
+      "centroCustoNome": "Curso Tecnico de Nivel Medio Presencial",
+      "classeValor": "010900063",
+      "classeValorNome": "ENS.PROF.ELETRONICA E AUTOMACAO",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3614",
+      "centroCustoNome": "Curso Tecnico de Nivel Medio Presencial",
+      "classeValor": "010900064",
+      "classeValorNome": "ENS.PROF.GERENCIAL",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3614",
+      "centroCustoNome": "Curso Tecnico de Nivel Medio Presencial",
+      "classeValor": "010900069",
+      "classeValorNome": "ENS.PROF.MANUFATURA",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3614",
+      "centroCustoNome": "Curso Tecnico de Nivel Medio Presencial",
+      "classeValor": "010900070",
+      "classeValorNome": "ENS.PROF.MANUTENCAO E OPERACAO",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3614",
+      "centroCustoNome": "Curso Tecnico de Nivel Medio Presencial",
+      "classeValor": "010900073",
+      "classeValorNome": "ENS.PROF.METALMECANICA",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3614",
+      "centroCustoNome": "Curso Tecnico de Nivel Medio Presencial",
+      "classeValor": "010900079",
+      "classeValorNome": "ENS.PROF.PROTECAO/REABILITACAO ECOSISTEM",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3614",
+      "centroCustoNome": "Curso Tecnico de Nivel Medio Presencial",
+      "classeValor": "010900080",
+      "classeValorNome": "ENS.PROF.QUIMICA",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3614",
+      "centroCustoNome": "Curso Tecnico de Nivel Medio Presencial",
+      "classeValor": "010900081",
+      "classeValorNome": "ENS.PROF.SEGURANCA",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3614",
+      "centroCustoNome": "Curso Tecnico de Nivel Medio Presencial",
+      "classeValor": "010900082",
+      "classeValorNome": "ENS.PROF.SISTEMAS DE ENERGIA",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3614",
+      "centroCustoNome": "Curso Tecnico de Nivel Medio Presencial",
+      "classeValor": "010900083",
+      "classeValorNome": "ENS.PROF.TEXTIL E VESTUARIO",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3614",
+      "centroCustoNome": "Curso Tecnico de Nivel Medio Presencial",
+      "classeValor": "010900101",
+      "classeValorNome": "TRILHAS DE FUTURO",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3614",
+      "centroCustoNome": "Curso Tecnico de Nivel Medio Presencial",
+      "classeValor": "010900105",
+      "classeValorNome": "TRILHAS NAS ESCOLAS",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3614",
+      "centroCustoNome": "Curso Tecnico de Nivel Medio Presencial",
+      "classeValor": "010900217",
+      "classeValorNome": "PROJETO RECRIAR - SENAI",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3804",
+      "centroCustoNome": "Qualificacao Profissional Presencial",
+      "classeValor": "010900058",
+      "classeValorNome": "ENS.PROF.COMERCIAL",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3804",
+      "centroCustoNome": "Qualificacao Profissional Presencial",
+      "classeValor": "010900060",
+      "classeValorNome": "ENS.PROF.CONSTRUCAO DE OBRAS",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3804",
+      "centroCustoNome": "Qualificacao Profissional Presencial",
+      "classeValor": "010900061",
+      "classeValorNome": "ENS.PROF.DESENVOL. DE SISTEMAS",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3804",
+      "centroCustoNome": "Qualificacao Profissional Presencial",
+      "classeValor": "010900063",
+      "classeValorNome": "ENS.PROF.ELETRONICA E AUTOMACAO",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3804",
+      "centroCustoNome": "Qualificacao Profissional Presencial",
+      "classeValor": "010900064",
+      "classeValorNome": "ENS.PROF.GERENCIAL",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3804",
+      "centroCustoNome": "Qualificacao Profissional Presencial",
+      "classeValor": "010900070",
+      "classeValorNome": "ENS.PROF.MANUTENCAO E OPERACAO",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3804",
+      "centroCustoNome": "Qualificacao Profissional Presencial",
+      "classeValor": "010900073",
+      "classeValorNome": "ENS.PROF.METALMECANICA",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3804",
+      "centroCustoNome": "Qualificacao Profissional Presencial",
+      "classeValor": "010900078",
+      "classeValorNome": "ENS.PROF.PRODUCAO ALIMENTICIA",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3804",
+      "centroCustoNome": "Qualificacao Profissional Presencial",
+      "classeValor": "010900081",
+      "classeValorNome": "ENS.PROF.SEGURANCA",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3804",
+      "centroCustoNome": "Qualificacao Profissional Presencial",
+      "classeValor": "020902502",
+      "classeValorNome": "000000000155637-000141465 AMG BRASIL S/A",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3804",
+      "centroCustoNome": "Qualificacao Profissional Presencial",
+      "classeValor": "020903249",
+      "classeValorNome": "000000000159232-001003695 BOSTON ELECTRO",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3804",
+      "centroCustoNome": "Qualificacao Profissional Presencial",
+      "classeValor": "020903541",
+      "classeValorNome": "000000000160666-000955391 MUNICIPIO DE C",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3804",
+      "centroCustoNome": "Qualificacao Profissional Presencial",
+      "classeValor": "020905912",
+      "classeValorNome": "000000000171333-001077255 JOHN DEERE BRA",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3804",
+      "centroCustoNome": "Qualificacao Profissional Presencial",
+      "classeValor": "020906137",
+      "classeValorNome": "000000000172087-001003695 BOSTON ELECTRO",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3804",
+      "centroCustoNome": "Qualificacao Profissional Presencial",
+      "classeValor": "020906272",
+      "classeValorNome": "000000000172711-000034654 MUNICIPIO DE S",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3804",
+      "centroCustoNome": "Qualificacao Profissional Presencial",
+      "classeValor": "020906958",
+      "classeValorNome": "000000000176312-000948111 FORTMAIS CENTR",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3852",
+      "centroCustoNome": "Iniciacao Profissional Presencial",
+      "classeValor": "010900063",
+      "classeValorNome": "ENS.PROF.ELETRONICA E AUTOMACAO",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3852",
+      "centroCustoNome": "Iniciacao Profissional Presencial",
+      "classeValor": "010900082",
+      "classeValorNome": "ENS.PROF.SISTEMAS DE ENERGIA",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3852",
+      "centroCustoNome": "Iniciacao Profissional Presencial",
+      "classeValor": "020905296",
+      "classeValorNome": "000000000166680-000028442 SECRETARIA DE",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3863",
+      "centroCustoNome": "Aperfeicoamento Profissional a Distancia",
+      "classeValor": "010900058",
+      "classeValorNome": "ENS.PROF.COMERCIAL",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3863",
+      "centroCustoNome": "Aperfeicoamento Profissional a Distancia",
+      "classeValor": "010900063",
+      "classeValorNome": "ENS.PROF.ELETRONICA E AUTOMACAO",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3863",
+      "centroCustoNome": "Aperfeicoamento Profissional a Distancia",
+      "classeValor": "010900064",
+      "classeValorNome": "ENS.PROF.GERENCIAL",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3865",
+      "centroCustoNome": "Curso Tecnico de Nivel Medio a Distancia",
+      "classeValor": "010900063",
+      "classeValorNome": "ENS.PROF.ELETRONICA E AUTOMACAO",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3865",
+      "centroCustoNome": "Curso Tecnico de Nivel Medio a Distancia",
+      "classeValor": "010900081",
+      "classeValorNome": "ENS.PROF.SEGURANCA",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3865",
+      "centroCustoNome": "Curso Tecnico de Nivel Medio a Distancia",
+      "classeValor": "010900082",
+      "classeValorNome": "ENS.PROF.SISTEMAS DE ENERGIA",
+      "entidade": "SENAI"
+    },
+    {
+      "filial": "09MG0019",
+      "uo": "13390",
+      "centroCusto": "3865",
+      "centroCustoNome": "Curso Tecnico de Nivel Medio a Distancia",
+      "classeValor": "010900101",
+      "classeValorNome": "TRILHAS DE FUTURO",
+      "entidade": "SENAI"
+    }
+  ]
+}
