@@ -5,10 +5,12 @@ Sistema criado para a unidade SESI/SENAI São João del-Rei, com base na planilh
 ## O que vem nesta versão
 
 - Formulário de solicitação parecido com a PMC.
-- Campos principais: solicitante, setor, unidade, entidade, centro de custo, finalidade, família, código Protheus, descrição, unidade de medida, quantidade, valor estimado, urgência, justificativa e anexo.
-- Painel com indicadores.
+- Campos principais: solicitante, setor, unidade, entidade, centro de custo, finalidade, itens da compra, urgência, justificativa e anexo/orçamento.
+- Cada pedido pode ter um ou mais itens. Cada item tem código da família, código Protheus, descrição, unidade, quantidade, valor estimado, imagem do produto e link de referência.
+- Link de consulta de produtos FIEMG exibido no formulário: https://consultaproduto.fiemg.com.br/ConsultaProdutos.php
+- Painel com Meus pedidos, Pedidos geral, classificação por status e busca de compras por código Protheus, produto, família ou comprador/solicitante.
 - Lista de solicitações com filtros.
-- Regra de alerta para compras da mesma família dentro de 90 dias.
+- Regra de alerta para compras da mesma família dentro de 90 dias. O usuário recebe o aviso, mas pode finalizar o pedido; a solicitação fica marcada com alerta.
 - Alerta de produto/código já solicitado.
 - Histórico de alterações por solicitação.
 - Atualização de status: Pendente, Aprovado, Em cotação, Em compra, Comprado, Entregue e Recusado.
@@ -68,7 +70,7 @@ O arquivo `firestore.rules` já está incluído como base inicial.
 ## Perfis sugeridos
 
 - `solicitante`: cadastra e acompanha solicitações.
-- `compras`: altera status, adiciona comentários e acompanha todas.
+- `compras`: altera status, informa o comprador responsável, adiciona comentários e acompanha todas.
 - `gestor`: acompanha e aprova.
 - `admin`: acessa tudo, cria usuários e configura regras.
 

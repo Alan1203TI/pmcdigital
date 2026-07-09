@@ -4,20 +4,14 @@ const STATUSES = ['Pendente','Aprovado','Em cotação','Em compra','Comprado','E
 const STORAGE_KEYS = {usuarios:'pmcUsuarios', solicitacoes:'pmcSolicitacoes', config:'pmcConfig'};
 let state = {user:null, usuarios:[], solicitacoes:[], refs:{finalidades:[], servicosProtheus:[], centrosClasseValor:[]}, config:{diasRegra:90}};
 
-async function start(){
-  await loadRefs();
-  loadLocal();
-  seedAdmin();
-  bind();
-  renderAll();
-}
+async function start(){ await loadRefs(); loadLocal(); seedAdmin(); bind(); renderAll(); }
 async function loadRefs(){
   try{ state.refs = await fetch('./data/referencias.json').then(r=>r.json()); }
   catch(e){ state.refs = {finalidades:[], servicosProtheus:[], centrosClasseValor:[]}; }
 }
 function loadLocal(){
   state.usuarios = JSON.parse(localStorage.getItem(STORAGE_KEYS.usuarios)||'[]');
-  state.solicitacoes = JSON.parse(localStorage.getItem(STORAGE_KEYS.solicitacoes)||'[]');
+  state.solicitacoes = JSON.parse(localStorage.getItem(STORAGE_KEYS.solicitacoes)||'[]').map(normalizarSolicitacao);
   state.config = JSON.parse(localStorage.getItem(STORAGE_KEYS.config)||'{"diasRegra":90}');
 }
 function saveLocal(){
@@ -25,26 +19,23 @@ function saveLocal(){
   localStorage.setItem(STORAGE_KEYS.solicitacoes, JSON.stringify(state.solicitacoes));
   localStorage.setItem(STORAGE_KEYS.config, JSON.stringify(state.config));
 }
-function seedAdmin(){
-  if(!state.usuarios.length){
-    state.usuarios.push({id:crypto.randomUUID(), nome:'Administrador PMC', email:'admin@pmc.local', senha:'123456', perfil:'admin', setor:'Compras'});
-    saveLocal();
-  }
-}
+function seedAdmin(){ if(!state.usuarios.length){ state.usuarios.push({id:crypto.randomUUID(), nome:'Administrador PMC', email:'admin@pmc.local', senha:'123456', perfil:'admin', setor:'Compras'}); saveLocal(); } }
 function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.remove('hidden'); setTimeout(()=>t.classList.add('hidden'),3500); }
 function bind(){
   $('#loginForm').onsubmit = e => {e.preventDefault(); login();};
   $('#logoutBtn').onclick = () => {state.user=null; $('#appView').classList.add('hidden'); $('#loginView').classList.remove('hidden');};
   $$('.nav').forEach(b=>b.onclick=()=>showPage(b.dataset.page));
   $('#solicitacaoForm').onsubmit = e => {e.preventDefault(); salvarSolicitacao();};
-  $('#codigoProduto').addEventListener('change', preencherProduto);
+  $('#addItemBtn').onclick = () => addItem();
   $('#entidade').addEventListener('change', fillCentroCusto);
   $('#busca').oninput = renderSolicitacoes; $('#filtroStatus').onchange=renderSolicitacoes; $('#filtroFamilia').onchange=renderSolicitacoes;
+  $('#buscaDashboard').oninput = renderDashboard; $('#statusDashboard').onchange = renderDashboard;
   $('#refBusca').oninput = renderReferencias;
   $('#userForm').onsubmit = e => {e.preventDefault(); salvarUsuario();};
   $('#exportCsvBtn').onclick = exportCsv;
   $('#salvarConfig').onclick = () => {state.config.diasRegra = Number($('#diasRegra').value||90); saveLocal(); toast('Configuração salva.'); renderAll();};
   $('#limparDemo').onclick = () => { if(confirm('Apagar todas as solicitações?')){state.solicitacoes=[]; saveLocal(); renderAll(); toast('Solicitações apagadas.');} };
+  addItem();
 }
 function login(){
   const email=$('#loginEmail').value.trim().toLowerCase(); const senha=$('#loginSenha').value;
@@ -58,98 +49,111 @@ function login(){
 function showPage(id){
   $$('.page').forEach(p=>p.classList.toggle('active',p.id===id));
   $$('.nav').forEach(n=>n.classList.toggle('active',n.dataset.page===id));
-  const titles={dashboard:['Painel','Acompanhe indicadores e alertas.'],nova:['Nova Solicitação','Preencha os campos da PMC digital.'],solicitacoes:['Solicitações','Consulte, filtre e atualize compras.'],referencias:['Referências PMC','Dados auxiliares extraídos da planilha.'],usuarios:['Usuários','Cadastro de acessos.'],config:['Configurações','Regras do sistema.']};
+  const titles={dashboard:['Painel','Meus pedidos, pedidos geral, status e consulta de compras realizadas.'],nova:['Nova Solicitação','Adicione um ou mais itens na mesma PMC.'],solicitacoes:['Solicitações','Consulte por código Protheus, produto, família, solicitante ou comprador.'],referencias:['Referências PMC','Dados auxiliares extraídos da planilha.'],usuarios:['Usuários','Cadastro de acessos.'],config:['Configurações','Regras do sistema.']};
   $('#pageTitle').textContent=titles[id]?.[0]||'PMC'; $('#pageSubtitle').textContent=titles[id]?.[1]||'';
 }
 function renderAll(){ fillSelects(); renderDashboard(); renderSolicitacoes(); renderReferencias(); renderUsuarios(); $('#diasRegra').value=state.config.diasRegra; }
 function fillSelects(){
-  const finalidades = $('#finalidade'); finalidades.innerHTML='<option value="">Selecione</option>' + state.refs.finalidades.map(f=>`<option value="${esc(f.codigo+' - '+f.descricao)}" data-conta="${esc(f.conta)}">${esc(f.codigo)} - ${esc(f.descricao)}</option>`).join('');
+  $('#finalidade').innerHTML='<option value="">Selecione</option>' + state.refs.finalidades.map(f=>`<option value="${esc(f.codigo+' - '+f.descricao)}" data-conta="${esc(f.conta)}">${esc(f.codigo)} - ${esc(f.descricao)}</option>`).join('');
   fillCentroCusto();
   $('#produtosList').innerHTML = state.refs.servicosProtheus.map(p=>`<option value="${esc(p.codigo)} - ${esc(p.descricao)}"></option>`).join('');
-  const fams = unique([...state.refs.finalidades.map(f=>f.descricao), ...state.solicitacoes.map(s=>s.familia)].filter(Boolean));
+  const fams = unique([...state.refs.finalidades.map(f=>f.codigo), ...state.refs.servicosProtheus.map(p=>p.tipo), ...allItems().map(i=>i.familia)].filter(Boolean));
   $('#familiasList').innerHTML=fams.map(f=>`<option value="${esc(f)}"></option>`).join('');
   $('#filtroStatus').innerHTML='<option value="">Todos os status</option>'+STATUSES.map(s=>`<option>${s}</option>`).join('');
-  $('#filtroFamilia').innerHTML='<option value="">Todas as famílias</option>'+unique(state.solicitacoes.map(s=>s.familia)).sort().map(f=>`<option>${esc(f)}</option>`).join('');
+  $('#statusDashboard').innerHTML='<option value="">Todos os status</option>'+STATUSES.map(s=>`<option>${s}</option>`).join('');
+  $('#filtroFamilia').innerHTML='<option value="">Todas as famílias</option>'+unique(allItems().map(i=>i.familia)).sort().map(f=>`<option>${esc(f)}</option>`).join('');
 }
 function fillCentroCusto(){
   const entidade=$('#entidade').value; let centros=state.refs.centrosClasseValor;
   if(entidade) centros=centros.filter(c=>c.entidade===entidade);
   $('#centroCusto').innerHTML='<option value="">Selecione</option>'+centros.map(c=>`<option value="${esc(c.centroCusto+' - '+c.centroCustoNome+' / '+c.classeValor+' - '+c.classeValorNome)}">${esc(c.entidade)} | ${esc(c.centroCusto)} - ${esc(c.centroCustoNome)} | ${esc(c.classeValorNome)}</option>`).join('');
 }
-function preencherProduto(){
-  const val=$('#codigoProduto').value; const code=val.split(' - ')[0].trim();
+function addItem(data={}){
+  const frag=$('#itemTemplate').content.cloneNode(true); const card=frag.querySelector('.item-card');
+  card.querySelector('.item-familia').value=data.familia||''; card.querySelector('.item-codigo').value=data.codigoProduto||''; card.querySelector('.item-descricao').value=data.descricao||'';
+  card.querySelector('.item-unMedida').value=data.unMedida||''; card.querySelector('.item-quantidade').value=data.quantidade||''; card.querySelector('.item-valorEstimado').value=data.valorEstimado||''; card.querySelector('.item-linkReferencia').value=data.linkReferencia||'';
+  card.querySelector('.remove-item').onclick=()=>{ if($$('.item-card').length>1) card.remove(); else toast('A solicitação precisa ter pelo menos um item.'); renumerarItens(); };
+  card.querySelector('.item-codigo').addEventListener('change',()=>preencherProduto(card));
+  $('#itensContainer').appendChild(card); renumerarItens();
+}
+function renumerarItens(){ $$('.item-card').forEach((c,i)=>c.querySelector('.item-title b').textContent=`Item ${i+1}`); }
+function preencherProduto(card){
+  const input=card.querySelector('.item-codigo'); const val=input.value; const code=val.split(' - ')[0].trim();
   const p=state.refs.servicosProtheus.find(x=>x.codigo===code || val.includes(x.descricao));
-  if(p){ $('#codigoProduto').value=p.codigo; $('#descricao').value=p.descricao+'\n'+(p.uso||''); $('#familia').value=p.tipo||$('#familia').value; $('#unMedida').value='SERV'; }
+  if(p){ input.value=p.codigo; card.querySelector('.item-descricao').value=p.descricao+'\n'+(p.uso||''); card.querySelector('.item-familia').value=p.tipo||card.querySelector('.item-familia').value; card.querySelector('.item-unMedida').value='SERV'; }
 }
-function salvarSolicitacao(){
-  const s={id:crypto.randomUUID(), criadoEm:new Date().toISOString(), solicitante:$('#solicitante').value.trim(), setor:$('#setor').value.trim(), unidade:$('#unidade').value, entidade:$('#entidade').value, centroCusto:$('#centroCusto').value, finalidade:$('#finalidade').value, familia:$('#familia').value.trim(), codigoProduto:$('#codigoProduto').value.trim(), descricao:$('#descricao').value.trim(), unMedida:$('#unMedida').value.trim(), quantidade:Number($('#quantidade').value), valorEstimado:Number($('#valorEstimado').value||0), urgencia:$('#urgencia').value, justificativa:$('#justificativa').value.trim(), anexo:$('#anexo').value.trim(), status:'Pendente', comentarios:[], historico:[log('Criada')]};
-  const alerta = getAlertas(s);
-  if(alerta.length){
-    const msg='Atenção:\n\n'+alerta.join('\n\n')+'\n\nDeseja salvar mesmo assim?';
-    if(!confirm(msg)) return;
-    s.temAlerta=true; s.alertaTexto=alerta.join(' | ');
+async function salvarSolicitacao(){
+  const itens=[];
+  for(const card of $$('.item-card')){
+    const item={id:crypto.randomUUID(), familia:card.querySelector('.item-familia').value.trim(), codigoProduto:card.querySelector('.item-codigo').value.trim(), descricao:card.querySelector('.item-descricao').value.trim(), unMedida:card.querySelector('.item-unMedida').value.trim(), quantidade:Number(card.querySelector('.item-quantidade').value), valorEstimado:Number(card.querySelector('.item-valorEstimado').value||0), linkReferencia:card.querySelector('.item-linkReferencia').value.trim(), imagemProduto:''};
+    const file=card.querySelector('.item-imagem').files[0]; if(file) item.imagemProduto = await fileToDataUrl(file);
+    if(!item.familia || !item.descricao || !item.quantidade) return toast('Preencha família, descrição e quantidade em todos os itens.');
+    itens.push(item);
   }
-  state.solicitacoes.unshift(s); saveLocal(); $('#solicitacaoForm').reset(); $('#solicitante').value=state.user.nome; $('#setor').value=state.user.setor||''; renderAll(); showPage('solicitacoes'); toast('Solicitação salva.');
+  const s={id:crypto.randomUUID(), criadoEm:new Date().toISOString(), solicitante:$('#solicitante').value.trim(), solicitanteEmail:state.user?.email||'', setor:$('#setor').value.trim(), unidade:$('#unidade').value, entidade:$('#entidade').value, centroCusto:$('#centroCusto').value, finalidade:$('#finalidade').value, itens, urgencia:$('#urgencia').value, justificativa:$('#justificativa').value.trim(), anexo:$('#anexo').value.trim(), comprador:'', status:'Pendente', comentarios:[], historico:[log('Criada')]};
+  const alerta = getAlertas(s);
+  if(alerta.length){ alert('Atenção:\n\n'+alerta.join('\n\n')+'\n\nA solicitação será salva mesmo assim, porém ficará marcada com aviso de fragmentação/duplicidade.'); s.temAlerta=true; s.alertaTexto=alerta.join(' | '); }
+  state.solicitacoes.unshift(s); saveLocal(); $('#solicitacaoForm').reset(); $('#itensContainer').innerHTML=''; addItem(); $('#solicitante').value=state.user.nome; $('#setor').value=state.user.setor||''; renderAll(); showPage('solicitacoes'); toast('Solicitação salva.');
 }
+function fileToDataUrl(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(file); }); }
 function getAlertas(s){
-  const dias=Number(state.config.diasRegra||90); const now=new Date(); const abertos=['Pendente','Aprovado','Em cotação','Em compra','Comprado'];
+  const dias=Number(state.config.diasRegra||90); const now=new Date(); const relevantes=['Pendente','Aprovado','Em cotação','Em compra','Comprado','Entregue'];
   let alerts=[];
-  const dup=state.solicitacoes.find(x=>x.codigoProduto && s.codigoProduto && x.codigoProduto===s.codigoProduto && abertos.includes(x.status));
-  if(dup) alerts.push(`Produto/código já solicitado por ${dup.solicitante} em ${fmtDate(dup.criadoEm)}. Status: ${dup.status}.`);
-  const fam=state.solicitacoes.find(x=>norm(x.familia)===norm(s.familia) && (diffDays(now,new Date(x.criadoEm))<=dias) && abertos.includes(x.status));
-  if(fam) alerts.push(`Já existe solicitação da família "${s.familia}" nos últimos ${dias} dias. Solicitante: ${fam.solicitante}, data: ${fmtDate(fam.criadoEm)}, status: ${fam.status}.`);
-  return alerts;
+  s.itens.forEach(item=>{
+    const dup=state.solicitacoes.find(x=>x.itens?.some(i=>i.codigoProduto && item.codigoProduto && i.codigoProduto===item.codigoProduto) && relevantes.includes(x.status));
+    if(dup) alerts.push(`Item ${item.codigoProduto}: produto/código já solicitado por ${dup.solicitante} em ${fmtDate(dup.criadoEm)}. Status: ${dup.status}.`);
+    const fam=state.solicitacoes.find(x=>x.itens?.some(i=>norm(i.familia)===norm(item.familia)) && (diffDays(now,new Date(x.criadoEm))<=dias) && relevantes.includes(x.status));
+    if(fam) alerts.push(`Família ${item.familia}: já existe compra/solicitação nos últimos ${dias} dias. Solicitante: ${fam.solicitante}, data: ${fmtDate(fam.criadoEm)}, status: ${fam.status}.`);
+  });
+  return unique(alerts);
 }
 function renderDashboard(){
-  const total=state.solicitacoes.length; $('#kpiTotal').textContent=total;
-  $('#kpiPendentes').textContent=state.solicitacoes.filter(s=>s.status==='Pendente').length;
-  $('#kpiAndamento').textContent=state.solicitacoes.filter(s=>['Em cotação','Em compra','Comprado','Aprovado'].includes(s.status)).length;
-  $('#kpiAlertas').textContent=state.solicitacoes.filter(s=>s.temAlerta).length;
-  $('#recentList').innerHTML=state.solicitacoes.slice(0,8).map(s=>`<div class="mini-item"><b>${esc(s.familia)}</b><br>${esc(s.descricao).slice(0,90)}<br><small>${fmtDate(s.criadoEm)} • ${esc(s.solicitante)} • ${badge(s.status)}</small></div>`).join('') || '<p>Nenhuma solicitação ainda.</p>';
-  const counts={}; state.solicitacoes.forEach(s=>counts[s.familia]=(counts[s.familia]||0)+1); const max=Math.max(1,...Object.values(counts));
-  $('#familiaBars').innerHTML=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([f,c])=>`<div class="bar-row"><span>${esc(f).slice(0,28)}</span><div class="bar-bg"><div class="bar-fill" style="width:${c/max*100}%"></div></div><b>${c}</b></div>`).join('') || '<p>Sem dados.</p>';
+  const mine=meusPedidos(); const all=state.solicitacoes; const f=filtrarDashboard(all);
+  $('#kpiMeus').textContent=mine.length; $('#kpiTotal').textContent=all.length; $('#kpiPendentes').textContent=all.filter(s=>s.status==='Pendente').length; $('#kpiAlertas').textContent=all.filter(s=>s.temAlerta).length;
+  $('#meusPedidosList').innerHTML=(filtrarDashboard(mine).slice(0,8).map(miniCard).join('')) || '<p>Nenhum pedido seu encontrado.</p>';
+  $('#recentList').innerHTML=f.slice(0,10).map(miniCard).join('') || '<p>Nenhuma compra encontrada.</p>';
+  renderBars('#familiaBars', countBy(allItems(f), 'familia'), 10);
+  renderBars('#statusBars', countBy(all, 'status'), STATUSES.length);
 }
+function miniCard(s){ return `<div class="mini-item"><b>${esc(s.status)}</b> • ${esc(itemResumo(s,'familias'))}<br>${esc(itemResumo(s,'produtos')).slice(0,120)}<br><small>${fmtDate(s.criadoEm)} • ${esc(s.solicitante)}${s.comprador?' • Comprador: '+esc(s.comprador):''} ${s.temAlerta?' • <span class="alert">⚠ 90 dias</span>':''}</small></div>`; }
+function filtrarDashboard(rows){ const q=norm($('#buscaDashboard')?.value||''), st=$('#statusDashboard')?.value||''; return rows.filter(s=>(!st||s.status===st)&&(!q||norm(searchText(s)).includes(q))); }
+function renderBars(sel, counts, limit){ const vals=Object.entries(counts).filter(([k])=>k).sort((a,b)=>b[1]-a[1]).slice(0,limit); const max=Math.max(1,...vals.map(x=>x[1])); $(sel).innerHTML=vals.map(([f,c])=>`<div class="bar-row"><span>${esc(f).slice(0,28)}</span><div class="bar-bg"><div class="bar-fill" style="width:${c/max*100}%"></div></div><b>${c}</b></div>`).join('') || '<p>Sem dados.</p>'; }
 function renderSolicitacoes(){
   const q=norm($('#busca').value||''), st=$('#filtroStatus').value, fam=$('#filtroFamilia').value;
-  let rows=state.solicitacoes.filter(s=>(!st||s.status===st)&&(!fam||s.familia===fam)&&(!q||norm(JSON.stringify(s)).includes(q)));
-  $('#solTable tbody').innerHTML=rows.map(s=>`<tr><td>${fmtDate(s.criadoEm)}</td><td>${esc(s.solicitante)}<br><small>${esc(s.setor)}</small></td><td>${esc(s.familia)}</td><td>${esc(s.codigoProduto)}</td><td>${esc(s.descricao).slice(0,140)}</td><td>${s.quantidade} ${esc(s.unMedida||'')}</td><td>${badge(s.status)}</td><td>${s.temAlerta?'<span class="alert">⚠ 90 dias/duplicidade</span>':'<span class="ok">OK</span>'}</td><td><button onclick="openDetail('${s.id}')">Ver</button></td></tr>`).join('') || '<tr><td colspan="9">Nenhuma solicitação encontrada.</td></tr>';
+  let rows=state.solicitacoes.filter(s=>(!st||s.status===st)&&(!fam||s.itens?.some(i=>i.familia===fam))&&(!q||norm(searchText(s)).includes(q)));
+  $('#solTable tbody').innerHTML=rows.map(s=>`<tr><td>${fmtDate(s.criadoEm)}</td><td>${esc(s.solicitante)}<br><small>${esc(s.setor)}${s.comprador?' | Comprador: '+esc(s.comprador):''}</small></td><td>${esc(itemResumo(s,'familias'))}</td><td>${esc(itemResumo(s,'codigos'))}</td><td>${esc(itemResumo(s,'produtos')).slice(0,160)}</td><td>${s.itens.reduce((a,i)=>a+Number(i.quantidade||0),0)}</td><td>${badge(s.status)}</td><td>${s.temAlerta?'<span class="alert">⚠ 90 dias/duplicidade</span>':'<span class="ok">OK</span>'}</td><td><button onclick="openDetail('${s.id}')">Ver</button></td></tr>`).join('') || '<tr><td colspan="9">Nenhuma solicitação encontrada.</td></tr>';
 }
 window.openDetail=function(id){
-  const s=state.solicitacoes.find(x=>x.id===id); if(!s) return;
-  const canEdit = ['admin','compras','gestor'].includes(state.user.perfil);
-  $('#detailContent').innerHTML=`<h3>Solicitação PMC</h3><div class="detail-grid">
-    ${item('Data',fmtDate(s.criadoEm))}${item('Solicitante',s.solicitante)}${item('Setor',s.setor)}${item('Unidade',s.unidade)}${item('Entidade',s.entidade)}${item('Centro/Classe',s.centroCusto)}${item('Finalidade',s.finalidade)}${item('Família',s.familia)}${item('Código',s.codigoProduto)}${item('Quantidade',s.quantidade+' '+(s.unMedida||''))}${item('Valor estimado',money(s.valorEstimado))}${item('Urgência',s.urgencia)}${item('Descrição',s.descricao,'wide')}${item('Justificativa',s.justificativa,'wide')}${item('Anexo',s.anexo?`<a href="${escAttr(s.anexo)}" target="_blank">Abrir anexo</a>`:'-','wide')}${item('Alerta',s.alertaTexto||'Sem alerta','wide')}</div>
-    ${canEdit?`<hr><label>Status<select id="statusEdit">${STATUSES.map(x=>`<option ${x===s.status?'selected':''}>${x}</option>`).join('')}</select></label><label>Comentário de compras/gestor<textarea id="comentarioEdit" rows="3"></textarea></label><button class="primary" onclick="saveStatus('${s.id}')">Salvar atualização</button><button class="danger-btn" onclick="delSol('${s.id}')">Excluir</button>`:''}
+  const s=state.solicitacoes.find(x=>x.id===id); if(!s) return; const canEdit = ['admin','compras','gestor'].includes(state.user.perfil);
+  const itensHtml=s.itens.map((i,idx)=>`<div class="detail-item"><h4>Item ${idx+1}</h4>${item('Família/código',i.familia)}${item('Código Protheus',i.codigoProduto||'-')}${item('Quantidade',i.quantidade+' '+(i.unMedida||''))}${item('Valor estimado',money(i.valorEstimado))}${item('Descrição',i.descricao,'wide')}${item('Link referência',i.linkReferencia?`<a href="${escAttr(i.linkReferencia)}" target="_blank">Abrir referência</a>`:'-','wide')}${item('Imagem',i.imagemProduto?`<img class="produto-img" src="${escAttr(i.imagemProduto)}" alt="Imagem do produto">`:'-','wide')}</div>`).join('');
+  $('#detailContent').innerHTML=`<h3>Solicitação PMC</h3><div class="detail-grid">${item('Data',fmtDate(s.criadoEm))}${item('Solicitante',s.solicitante)}${item('Setor',s.setor)}${item('Unidade',s.unidade)}${item('Entidade',s.entidade)}${item('Centro/Classe',s.centroCusto)}${item('Finalidade',s.finalidade)}${item('Comprador',s.comprador||'-')}${item('Urgência',s.urgencia)}${item('Justificativa',s.justificativa,'wide')}${item('Anexo/orçamento',s.anexo?`<a href="${escAttr(s.anexo)}" target="_blank">Abrir orçamento/anexo</a>`:'-','wide')}${item('Alerta',s.alertaTexto||'Sem alerta','wide')}</div><h3>Itens</h3>${itensHtml}
+    ${canEdit?`<hr><label>Status<select id="statusEdit">${STATUSES.map(x=>`<option ${x===s.status?'selected':''}>${x}</option>`).join('')}</select></label><label>Comprador responsável<input id="compradorEdit" value="${escAttr(s.comprador||'')}"></label><label>Comentário de compras/gestor<textarea id="comentarioEdit" rows="3"></textarea></label><button class="primary" onclick="saveStatus('${s.id}')">Salvar atualização</button><button class="danger-btn" onclick="delSol('${s.id}')">Excluir</button>`:''}
     <h4>Histórico</h4><ul>${(s.historico||[]).map(h=>`<li>${fmtDateTime(h.data)} - ${esc(h.usuario)}: ${esc(h.acao)}</li>`).join('')}</ul>`;
   $('#detailDialog').showModal();
 }
-window.saveStatus=function(id){
-  const s=state.solicitacoes.find(x=>x.id===id); const status=$('#statusEdit').value; const com=$('#comentarioEdit').value.trim();
-  s.status=status; if(com) s.comentarios.push({data:new Date().toISOString(), usuario:state.user.nome, texto:com}); s.historico.push(log('Status alterado para '+status+(com?' | '+com:''))); saveLocal(); renderAll(); $('#detailDialog').close(); toast('Solicitação atualizada.');
-}
+window.saveStatus=function(id){ const s=state.solicitacoes.find(x=>x.id===id); const status=$('#statusEdit').value; const comprador=$('#compradorEdit').value.trim(); const com=$('#comentarioEdit').value.trim(); s.status=status; s.comprador=comprador; if(com) s.comentarios.push({data:new Date().toISOString(), usuario:state.user.nome, texto:com}); s.historico.push(log('Status alterado para '+status+(comprador?' | Comprador: '+comprador:'')+(com?' | '+com:''))); saveLocal(); renderAll(); $('#detailDialog').close(); toast('Solicitação atualizada.'); }
 window.delSol=function(id){ if(confirm('Excluir esta solicitação?')){state.solicitacoes=state.solicitacoes.filter(x=>x.id!==id); saveLocal(); renderAll(); $('#detailDialog').close();}}
 function renderReferencias(){
   const q=norm($('#refBusca').value||''); const list=[];
-  state.refs.finalidades.forEach(f=>list.push({tipo:'Finalidade', titulo:`${f.codigo} - ${f.descricao}`, txt:`Conta ${f.conta} - ${f.contaDescricao}`}));
-  state.refs.servicosProtheus.forEach(p=>list.push({tipo:'Serviço Protheus', titulo:`${p.codigo} - ${p.descricao}`, txt:`${p.tipo} | ${p.uso}`}));
+  state.refs.finalidades.forEach(f=>list.push({tipo:'Família/finalidade', titulo:`${f.codigo} - ${f.descricao}`, txt:`Conta ${f.conta} - ${f.contaDescricao}`}));
+  state.refs.servicosProtheus.forEach(p=>list.push({tipo:'Produto/serviço Protheus', titulo:`${p.codigo} - ${p.descricao}`, txt:`Família/tipo ${p.tipo} | ${p.uso}`}));
   state.refs.centrosClasseValor.forEach(c=>list.push({tipo:'Centro/Classe', titulo:`${c.entidade} | ${c.centroCusto} - ${c.centroCustoNome}`, txt:`Classe ${c.classeValor} - ${c.classeValorNome}`}));
   $('#refList').innerHTML=list.filter(x=>!q||norm(x.tipo+x.titulo+x.txt).includes(q)).slice(0,350).map(x=>`<div class="ref-item"><small>${x.tipo}</small><br><b>${esc(x.titulo)}</b><p>${esc(x.txt)}</p></div>`).join('');
 }
-function salvarUsuario(){
-  const u={id:crypto.randomUUID(),nome:$('#uNome').value.trim(),email:$('#uEmail').value.trim(),senha:$('#uSenha').value,perfil:$('#uPerfil').value,setor:$('#uSetor').value.trim()};
-  if(state.usuarios.some(x=>x.email.toLowerCase()===u.email.toLowerCase())) return toast('E-mail já cadastrado.');
-  state.usuarios.push(u); saveLocal(); $('#userForm').reset(); $('#uSenha').value='123456'; renderUsuarios(); toast('Usuário cadastrado.');
-}
-function renderUsuarios(){
-  $('#userTable tbody').innerHTML=state.usuarios.map(u=>`<tr><td>${esc(u.nome)}</td><td>${esc(u.email)}</td><td>${esc(u.perfil)}</td><td>${esc(u.setor||'')}</td><td>${u.email==='admin@pmc.local'?'Padrão':`<button onclick="delUser('${u.id}')">Excluir</button>`}</td></tr>`).join('');
-}
+function salvarUsuario(){ const u={id:crypto.randomUUID(),nome:$('#uNome').value.trim(),email:$('#uEmail').value.trim(),senha:$('#uSenha').value,perfil:$('#uPerfil').value,setor:$('#uSetor').value.trim()}; if(state.usuarios.some(x=>x.email.toLowerCase()===u.email.toLowerCase())) return toast('E-mail já cadastrado.'); state.usuarios.push(u); saveLocal(); $('#userForm').reset(); $('#uSenha').value='123456'; renderUsuarios(); toast('Usuário cadastrado.'); }
+function renderUsuarios(){ $('#userTable tbody').innerHTML=state.usuarios.map(u=>`<tr><td>${esc(u.nome)}</td><td>${esc(u.email)}</td><td>${esc(u.perfil)}</td><td>${esc(u.setor||'')}</td><td>${u.email==='admin@pmc.local'?'Padrão':`<button onclick="delUser('${u.id}')">Excluir</button>`}</td></tr>`).join(''); }
 window.delUser=id=>{state.usuarios=state.usuarios.filter(u=>u.id!==id); saveLocal(); renderUsuarios();}
 function exportCsv(){
-  const head=['Data','Solicitante','Setor','Unidade','Entidade','CentroCusto','Finalidade','Familia','Codigo','Descricao','Quantidade','UnidadeMedida','ValorEstimado','Urgencia','Status','Alerta','Justificativa','Anexo'];
-  const lines=[head, ...state.solicitacoes.map(s=>[fmtDate(s.criadoEm),s.solicitante,s.setor,s.unidade,s.entidade,s.centroCusto,s.finalidade,s.familia,s.codigoProduto,s.descricao,s.quantidade,s.unMedida,s.valorEstimado,s.urgencia,s.status,s.alertaTexto||'',s.justificativa,s.anexo])];
-  const csv=lines.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(';')).join('\n');
-  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'})); a.download='pmc-solicitacoes.csv'; a.click();
+  const head=['Data','Solicitante','Setor','Unidade','Entidade','CentroCusto','Finalidade','Familias','Codigos','Produtos','QuantidadeTotal','ValorTotal','Urgencia','Status','Comprador','Alerta','Justificativa','Anexo','LinksReferencia'];
+  const lines=[head, ...state.solicitacoes.map(s=>[fmtDate(s.criadoEm),s.solicitante,s.setor,s.unidade,s.entidade,s.centroCusto,s.finalidade,itemResumo(s,'familias'),itemResumo(s,'codigos'),itemResumo(s,'produtos'),s.itens.reduce((a,i)=>a+Number(i.quantidade||0),0),s.itens.reduce((a,i)=>a+Number(i.valorEstimado||0),0),s.urgencia,s.status,s.comprador||'',s.alertaTexto||'',s.justificativa,s.anexo,s.itens.map(i=>i.linkReferencia).filter(Boolean).join(' | ')])];
+  const csv=lines.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(';')).join('\n'); const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'})); a.download='pmc-solicitacoes.csv'; a.click();
 }
+function normalizarSolicitacao(s){ if(s.itens) return s; s.itens=[{id:crypto.randomUUID(), familia:s.familia||'', codigoProduto:s.codigoProduto||'', descricao:s.descricao||'', unMedida:s.unMedida||'', quantidade:s.quantidade||0, valorEstimado:s.valorEstimado||0, linkReferencia:'', imagemProduto:''}]; s.comprador=s.comprador||''; return s; }
+function allItems(rows=state.solicitacoes){ return rows.flatMap(s=>(s.itens||[]).map(i=>({...i, status:s.status, solicitante:s.solicitante, comprador:s.comprador, criadoEm:s.criadoEm}))); }
+function meusPedidos(){ return state.solicitacoes.filter(s=>s.solicitanteEmail===state.user?.email || norm(s.solicitante)===norm(state.user?.nome)); }
+function searchText(s){ return JSON.stringify({...s, itens:s.itens}); }
+function itemResumo(s,t){ const arr=s.itens||[]; if(t==='familias') return unique(arr.map(i=>i.familia)).join(', '); if(t==='codigos') return unique(arr.map(i=>i.codigoProduto).filter(Boolean)).join(', '); if(t==='produtos') return arr.map(i=>i.descricao).join(' | '); }
+function countBy(rows, key){ const c={}; rows.forEach(r=>c[r[key]]=(c[r[key]]||0)+1); return c; }
 function log(acao){return {data:new Date().toISOString(), usuario:state.user?.nome||'Sistema', acao};}
 function unique(a){return [...new Set(a.filter(Boolean))];}
 function norm(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();}

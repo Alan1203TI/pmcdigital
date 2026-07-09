@@ -42,13 +42,21 @@
 
       <section id="dashboard" class="page active">
         <div class="cards">
-          <div class="card kpi"><span>Total</span><b id="kpiTotal">0</b></div>
+          <div class="card kpi"><span>Meus pedidos</span><b id="kpiMeus">0</b></div>
+          <div class="card kpi"><span>Pedidos geral</span><b id="kpiTotal">0</b></div>
           <div class="card kpi"><span>Pendentes</span><b id="kpiPendentes">0</b></div>
-          <div class="card kpi"><span>Em cotação/compra</span><b id="kpiAndamento">0</b></div>
           <div class="card kpi danger"><span>Alertas 90 dias</span><b id="kpiAlertas">0</b></div>
         </div>
+        <div class="panel filters dashboard-search">
+          <input id="buscaDashboard" placeholder="Pesquisar compras por código Protheus, produto, família ou comprador/solicitante...">
+          <select id="statusDashboard"><option value="">Todos os status</option></select>
+        </div>
         <div class="panel two-col">
-          <div><h3>Solicitações recentes</h3><div id="recentList" class="mini-list"></div></div>
+          <div><h3>Meus pedidos</h3><div id="meusPedidosList" class="mini-list"></div></div>
+          <div><h3>Classificação por status</h3><div id="statusBars" class="bars"></div></div>
+        </div>
+        <div class="panel two-col">
+          <div><h3>Pedidos geral / compras realizadas</h3><div id="recentList" class="mini-list"></div></div>
           <div><h3>Compras por família</h3><div id="familiaBars" class="bars"></div></div>
         </div>
       </section>
@@ -62,17 +70,27 @@
           <label>Entidade<select id="entidade" required><option value="">Selecione</option><option>SESI</option><option>SENAI</option></select></label>
           <label>Centro de custo / Classe<select id="centroCusto" required></select></label>
           <label>Finalidade da compra<select id="finalidade" required></select></label>
-          <label>Família do produto<input id="familia" list="familiasList" placeholder="Ex.: Material de Computação" required></label>
+          <div class="wide info-box">Consulte o produto no link <a href="https://consultaproduto.fiemg.com.br/ConsultaProdutos.php" target="_blank" rel="noopener">Consulta Produto FIEMG</a> e adicione o código Protheus e a descrição.</div>
+          <div class="wide itens-header"><h4>Itens da solicitação</h4><button type="button" id="addItemBtn">+ Adicionar item</button></div>
+          <div id="itensContainer" class="wide itens-container"></div>
+          <template id="itemTemplate">
+            <div class="item-card">
+              <div class="item-title"><b>Item</b><button type="button" class="remove-item">Remover</button></div>
+              <label>Família do produto / código da família<input class="item-familia" list="familiasList" placeholder="Informe o código da família" required></label>
+              <label>Código Protheus<input class="item-codigo" list="produtosList" placeholder="Código Protheus"></label>
+              <label>Descrição do produto<textarea class="item-descricao" rows="3" required></textarea></label>
+              <label>Unidade de medida<input class="item-unMedida" placeholder="UN, CX, M, SERV"></label>
+              <label>Quantidade<input class="item-quantidade" type="number" step="0.01" min="0.01" required></label>
+              <label>Valor estimado total<input class="item-valorEstimado" type="number" step="0.01" min="0"></label>
+              <label>Imagem do produto<input class="item-imagem" type="file" accept="image/*"></label>
+              <label>Link de referência do produto<input class="item-linkReferencia" placeholder="Link do produto de referência"></label>
+            </div>
+          </template>
           <datalist id="familiasList"></datalist>
-          <label>Código Protheus / Produto<input id="codigoProduto" list="produtosList" placeholder="Digite código ou descrição"></label>
           <datalist id="produtosList"></datalist>
-          <label>Descrição do produto<textarea id="descricao" rows="3" required></textarea></label>
-          <label>Unidade de medida<input id="unMedida" placeholder="UN, CX, M, SERV"></label>
-          <label>Quantidade<input id="quantidade" type="number" step="0.01" min="0.01" required></label>
-          <label>Valor estimado total<input id="valorEstimado" type="number" step="0.01" min="0"></label>
           <label>Urgência<select id="urgencia"><option>Normal</option><option>Alta</option><option>Baixa</option></select></label>
           <label class="wide">Justificativa técnica<textarea id="justificativa" rows="4" required></textarea></label>
-          <label class="wide">Link de anexo/orçamento<input id="anexo" placeholder="Cole o link do Drive/OneDrive, se houver"></label>
+          <label class="wide">Link de anexo/orçamento<input id="anexo" placeholder="Cole o link do orçamento no Drive/OneDrive, se houver"></label>
           <div class="wide actions"><button class="primary" type="submit">Salvar solicitação</button><button type="reset">Limpar</button></div>
         </form>
       </section>
@@ -83,7 +101,7 @@
           <select id="filtroStatus"><option value="">Todos os status</option></select>
           <select id="filtroFamilia"><option value="">Todas as famílias</option></select>
         </div>
-        <div class="panel table-wrap"><table id="solTable"><thead><tr><th>Data</th><th>Solicitante</th><th>Família</th><th>Código</th><th>Produto</th><th>Qtd</th><th>Status</th><th>Alerta</th><th>Ações</th></tr></thead><tbody></tbody></table></div>
+        <div class="panel table-wrap"><table id="solTable"><thead><tr><th>Data</th><th>Solicitante / Comprador</th><th>Famílias</th><th>Códigos</th><th>Produtos</th><th>Qtd</th><th>Status</th><th>Alerta</th><th>Ações</th></tr></thead><tbody></tbody></table></div>
       </section>
 
       <section id="referencias" class="page">
