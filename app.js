@@ -152,7 +152,7 @@ async function salvarSolicitacao(){
   const itens=[];
   for(const card of $$('.item-card')){
     normalizarFamiliaInput(card.querySelector('.item-familia'));
-    const item={id:crypto.randomUUID(), familia:card.querySelector('.item-familia').value.trim(), codigoProduto:card.querySelector('.item-codigo').value.trim(), descricao:card.querySelector('.item-descricao').value.trim(), unMedida:card.querySelector('.item-unMedida').value.trim(), quantidade:Number(card.querySelector('.item-quantidade').value), valorEstimado:Number(card.querySelector('.item-valorEstimado').value||0), linkReferencia:card.querySelector('.item-linkReferencia').value.trim(), imagemProduto:''};
+    const item={id:crypto.randomUUID(), familia:card.querySelector('.item-familia').value.trim(), codigoProduto:card.querySelector('.item-codigo').value.trim(), descricao:card.querySelector('.item-descricao').value.trim(), unMedida:card.querySelector('.item-unMedida').value.trim(), quantidade:Number(card.querySelector('.item-quantidade').value), valorEstimado:Number(card.querySelector('.item-valorEstimado').value||0), linkReferencia:card.querySelector('.item-linkReferencia').value.trim(), imagemProduto:'', status:'Pendente', comprador:'', dataFinalizada:'', comentarios:[]};
     const file=card.querySelector('.item-imagem').files[0]; if(file) item.imagemProduto = await fileToDataUrl(file);
     if(!item.familia || !item.descricao || !item.quantidade) return toast('Preencha família, descrição e quantidade em todos os itens.');
     itens.push(item);
@@ -160,6 +160,7 @@ async function salvarSolicitacao(){
   const s={id:crypto.randomUUID(), criadoEm:new Date().toISOString(), solicitante:$('#solicitante').value.trim(), solicitanteEmail:state.user?.email||'', setor:$('#setor').value.trim(), unidade:$('#unidade').value, entidade:$('#entidade').value, centroCusto:$('#centroCusto').value, finalidade:$('#finalidade').value, itens, urgencia:$('#urgencia').value, justificativa:$('#justificativa').value.trim(), anexo:$('#anexo').value.trim(), comprador:'', status:'Pendente', comentarios:[], historico:[log('Criada')]};
   const alerta = getAlertas(s);
   if(alerta.length){ alert('Atenção:\n\n'+alerta.join('\n\n')+'\n\nA solicitação será salva mesmo assim, porém ficará marcada com aviso de fragmentação/duplicidade.'); s.temAlerta=true; s.alertaTexto=alerta.join(' | '); }
+  atualizarStatusPedido(s);
   state.solicitacoes.unshift(s); saveLocal(); $('#solicitacaoForm').reset(); $('#itensContainer').innerHTML=''; addItem(); $('#solicitante').value=state.user.nome; $('#setor').value=state.user.setor||''; renderAll(); showPage('solicitacoes'); toast('Solicitação salva.');
 }
 function fileToDataUrl(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(file); }); }
@@ -167,38 +168,66 @@ function getAlertas(s){
   const dias=Number(state.config.diasRegra||90); const now=new Date(); const relevantes=['Pendente','Aprovado','Em cotação','Em compra','Comprado','Entregue'];
   let alerts=[];
   s.itens.forEach(item=>{
-    const dup=state.solicitacoes.find(x=>x.itens?.some(i=>i.codigoProduto && item.codigoProduto && i.codigoProduto===item.codigoProduto) && relevantes.includes(x.status));
-    if(dup) alerts.push(`Item ${item.codigoProduto}: produto/código já solicitado por ${dup.solicitante} em ${fmtDate(dup.criadoEm)}. Status: ${dup.status}.`);
-    const fam=state.solicitacoes.find(x=>x.itens?.some(i=>familiaCodigo(i.familia)===familiaCodigo(item.familia)) && (diffDays(now,new Date(x.criadoEm))<=dias) && relevantes.includes(x.status));
-    if(fam) alerts.push(`Família ${familiaLabel(item.familia)}: já existe compra/solicitação nos últimos ${dias} dias. Solicitante: ${fam.solicitante}, data: ${fmtDate(fam.criadoEm)}, status: ${fam.status}.`);
+    const dup=state.solicitacoes.find(x=>x.itens?.some(i=>i.codigoProduto && item.codigoProduto && i.codigoProduto===item.codigoProduto && relevantes.includes(i.status||x.status)));
+    if(dup) alerts.push(`Item ${item.codigoProduto}: produto/código já solicitado por ${dup.solicitante} em ${fmtDate(dup.criadoEm)}.`);
+    const fam=state.solicitacoes.find(x=>x.itens?.some(i=>familiaCodigo(i.familia)===familiaCodigo(item.familia) && relevantes.includes(i.status||x.status)) && (diffDays(now,new Date(x.criadoEm))<=dias));
+    if(fam) alerts.push(`Família ${familiaLabel(item.familia)}: já existe compra/solicitação nos últimos ${dias} dias. Solicitante: ${fam.solicitante}, data: ${fmtDate(fam.criadoEm)}.`);
   });
   return unique(alerts);
 }
 function renderDashboard(){
   const mine=meusPedidos(); const all=state.solicitacoes; const f=filtrarDashboard(all);
-  $('#kpiMeus').textContent=mine.length; $('#kpiTotal').textContent=all.length; $('#kpiPendentes').textContent=all.filter(s=>s.status==='Pendente').length; $('#kpiAlertas').textContent=all.filter(s=>s.temAlerta).length;
-  $('#meusPedidosList').innerHTML=(filtrarDashboard(mine).slice(0,8).map(miniCard).join('')) || '<p>Nenhum pedido seu encontrado.</p>';
-  $('#recentList').innerHTML=f.slice(0,10).map(miniCard).join('') || '<p>Nenhuma compra encontrada.</p>';
-  renderBars('#familiaBars', countBy(allItems(f).map(i=>({...i, familia:familiaLabel(i.familia)})), 'familia'), 10);
-  renderBars('#statusBars', countBy(all, 'status'), STATUSES.length);
+  const allItens=allItems(all); const fItens=allItems(f); const mineItens=allItems(filtrarDashboard(mine));
+  $('#kpiMeus').textContent=mine.length; $('#kpiTotal').textContent=all.length; $('#kpiPendentes').textContent=allItens.filter(i=>i.status==='Pendente').length; $('#kpiAlertas').textContent=all.filter(s=>s.temAlerta).length;
+  $('#meusPedidosList').innerHTML=mineItens.slice(0,12).map(itemMiniCard).join('') || '<p>Nenhum pedido seu encontrado.</p>';
+  $('#recentList').innerHTML=fItens.slice(0,18).map(itemMiniCard).join('') || '<p>Nenhuma compra encontrada.</p>';
+  renderBars('#familiaBars', countBy(fItens.map(i=>({...i, familia:familiaLabel(i.familia)})), 'familia'), 10);
+  renderBars('#statusBars', countBy(allItens, 'status'), STATUSES.length);
 }
-function miniCard(s){ return `<div class="mini-item"><b>${esc(s.status)}</b> • ${esc(itemResumo(s,'familias'))}<br>${esc(itemResumo(s,'produtos')).slice(0,120)}<br><small>${fmtDate(s.criadoEm)} • ${esc(s.solicitante)}${s.comprador?' • Comprador: '+esc(s.comprador):''} ${s.temAlerta?' • <span class="alert">⚠ 90 dias</span>':''}</small></div>`; }
-function filtrarDashboard(rows){ const q=norm($('#buscaDashboard')?.value||''), st=$('#statusDashboard')?.value||''; return rows.filter(s=>(!st||s.status===st)&&(!q||norm(searchText(s)).includes(q))); }
+function itemMiniCard(i){
+  return `<div class="mini-item"><b>${badge(i.status)}</b> ${i.temAlerta?'<span class="alert">⚠ 90 dias</span>':''}<br><b>${esc(i.codigoProduto||'Sem código')}</b> • Qtd: ${esc(i.quantidade)} ${esc(i.unMedida||'')}<br>${esc(i.descricao||'-').slice(0,160)}<br><small>Pedido por: ${esc(i.solicitante)} • Data do pedido: ${fmtDate(i.criadoEm)}${i.dataFinalizada?' • Finalizada: '+fmtDate(i.dataFinalizada):''}${i.comprador?' • Compradora: '+esc(i.comprador):''}</small></div>`;
+}
+function filtrarDashboard(rows){ const q=norm($('#buscaDashboard')?.value||''), st=$('#statusDashboard')?.value||''; return rows.filter(s=>(!st||s.itens?.some(i=>(i.status||s.status)===st))&&(!q||norm(searchText(s)).includes(q))); }
 function renderBars(sel, counts, limit){ const vals=Object.entries(counts).filter(([k])=>k).sort((a,b)=>b[1]-a[1]).slice(0,limit); const max=Math.max(1,...vals.map(x=>x[1])); $(sel).innerHTML=vals.map(([f,c])=>`<div class="bar-row"><span>${esc(f).slice(0,28)}</span><div class="bar-bg"><div class="bar-fill" style="width:${c/max*100}%"></div></div><b>${c}</b></div>`).join('') || '<p>Sem dados.</p>'; }
 function renderSolicitacoes(){
   const q=norm($('#busca').value||''), st=$('#filtroStatus').value, fam=$('#filtroFamilia').value;
-  let rows=state.solicitacoes.filter(s=>(!st||s.status===st)&&(!fam||s.itens?.some(i=>i.familia===fam))&&(!q||norm(searchText(s)).includes(q)));
-  $('#solTable tbody').innerHTML=rows.map(s=>`<tr><td>${fmtDate(s.criadoEm)}</td><td>${esc(s.solicitante)}<br><small>${esc(s.setor)}${s.comprador?' | Comprador: '+esc(s.comprador):''}</small></td><td>${esc(itemResumo(s,'familias'))}</td><td>${esc(itemResumo(s,'codigos'))}</td><td>${esc(itemResumo(s,'produtos')).slice(0,160)}</td><td>${s.itens.reduce((a,i)=>a+Number(i.quantidade||0),0)}</td><td>${badge(s.status)}</td><td>${s.temAlerta?'<span class="alert">⚠ 90 dias/duplicidade</span>':'<span class="ok">OK</span>'}</td><td><button onclick="openDetail('${s.id}')">Ver</button></td></tr>`).join('') || '<tr><td colspan="9">Nenhuma solicitação encontrada.</td></tr>';
+  let rows=state.solicitacoes.filter(s=>(!st||s.itens?.some(i=>(i.status||s.status)===st))&&(!fam||s.itens?.some(i=>i.familia===fam))&&(!q||norm(searchText(s)).includes(q)));
+  $('#solTable tbody').innerHTML=rows.map(s=>{
+    const itens=(s.itens||[]).map(i=>`<div class="item-line"><b>${esc(i.codigoProduto||'-')}</b> • ${esc(i.quantidade)} ${esc(i.unMedida||'')} • ${esc(i.descricao||'-')}<br><small>${badge(i.status||s.status)}${i.comprador?' • Compradora: '+esc(i.comprador):''}${i.dataFinalizada?' • Finalizada: '+fmtDate(i.dataFinalizada):''}</small></div>`).join('');
+    return `<tr><td>${fmtDate(s.criadoEm)}</td><td>${esc(s.solicitante)}<br><small>${esc(s.setor)}</small></td><td>${esc(itemResumo(s,'familias'))}</td><td colspan="3">${itens}</td><td>${badge(s.status)}</td><td>${s.temAlerta?'<span class="alert">⚠ 90 dias/duplicidade</span>':'<span class="ok">OK</span>'}</td><td><button onclick="openDetail('${s.id}')">Ver/Atualizar itens</button></td></tr>`;
+  }).join('') || '<tr><td colspan="9">Nenhuma solicitação encontrada.</td></tr>';
 }
 window.openDetail=function(id){
   const s=state.solicitacoes.find(x=>x.id===id); if(!s) return; const canEdit = ['admin','compras','gestor'].includes(state.user.perfil);
-  const itensHtml=s.itens.map((i,idx)=>`<div class="detail-item"><h4>Item ${idx+1}</h4>${item('Família/código',familiaLabel(i.familia))}${item('Código Protheus',i.codigoProduto||'-')}${item('Quantidade',i.quantidade+' '+(i.unMedida||''))}${item('Valor estimado',money(i.valorEstimado))}${item('Descrição',i.descricao,'wide')}${item('Link referência',i.linkReferencia?`<a href="${escAttr(i.linkReferencia)}" target="_blank">Abrir referência</a>`:'-','wide')}${item('Imagem',i.imagemProduto?`<img class="produto-img" src="${escAttr(i.imagemProduto)}" alt="Imagem do produto">`:'-','wide')}</div>`).join('');
-  $('#detailContent').innerHTML=`<h3>Solicitação PMC</h3><div class="detail-grid">${item('Data',fmtDate(s.criadoEm))}${item('Solicitante',s.solicitante)}${item('Setor',s.setor)}${item('Unidade',s.unidade)}${item('Entidade',s.entidade)}${item('Centro/Classe',s.centroCusto)}${item('Finalidade',s.finalidade)}${item('Comprador',s.comprador||'-')}${item('Urgência',s.urgencia)}${item('Justificativa',s.justificativa,'wide')}${item('Anexo/orçamento',s.anexo?`<a href="${escAttr(s.anexo)}" target="_blank">Abrir orçamento/anexo</a>`:'-','wide')}${item('Alerta',s.alertaTexto||'Sem alerta','wide')}</div><h3>Itens</h3>${itensHtml}
-    ${canEdit?`<hr><label>Status<select id="statusEdit">${STATUSES.map(x=>`<option ${x===s.status?'selected':''}>${x}</option>`).join('')}</select></label><label>Comprador responsável<input id="compradorEdit" value="${escAttr(s.comprador||'')}"></label><label>Comentário de compras/gestor<textarea id="comentarioEdit" rows="3"></textarea></label><button class="primary" onclick="saveStatus('${s.id}')">Salvar atualização</button><button class="danger-btn" onclick="delSol('${s.id}')">Excluir</button>`:''}
+  const itensHtml=s.itens.map((i,idx)=>`<div class="detail-item"><h4>Item ${idx+1}</h4><div class="detail-grid">${item('Status do item',badge(i.status||s.status))}${item('Compradora',i.comprador||'-')}${item('Data finalizada',i.dataFinalizada?fmtDate(i.dataFinalizada):'-')}${item('Família/código',familiaLabel(i.familia))}${item('Código Protheus',i.codigoProduto||'-')}${item('Quantidade',i.quantidade+' '+(i.unMedida||''))}${item('Valor estimado',money(i.valorEstimado))}${item('Descrição',i.descricao,'wide')}${item('Link referência',i.linkReferencia?`<a href="${escAttr(i.linkReferencia)}" target="_blank">Abrir referência</a>`:'-','wide')}${item('Imagem',i.imagemProduto?`<img class="produto-img" src="${escAttr(i.imagemProduto)}" alt="Imagem do produto">`:'-','wide')}</div>${canEdit?itemEditor(s.id,i,idx):''}</div>`).join('');
+  $('#detailContent').innerHTML=`<h3>Solicitação PMC</h3><div class="detail-grid">${item('Data do pedido',fmtDate(s.criadoEm))}${item('Solicitante',s.solicitante)}${item('Setor',s.setor)}${item('Unidade',s.unidade)}${item('Entidade',s.entidade)}${item('Centro/Classe',s.centroCusto)}${item('Finalidade',s.finalidade)}${item('Status geral calculado',badge(s.status))}${item('Urgência',s.urgencia)}${item('Justificativa',s.justificativa,'wide')}${item('Anexo/orçamento',s.anexo?`<a href="${escAttr(s.anexo)}" target="_blank">Abrir orçamento/anexo</a>`:'-','wide')}${item('Alerta',s.alertaTexto||'Sem alerta','wide')}</div><h3>Itens da solicitação</h3>${itensHtml}
+    ${canEdit?`<hr><button class="danger-btn" onclick="delSol('${s.id}')">Excluir solicitação completa</button>`:''}
     <h4>Histórico</h4><ul>${(s.historico||[]).map(h=>`<li>${fmtDateTime(h.data)} - ${esc(h.usuario)}: ${esc(h.acao)}</li>`).join('')}</ul>`;
   $('#detailDialog').showModal();
 }
-window.saveStatus=function(id){ const s=state.solicitacoes.find(x=>x.id===id); const status=$('#statusEdit').value; const comprador=$('#compradorEdit').value.trim(); const com=$('#comentarioEdit').value.trim(); s.status=status; s.comprador=comprador; if(com) s.comentarios.push({data:new Date().toISOString(), usuario:state.user.nome, texto:com}); s.historico.push(log('Status alterado para '+status+(comprador?' | Comprador: '+comprador:'')+(com?' | '+com:''))); saveLocal(); renderAll(); $('#detailDialog').close(); toast('Solicitação atualizada.'); }
+function itemEditor(sid,i,idx){
+  return `<div class="item-editor"><h4>Atualizar este produto</h4><label>Status<select id="itemStatus_${i.id}">${STATUSES.map(x=>`<option ${x===(i.status||'Pendente')?'selected':''}>${x}</option>`).join('')}</select></label><label>Compradora responsável<input id="itemComprador_${i.id}" value="${escAttr(i.comprador||'')}"></label><label>Data finalizada pela compradora<input id="itemFinalizado_${i.id}" type="date" value="${i.dataFinalizada?String(i.dataFinalizada).slice(0,10):''}"></label><label>Comentário<textarea id="itemComentario_${i.id}" rows="2">${esc(i.comentario||'')}</textarea></label><button class="primary" onclick="saveItemStatus('${sid}','${i.id}')">Salvar status deste produto</button></div>`;
+}
+window.saveItemStatus=function(sid,itemId){
+  const s=state.solicitacoes.find(x=>x.id===sid); if(!s) return; const i=s.itens.find(x=>x.id===itemId); if(!i) return;
+  const status=$(`#itemStatus_${itemId}`).value; const comprador=$(`#itemComprador_${itemId}`).value.trim(); const finalizado=$(`#itemFinalizado_${itemId}`).value; const comentario=$(`#itemComentario_${itemId}`).value.trim();
+  i.status=status; i.comprador=comprador; i.dataFinalizada = finalizado || ((status==='Comprado'||status==='Entregue') ? (i.dataFinalizada||new Date().toISOString().slice(0,10)) : ''); i.comentario=comentario;
+  s.comprador = unique((s.itens||[]).map(x=>x.comprador).filter(Boolean)).join(', ');
+  if(comentario) { i.comentarios = i.comentarios||[]; i.comentarios.push({data:new Date().toISOString(), usuario:state.user.nome, texto:comentario}); }
+  s.historico.push(log(`Item ${i.codigoProduto||itemId} alterado para ${status}${comprador?' | Compradora: '+comprador:''}${i.dataFinalizada?' | Finalizada: '+fmtDate(i.dataFinalizada):''}${comentario?' | '+comentario:''}`));
+  atualizarStatusPedido(s); saveLocal(); renderAll(); $('#detailDialog').close(); toast('Status do produto atualizado.');
+}
+function atualizarStatusPedido(s){
+  const statuses=(s.itens||[]).map(i=>i.status||'Pendente');
+  if(!statuses.length) {s.status='Pendente'; return;}
+  if(statuses.every(x=>x==='Entregue')) s.status='Entregue';
+  else if(statuses.every(x=>x==='Comprado' || x==='Entregue')) s.status='Comprado';
+  else if(statuses.some(x=>x==='Em compra')) s.status='Em compra';
+  else if(statuses.some(x=>x==='Em cotação')) s.status='Em cotação';
+  else if(statuses.some(x=>x==='Aprovado')) s.status='Aprovado';
+  else if(statuses.every(x=>x==='Recusado')) s.status='Recusado';
+  else s.status='Pendente';
+}
 window.delSol=function(id){ if(confirm('Excluir esta solicitação?')){state.solicitacoes=state.solicitacoes.filter(x=>x.id!==id); saveLocal(); renderAll(); $('#detailDialog').close();}}
 function renderReferencias(){
   const q=norm($('#refBusca').value||''); const list=[];
@@ -212,12 +241,12 @@ function salvarUsuario(){ const u={id:crypto.randomUUID(),nome:$('#uNome').value
 function renderUsuarios(){ $('#userTable tbody').innerHTML=state.usuarios.map(u=>`<tr><td>${esc(u.nome)}</td><td>${esc(u.email)}</td><td>${esc(u.perfil)}</td><td>${esc(u.setor||'')}</td><td>${u.email==='admin@pmc.local'?'Padrão':`<button onclick="delUser('${u.id}')">Excluir</button>`}</td></tr>`).join(''); }
 window.delUser=id=>{state.usuarios=state.usuarios.filter(u=>u.id!==id); saveLocal(); renderUsuarios();}
 function exportCsv(){
-  const head=['Data','Solicitante','Setor','Unidade','Entidade','CentroCusto','Finalidade','Familias','Codigos','Produtos','QuantidadeTotal','ValorTotal','Urgencia','Status','Comprador','Alerta','Justificativa','Anexo','LinksReferencia'];
-  const lines=[head, ...state.solicitacoes.map(s=>[fmtDate(s.criadoEm),s.solicitante,s.setor,s.unidade,s.entidade,s.centroCusto,s.finalidade,itemResumo(s,'familias'),itemResumo(s,'codigos'),itemResumo(s,'produtos'),s.itens.reduce((a,i)=>a+Number(i.quantidade||0),0),s.itens.reduce((a,i)=>a+Number(i.valorEstimado||0),0),s.urgencia,s.status,s.comprador||'',s.alertaTexto||'',s.justificativa,s.anexo,s.itens.map(i=>i.linkReferencia).filter(Boolean).join(' | ')])];
+  const head=['Data Pedido','Solicitante','Setor','Unidade','Entidade','CentroCusto','Finalidade','Familia','Codigo Produto','Descricao Produto','Quantidade','Valor Estimado','Urgencia','Status Item','Compradora','Data Finalizada','Status Geral Pedido','Alerta','Justificativa','Anexo','Link Referencia'];
+  const lines=[head, ...state.solicitacoes.flatMap(s=>(s.itens||[]).map(i=>[fmtDate(s.criadoEm),s.solicitante,s.setor,s.unidade,s.entidade,s.centroCusto,s.finalidade,familiaLabel(i.familia),i.codigoProduto||'',i.descricao||'',i.quantidade||'',i.valorEstimado||'',s.urgencia,i.status||s.status,i.comprador||'',i.dataFinalizada?fmtDate(i.dataFinalizada):'',s.status,s.alertaTexto||'',s.justificativa,s.anexo,i.linkReferencia||'']))];
   const csv=lines.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(';')).join('\n'); const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'})); a.download='pmc-solicitacoes.csv'; a.click();
 }
-function normalizarSolicitacao(s){ if(s.itens){ s.itens=s.itens.map(i=>({...i, familia:familiaCodigo(i.familia)})); return s; } s.itens=[{id:crypto.randomUUID(), familia:familiaCodigo(s.familia)||'', codigoProduto:s.codigoProduto||'', descricao:s.descricao||'', unMedida:s.unMedida||'', quantidade:s.quantidade||0, valorEstimado:s.valorEstimado||0, linkReferencia:'', imagemProduto:''}]; s.comprador=s.comprador||''; return s; }
-function allItems(rows=state.solicitacoes){ return rows.flatMap(s=>(s.itens||[]).map(i=>({...i, status:s.status, solicitante:s.solicitante, comprador:s.comprador, criadoEm:s.criadoEm}))); }
+function normalizarSolicitacao(s){ if(s.itens){ s.itens=s.itens.map(i=>({id:i.id||crypto.randomUUID(), ...i, familia:familiaCodigo(i.familia), status:i.status||s.status||'Pendente', comprador:i.comprador||s.comprador||'', dataFinalizada:i.dataFinalizada||'', comentarios:i.comentarios||[]})); atualizarStatusPedido(s); return s; } s.itens=[{id:crypto.randomUUID(), familia:familiaCodigo(s.familia)||'', codigoProduto:s.codigoProduto||'', descricao:s.descricao||'', unMedida:s.unMedida||'', quantidade:s.quantidade||0, valorEstimado:s.valorEstimado||0, linkReferencia:'', imagemProduto:'', status:s.status||'Pendente', comprador:s.comprador||'', dataFinalizada:'', comentarios:[]}]; s.comprador=s.comprador||''; atualizarStatusPedido(s); return s; }
+function allItems(rows=state.solicitacoes){ return rows.flatMap(s=>(s.itens||[]).map(i=>({...i, status:i.status||s.status, solicitante:s.solicitante, solicitanteEmail:s.solicitanteEmail, comprador:i.comprador||s.comprador, criadoEm:s.criadoEm, pedidoId:s.id, temAlerta:s.temAlerta, dataFinalizada:i.dataFinalizada||''}))); }
 function meusPedidos(){ return state.solicitacoes.filter(s=>s.solicitanteEmail===state.user?.email || norm(s.solicitante)===norm(state.user?.nome)); }
 function searchText(s){ return JSON.stringify({...s, familiasRotulo:(s.itens||[]).map(i=>familiaLabel(i.familia)), itens:s.itens}); }
 function itemResumo(s,t){ const arr=s.itens||[]; if(t==='familias') return unique(arr.map(i=>familiaLabel(i.familia))).join(', '); if(t==='codigos') return unique(arr.map(i=>i.codigoProduto).filter(Boolean)).join(', '); if(t==='produtos') return arr.map(i=>i.descricao).join(' | '); }
