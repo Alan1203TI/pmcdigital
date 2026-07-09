@@ -95,6 +95,7 @@ function bind(){
   $('#entidade').addEventListener('change', fillCentroCusto);
   $('#busca').oninput = renderSolicitacoes; $('#filtroStatus').onchange=renderSolicitacoes; $('#filtroFamilia').onchange=renderSolicitacoes;
   $('#buscaDashboard').oninput = renderDashboard; $('#statusDashboard').onchange = renderDashboard;
+  $('#buscaCompradora').oninput = renderCompradora; $('#statusCompradora').onchange=renderCompradora; $('#familiaCompradora').onchange=renderCompradora;
   $('#refBusca').oninput = renderReferencias;
   $('#userForm').onsubmit = e => {e.preventDefault(); salvarUsuario();};
   $('#exportCsvBtn').onclick = exportCsv;
@@ -109,15 +110,16 @@ function login(){
   state.user=u; $('#loginView').classList.add('hidden'); $('#appView').classList.remove('hidden');
   $('#solicitante').value=u.nome; $('#setor').value=u.setor||''; $('#userBox').innerHTML=`<b>${u.nome}</b><br>${u.perfil}`;
   $$('.admin-only').forEach(el=>el.style.display = u.perfil==='admin'?'block':'none');
+  $$('.compras-only').forEach(el=>el.style.display = ['admin','compras','gestor'].includes(u.perfil)?'block':'none');
   showPage('dashboard'); renderAll();
 }
 function showPage(id){
   $$('.page').forEach(p=>p.classList.toggle('active',p.id===id));
   $$('.nav').forEach(n=>n.classList.toggle('active',n.dataset.page===id));
-  const titles={dashboard:['Dashboard','Meus pedidos, pedidos geral, status e consulta de compras realizadas.'],nova:['Nova Solicitação','Adicione um ou mais itens na mesma PMC.'],solicitacoes:['Meus / Pedidos Gerais','Consulte por código Protheus, produto, família, solicitante ou comprador.'],referencias:['Consulta PMC','Códigos de famílias, produtos Protheus, finalidades e centros de custo.'],usuarios:['Usuários','Cadastro de acessos.'],config:['Configurações','Regras do sistema.']};
+  const titles={dashboard:['Dashboard','Meus pedidos, pedidos geral, status e consulta de compras realizadas.'],nova:['Nova Solicitação','Adicione um ou mais itens na mesma PMC.'],solicitacoes:['Meus / Pedidos Gerais','Consulte por código Protheus, produto, família, solicitante ou comprador.'],referencias:['Consulta PMC','Códigos de famílias, produtos Protheus, finalidades e centros de custo.'],compradora:['Área da Compradora','Controle exclusivo das PMC solicitadas, com atualização por produto/item.'],usuarios:['Usuários','Cadastro de acessos.'],config:['Configurações','Regras do sistema.']};
   $('#pageTitle').textContent=titles[id]?.[0]||'PMC'; $('#pageSubtitle').textContent=titles[id]?.[1]||'';
 }
-function renderAll(){ fillSelects(); renderDashboard(); renderSolicitacoes(); renderReferencias(); renderUsuarios(); $('#diasRegra').value=state.config.diasRegra; }
+function renderAll(){ fillSelects(); renderDashboard(); renderSolicitacoes(); renderCompradora(); renderReferencias(); renderUsuarios(); $('#diasRegra').value=state.config.diasRegra; }
 function fillSelects(){
   $('#finalidade').innerHTML='<option value="">Selecione</option>' + state.refs.finalidades.map(f=>`<option value="${esc(f.codigo+' - '+f.descricao)}" data-conta="${esc(f.conta)}">${esc(f.codigo)} - ${esc(f.descricao)}</option>`).join('');
   fillCentroCusto();
@@ -126,7 +128,9 @@ function fillSelects(){
   $('#familiasList').innerHTML=fams.map(f=>`<option value="${esc(f.codigo)}" label="${esc(f.codigo+' - '+f.descricao)}"></option>`).join('');
   $('#filtroStatus').innerHTML='<option value="">Todos os status</option>'+STATUSES.map(s=>`<option>${s}</option>`).join('');
   $('#statusDashboard').innerHTML='<option value="">Todos os status</option>'+STATUSES.map(s=>`<option>${s}</option>`).join('');
+  $('#statusCompradora').innerHTML='<option value="">Todos os status</option>'+STATUSES.map(s=>`<option>${s}</option>`).join('');
   $('#filtroFamilia').innerHTML='<option value="">Todas as famílias</option>'+FAMILIAS_PRODUTO.map(f=>`<option value="${esc(f.codigo)}">${esc(f.codigo+' - '+f.descricao)}</option>`).join('');
+  $('#familiaCompradora').innerHTML='<option value="">Todas as famílias</option>'+FAMILIAS_PRODUTO.map(f=>`<option value="${esc(f.codigo)}">${esc(f.codigo+' - '+f.descricao)}</option>`).join('');
 }
 function fillCentroCusto(){
   const entidade=$('#entidade').value; let centros=state.refs.centrosClasseValor;
@@ -159,9 +163,22 @@ async function salvarSolicitacao(){
   }
   const s={id:crypto.randomUUID(), criadoEm:new Date().toISOString(), solicitante:$('#solicitante').value.trim(), solicitanteEmail:state.user?.email||'', setor:$('#setor').value.trim(), unidade:$('#unidade').value, entidade:$('#entidade').value, centroCusto:$('#centroCusto').value, finalidade:$('#finalidade').value, itens, urgencia:$('#urgencia').value, justificativa:$('#justificativa').value.trim(), anexo:$('#anexo').value.trim(), comprador:'', status:'Pendente', comentarios:[], historico:[log('Criada')]};
   const alerta = getAlertas(s);
-  if(alerta.length){ alert('Atenção:\n\n'+alerta.join('\n\n')+'\n\nA solicitação será salva mesmo assim, porém ficará marcada com aviso de fragmentação/duplicidade.'); s.temAlerta=true; s.alertaTexto=alerta.join(' | '); }
+  if(alerta.length){
+    s.temAlerta=true; s.alertaTexto=alerta.join(' | ');
+    return showFragmentDialog(alerta, ()=>finalizarSolicitacao(s));
+  }
+  finalizarSolicitacao(s);
+}
+function finalizarSolicitacao(s){
   atualizarStatusPedido(s);
   state.solicitacoes.unshift(s); saveLocal(); $('#solicitacaoForm').reset(); $('#itensContainer').innerHTML=''; addItem(); $('#solicitante').value=state.user.nome; $('#setor').value=state.user.setor||''; renderAll(); showPage('solicitacoes'); toast('Solicitação salva.');
+}
+function showFragmentDialog(alertas, onConfirm){
+  $('#fragmentContent').innerHTML=`<div class="fragment-head"><span>⚠</span><div><h3>Atenção à regra de 90 dias</h3><p>Encontramos possível fragmentação ou duplicidade. Você pode revisar o pedido ou salvar mesmo assim com o aviso registrado.</p></div></div><div class="fragment-list">${alertas.map(a=>`<div class="fragment-item">${esc(a)}</div>`).join('')}</div>`;
+  const dlg=$('#fragmentDialog');
+  $('#cancelFragment').onclick=()=>dlg.close();
+  $('#confirmFragment').onclick=()=>{dlg.close(); onConfirm();};
+  dlg.showModal();
 }
 function fileToDataUrl(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(file); }); }
 function getAlertas(s){
@@ -229,6 +246,25 @@ function atualizarStatusPedido(s){
   else s.status='Pendente';
 }
 window.delSol=function(id){ if(confirm('Excluir esta solicitação?')){state.solicitacoes=state.solicitacoes.filter(x=>x.id!==id); saveLocal(); renderAll(); $('#detailDialog').close();}}
+function renderCompradora(){
+  if(!$('#compradoraTable')) return;
+  const items=allItems();
+  $('#buyerPendentes').textContent=items.filter(i=>i.status==='Pendente').length;
+  $('#buyerCotacao').textContent=items.filter(i=>i.status==='Em cotação').length;
+  $('#buyerComprados').textContent=items.filter(i=>['Comprado','Entregue'].includes(i.status)).length;
+  const q=norm($('#buscaCompradora')?.value||''), st=$('#statusCompradora')?.value||'', fam=$('#familiaCompradora')?.value||'';
+  const rows=items.filter(i=>(!st||i.status===st)&&(!fam||familiaCodigo(i.familia)===fam)&&(!q||norm([i.solicitante,i.codigoProduto,i.descricao,familiaLabel(i.familia),i.comprador].join(' ')).includes(q)));
+  $('#compradoraTable tbody').innerHTML = rows.map(i=>`<tr>
+    <td><b>${esc(i.solicitante)}</b><br><small>Pedido: ${fmtDate(i.criadoEm)}${i.dataFinalizada?'<br>Finalizado: '+fmtDate(i.dataFinalizada):''}</small></td>
+    <td><b>${esc(i.codigoProduto||'-')}</b><br>${esc(i.descricao||'-')}</td>
+    <td>${esc(familiaLabel(i.familia))}${i.temAlerta?'<br><span class="alert">⚠ 90 dias</span>':''}</td>
+    <td>${esc(i.quantidade)} ${esc(i.unMedida||'')}</td>
+    <td>${badge(i.status)}</td>
+    <td>${esc(i.comprador||'-')}</td>
+    <td>${i.dataFinalizada?fmtDate(i.dataFinalizada):'-'}</td>
+    <td><button onclick="openDetail('${i.pedidoId}')">Atualizar produto</button></td>
+  </tr>`).join('') || '<tr><td colspan="8">Nenhum item encontrado.</td></tr>';
+}
 function renderReferencias(){
   const q=norm($('#refBusca').value||''); const list=[];
   FAMILIAS_PRODUTO.forEach(f=>list.push({tipo:'Família de produto', titulo:`${f.codigo} - ${f.descricao}`, txt:'Código oficial para informar no campo Família do produto'}));
