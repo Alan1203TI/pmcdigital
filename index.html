@@ -3,44 +3,71 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>PMC Digital | SESI SENAI SJDR</title>
+  <title>Sistema FIEMG | PMC Digital</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div id="toast" class="toast hidden"></div>
+
   <section id="loginView" class="login-shell">
-    <div class="login-card">
-      <div class="brand-badge">PMC</div>
-      <h1>PMC Digital</h1>
-      <p>Sistema de Solicitação e Acompanhamento de Compras<br>SESI / SENAI São João del-Rei</p>
+    <div class="login-card corporate-card">
+      <img class="login-logo" src="assets/logo-fiemg.png" alt="Sistema FIEMG">
+      <div class="login-title">
+        <h1>Sistema Digital de Solicitação de Compras</h1>
+        <p>PMC • SESI / SENAI São João del-Rei</p>
+      </div>
       <form id="loginForm" class="form-grid compact">
         <label>E-mail<input id="loginEmail" type="email" value="admin@pmc.local" required></label>
         <label>Senha<input id="loginSenha" type="password" value="123456" required></label>
-        <button class="primary" type="submit">Entrar</button>
+        <button class="primary" type="submit">Entrar no sistema</button>
       </form>
+      <div class="brand-strip"><img src="assets/logo-sesi.png" alt="SESI"><img src="assets/logo-senai.png" alt="SENAI"></div>
       <small>Primeiro acesso local: <b>admin@pmc.local</b> / <b>123456</b>. Depois cadastre os usuários no painel Admin.</small>
     </div>
   </section>
 
   <main id="appView" class="app hidden">
     <aside class="sidebar">
-      <div class="logo"><span>PMC</span><strong>Digital</strong></div>
-      <button data-page="dashboard" class="nav active">Painel</button>
-      <button data-page="nova" class="nav">Nova Solicitação</button>
-      <button data-page="solicitacoes" class="nav">Solicitações</button>
-      <button data-page="referencias" class="nav">Referências PMC</button>
-      <button data-page="usuarios" class="nav admin-only">Usuários</button>
-      <button data-page="config" class="nav admin-only">Configurações</button>
+      <div class="sidebar-brand">
+        <img src="assets/logo-fiemg.png" alt="Sistema FIEMG">
+        <span>PMC Digital</span>
+      </div>
+      <button data-page="dashboard" class="nav active">🏠 Dashboard</button>
+      <button data-page="nova" class="nav">🛒 Nova Solicitação</button>
+      <button data-page="solicitacoes" class="nav">📋 Meus / Pedidos Gerais</button>
+      <button data-page="referencias" class="nav">🔎 Consulta PMC</button>
+      <button data-page="usuarios" class="nav admin-only">👥 Usuários</button>
+      <button data-page="config" class="nav admin-only">⚙ Configurações</button>
       <div class="sidebar-footer"><span id="userBox"></span><button id="logoutBtn">Sair</button></div>
     </aside>
 
     <section class="content">
       <header class="topbar">
-        <div><h2 id="pageTitle">Painel</h2><p id="pageSubtitle">Acompanhe as compras solicitadas e evite fragmentação.</p></div>
+        <div>
+          <p class="eyebrow">Sistema FIEMG</p>
+          <h2 id="pageTitle">Dashboard</h2>
+          <p id="pageSubtitle">Acompanhe suas solicitações, pedidos gerais e alertas de fragmentação.</p>
+        </div>
         <div class="top-actions"><button id="exportCsvBtn">Exportar CSV</button><button onclick="window.print()">Imprimir/PDF</button></div>
       </header>
 
       <section id="dashboard" class="page active">
+        <div class="hero-panel">
+          <div>
+            <p class="eyebrow">Solicitação Digital de Compras</p>
+            <h3>Controle PMC com regra de 90 dias por família</h3>
+            <p>Consulte compras já realizadas, acompanhe seus pedidos e registre solicitações com múltiplos itens.</p>
+          </div>
+          <button class="primary quick-action" data-page="nova">+ Nova PMC</button>
+        </div>
+
+        <div class="quick-grid">
+          <button class="action-card quick-action" data-page="solicitacoes"><span>📝</span><b>Meus Pedidos</b><small>Acompanhar minhas solicitações</small></button>
+          <button class="action-card quick-action" data-page="solicitacoes"><span>🌎</span><b>Pedidos Gerais</b><small>Pesquisar compras da unidade</small></button>
+          <button class="action-card quick-action" data-page="nova"><span>🛒</span><b>Nova Solicitação</b><small>Adicionar um ou mais itens</small></button>
+          <button class="action-card quick-action" data-page="referencias"><span>🔍</span><b>Consultar Compras</b><small>Códigos, famílias e Protheus</small></button>
+        </div>
+
         <div class="cards">
           <div class="card kpi"><span>Meus pedidos</span><b id="kpiMeus">0</b></div>
           <div class="card kpi"><span>Pedidos geral</span><b id="kpiTotal">0</b></div>
@@ -48,7 +75,7 @@
           <div class="card kpi danger"><span>Alertas 90 dias</span><b id="kpiAlertas">0</b></div>
         </div>
         <div class="panel filters dashboard-search">
-          <input id="buscaDashboard" placeholder="Pesquisar compras por código Protheus, produto, família ou comprador/solicitante...">
+          <input id="buscaDashboard" placeholder="Pesquisar por código Protheus, produto, família, comprador ou solicitante...">
           <select id="statusDashboard"><option value="">Todos os status</option></select>
         </div>
         <div class="panel two-col">
@@ -62,8 +89,8 @@
       </section>
 
       <section id="nova" class="page">
-        <form id="solicitacaoForm" class="panel form-grid">
-          <h3>Formulário PMC</h3>
+        <form id="solicitacaoForm" class="panel form-grid step-form">
+          <h3 class="wide section-title">1. Dados gerais da PMC</h3>
           <label>Solicitante<input id="solicitante" required></label>
           <label>Setor<input id="setor" placeholder="Ex.: TI, Secretaria, Pedagogia" required></label>
           <label>Unidade<select id="unidade" required><option>SESI</option><option>SENAI</option><option>SESI/SENAI</option></select></label>
@@ -71,7 +98,7 @@
           <label>Centro de custo / Classe<select id="centroCusto" required></select></label>
           <label>Finalidade da compra<select id="finalidade" required></select></label>
           <div class="wide info-box">Consulte o produto no link <a href="https://consultaproduto.fiemg.com.br/ConsultaProdutos.php" target="_blank" rel="noopener">Consulta Produto FIEMG</a> e adicione o código Protheus e a descrição.</div>
-          <div class="wide itens-header"><h4>Itens da solicitação</h4><button type="button" id="addItemBtn">+ Adicionar item</button></div>
+          <div class="wide itens-header"><h3 class="section-title">2. Itens da solicitação</h3><button type="button" id="addItemBtn">+ Adicionar item</button></div>
           <div id="itensContainer" class="wide itens-container"></div>
           <template id="itemTemplate">
             <div class="item-card">
@@ -88,6 +115,7 @@
           </template>
           <datalist id="familiasList"></datalist>
           <datalist id="produtosList"></datalist>
+          <h3 class="wide section-title">3. Justificativa e anexos</h3>
           <label>Urgência<select id="urgencia"><option>Normal</option><option>Alta</option><option>Baixa</option></select></label>
           <label class="wide">Justificativa técnica<textarea id="justificativa" rows="4" required></textarea></label>
           <label class="wide">Link de anexo/orçamento<input id="anexo" placeholder="Cole o link do orçamento no Drive/OneDrive, se houver"></label>
@@ -96,8 +124,8 @@
       </section>
 
       <section id="solicitacoes" class="page">
-        <div class="panel filters">
-          <input id="busca" placeholder="Buscar por produto, solicitante, família...">
+        <div class="panel filters erp-filters">
+          <input id="busca" placeholder="Código Protheus, descrição, família, comprador ou solicitante...">
           <select id="filtroStatus"><option value="">Todos os status</option></select>
           <select id="filtroFamilia"><option value="">Todas as famílias</option></select>
         </div>
@@ -105,7 +133,7 @@
       </section>
 
       <section id="referencias" class="page">
-        <div class="panel"><h3>Referências importadas da PMC</h3><p>Foram carregadas finalidades, serviços Protheus e centros/classes de valor da planilha enviada.</p><input id="refBusca" placeholder="Buscar referência"><div id="refList" class="ref-list"></div></div>
+        <div class="panel"><h3>Consulta PMC</h3><p>Pesquise códigos de família, produtos/serviços Protheus, finalidades e centros de custo importados da PMC.</p><input id="refBusca" placeholder="Buscar por código, descrição ou família"><div id="refList" class="ref-list"></div></div>
       </section>
 
       <section id="usuarios" class="page">

@@ -89,6 +89,7 @@ function bind(){
   $('#loginForm').onsubmit = e => {e.preventDefault(); login();};
   $('#logoutBtn').onclick = () => {state.user=null; $('#appView').classList.add('hidden'); $('#loginView').classList.remove('hidden');};
   $$('.nav').forEach(b=>b.onclick=()=>showPage(b.dataset.page));
+  $$('.quick-action').forEach(b=>b.onclick=()=>showPage(b.dataset.page));
   $('#solicitacaoForm').onsubmit = e => {e.preventDefault(); salvarSolicitacao();};
   $('#addItemBtn').onclick = () => addItem();
   $('#entidade').addEventListener('change', fillCentroCusto);
@@ -113,7 +114,7 @@ function login(){
 function showPage(id){
   $$('.page').forEach(p=>p.classList.toggle('active',p.id===id));
   $$('.nav').forEach(n=>n.classList.toggle('active',n.dataset.page===id));
-  const titles={dashboard:['Painel','Meus pedidos, pedidos geral, status e consulta de compras realizadas.'],nova:['Nova Solicitação','Adicione um ou mais itens na mesma PMC.'],solicitacoes:['Solicitações','Consulte por código Protheus, produto, família, solicitante ou comprador.'],referencias:['Referências PMC','Dados auxiliares extraídos da planilha.'],usuarios:['Usuários','Cadastro de acessos.'],config:['Configurações','Regras do sistema.']};
+  const titles={dashboard:['Dashboard','Meus pedidos, pedidos geral, status e consulta de compras realizadas.'],nova:['Nova Solicitação','Adicione um ou mais itens na mesma PMC.'],solicitacoes:['Meus / Pedidos Gerais','Consulte por código Protheus, produto, família, solicitante ou comprador.'],referencias:['Consulta PMC','Códigos de famílias, produtos Protheus, finalidades e centros de custo.'],usuarios:['Usuários','Cadastro de acessos.'],config:['Configurações','Regras do sistema.']};
   $('#pageTitle').textContent=titles[id]?.[0]||'PMC'; $('#pageSubtitle').textContent=titles[id]?.[1]||'';
 }
 function renderAll(){ fillSelects(); renderDashboard(); renderSolicitacoes(); renderReferencias(); renderUsuarios(); $('#diasRegra').value=state.config.diasRegra; }
