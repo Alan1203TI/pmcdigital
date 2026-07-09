@@ -87,3 +87,8 @@ O arquivo `firestore.rules` já está incluído como base inicial.
 ## Observação
 
 A regra dos 3 meses foi implementada como 90 dias e pode ser alterada em `Configurações`.
+
+## Ajuste - Famílias de produtos
+- O campo **Família do produto** agora utiliza os códigos oficiais informados na tabela enviada.
+- A lista mostra o código com a descrição para facilitar a escolha, mas o sistema grava o código da família.
+- O aviso de fragmentação de 90 dias compara a família pelo código, evitando erro por nomes digitados diferentes.

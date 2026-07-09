@@ -1,6 +1,70 @@
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const STATUSES = ['Pendente','Aprovado','Em cotação','Em compra','Comprado','Entregue','Recusado'];
+
+const FAMILIAS_PRODUTO = [
+  {codigo:'18', descricao:'PRODUTO'},
+  {codigo:'1801', descricao:'FERRAMENTA'},
+  {codigo:'1802', descricao:'INSTRUMENTOS DE MEDICAO'},
+  {codigo:'1803', descricao:'MAQUINAS E EQUIPAMENTOS - PATR'},
+  {codigo:'1804', descricao:'MARCENARIA'},
+  {codigo:'1805', descricao:'CONSTRUCAO CIVIL'},
+  {codigo:'1806', descricao:'HIDRAULICA GERAL E PNEUMATICA'},
+  {codigo:'1807', descricao:'EQUIPAMENTO DE PROTECAO INDIVI'},
+  {codigo:'1808', descricao:'FARMACIA E ARTIGO ODONTOLOGICO'},
+  {codigo:'1809', descricao:'MATERIAL DE INFORMATICA'},
+  {codigo:'1810', descricao:'MATERIAL ELETRICO'},
+  {codigo:'1811', descricao:'GEMAS E PEDRAS PRECIOSAS'},
+  {codigo:'1812', descricao:'ACO E OUTROS METAIS'},
+  {codigo:'1813', descricao:'COMPONENTE ELETRONICO'},
+  {codigo:'1814', descricao:'SOLDA'},
+  {codigo:'1815', descricao:'MATERIAIS DE SST E ERGONOMIA'},
+  {codigo:'1816', descricao:'MATERIAL DE EXPEDIENTE'},
+  {codigo:'1817', descricao:'LIMPEZA HIGIENE E DESCARTAVEL'},
+  {codigo:'1818', descricao:'ELEMENTO DE FIXACAO'},
+  {codigo:'1819', descricao:'GAS ESPECIAL'},
+  {codigo:'1820', descricao:'MATERIAIS DE ESPORTE E LAZER'},
+  {codigo:'1821', descricao:'OLEOS E LUBRIFICANTES'},
+  {codigo:'1822', descricao:'TEXTIL E AVIAMENTO'},
+  {codigo:'1823', descricao:'ALIMENTO E BEBIDA'},
+  {codigo:'1824', descricao:'UTENSILIOS DOMESTICOS'},
+  {codigo:'1825', descricao:'PLACAS E ACES DE IDENTIF SINAL'},
+  {codigo:'1826', descricao:'MATERIAIS DE TELECOMUNICACOES'},
+  {codigo:'1827', descricao:'AUTOMOTIVO'},
+  {codigo:'1828', descricao:'ELETRODOMESTICO'},
+  {codigo:'1829', descricao:'JARDINAGEM SUP AGRICOLAS E VET'},
+  {codigo:'1830', descricao:'GRAFICO'},
+  {codigo:'1831', descricao:'LABORATORIO'},
+  {codigo:'1832', descricao:'VESTUARIO E CALCADO'},
+  {codigo:'1833', descricao:'CAMA, MESA E BANHO'},
+  {codigo:'1834', descricao:'INSTRUMENTOS MUSICAIS E CULTUR'},
+  {codigo:'1835', descricao:'ARTESANATOS E DECORACAO'},
+  {codigo:'1836', descricao:'MATERIAIS DE PISCINA'},
+  {codigo:'1837', descricao:'BELEZA E CUIDADO DO CORPO'},
+  {codigo:'1839', descricao:'LIVROS, BRINQUEDOS E MAT. DIDAT'},
+  {codigo:'1841', descricao:'MOBILIARIO'},
+  {codigo:'1843', descricao:'PLASTICOS E POLIMEROS'},
+  {codigo:'1844', descricao:'REFRIGERACAO'},
+  {codigo:'1845', descricao:'ELEMENTOS DE MAQUINA'},
+  {codigo:'1846', descricao:'ACOES COVID/EXCLUSIVO METODO'},
+  {codigo:'1847', descricao:'CIT (Exclusivo NCD-NAO UTILIZAR)'},
+  {codigo:'1848', descricao:'PINCEIS, TINTAS, VEDANTES E AD'},
+  {codigo:'1849', descricao:'EQUIPAMENTO DE AR CONDICIONADO'},
+  {codigo:'1850', descricao:'ANIMAIS VIVOS'},
+  {codigo:'1851', descricao:'NAO UTILIZAR'},
+  {codigo:'1852', descricao:'EQUIP.INFORMATICA - PATRIMONIO'},
+  {codigo:'1853', descricao:'EQUIP.SST/ERGONOMIA-PATRIMONIO'},
+  {codigo:'1854', descricao:'MOBILIARIO GERAL - PATRIMONIO'},
+  {codigo:'1855', descricao:'INSTRUMENTOS MUSICAIS - PATRIM'},
+  {codigo:'1856', descricao:'EQUIP. TELECOMUNICACOES - PATR'},
+  {codigo:'1857', descricao:'EQUIP.ESPORTE/LAZER - PATRIM.'},
+  {codigo:'1858', descricao:'INSTRUMENTOS MEDICAO PATRIMONI'},
+  {codigo:'1859', descricao:'AUTOMOTIVO - PATRIMONIO'},
+  {codigo:'1860', descricao:'EDITORA SESI MATERIAL DIDATICO'},
+  {codigo:'34', descricao:'SERVICOS GENERICOS'},
+  {codigo:'3401', descricao:'Servicos Genericos'}
+];
+
 const STORAGE_KEYS = {usuarios:'pmcUsuarios', solicitacoes:'pmcSolicitacoes', config:'pmcConfig'};
 let state = {user:null, usuarios:[], solicitacoes:[], refs:{finalidades:[], servicosProtheus:[], centrosClasseValor:[]}, config:{diasRegra:90}};
 
@@ -57,11 +121,11 @@ function fillSelects(){
   $('#finalidade').innerHTML='<option value="">Selecione</option>' + state.refs.finalidades.map(f=>`<option value="${esc(f.codigo+' - '+f.descricao)}" data-conta="${esc(f.conta)}">${esc(f.codigo)} - ${esc(f.descricao)}</option>`).join('');
   fillCentroCusto();
   $('#produtosList').innerHTML = state.refs.servicosProtheus.map(p=>`<option value="${esc(p.codigo)} - ${esc(p.descricao)}"></option>`).join('');
-  const fams = unique([...state.refs.finalidades.map(f=>f.codigo), ...state.refs.servicosProtheus.map(p=>p.tipo), ...allItems().map(i=>i.familia)].filter(Boolean));
-  $('#familiasList').innerHTML=fams.map(f=>`<option value="${esc(f)}"></option>`).join('');
+  const fams = FAMILIAS_PRODUTO;
+  $('#familiasList').innerHTML=fams.map(f=>`<option value="${esc(f.codigo)}" label="${esc(f.codigo+' - '+f.descricao)}"></option>`).join('');
   $('#filtroStatus').innerHTML='<option value="">Todos os status</option>'+STATUSES.map(s=>`<option>${s}</option>`).join('');
   $('#statusDashboard').innerHTML='<option value="">Todos os status</option>'+STATUSES.map(s=>`<option>${s}</option>`).join('');
-  $('#filtroFamilia').innerHTML='<option value="">Todas as famílias</option>'+unique(allItems().map(i=>i.familia)).sort().map(f=>`<option>${esc(f)}</option>`).join('');
+  $('#filtroFamilia').innerHTML='<option value="">Todas as famílias</option>'+FAMILIAS_PRODUTO.map(f=>`<option value="${esc(f.codigo)}">${esc(f.codigo+' - '+f.descricao)}</option>`).join('');
 }
 function fillCentroCusto(){
   const entidade=$('#entidade').value; let centros=state.refs.centrosClasseValor;
@@ -74,17 +138,19 @@ function addItem(data={}){
   card.querySelector('.item-unMedida').value=data.unMedida||''; card.querySelector('.item-quantidade').value=data.quantidade||''; card.querySelector('.item-valorEstimado').value=data.valorEstimado||''; card.querySelector('.item-linkReferencia').value=data.linkReferencia||'';
   card.querySelector('.remove-item').onclick=()=>{ if($$('.item-card').length>1) card.remove(); else toast('A solicitação precisa ter pelo menos um item.'); renumerarItens(); };
   card.querySelector('.item-codigo').addEventListener('change',()=>preencherProduto(card));
+  card.querySelector('.item-familia').addEventListener('change',()=>normalizarFamiliaInput(card.querySelector('.item-familia')));
   $('#itensContainer').appendChild(card); renumerarItens();
 }
 function renumerarItens(){ $$('.item-card').forEach((c,i)=>c.querySelector('.item-title b').textContent=`Item ${i+1}`); }
 function preencherProduto(card){
   const input=card.querySelector('.item-codigo'); const val=input.value; const code=val.split(' - ')[0].trim();
   const p=state.refs.servicosProtheus.find(x=>x.codigo===code || val.includes(x.descricao));
-  if(p){ input.value=p.codigo; card.querySelector('.item-descricao').value=p.descricao+'\n'+(p.uso||''); card.querySelector('.item-familia').value=p.tipo||card.querySelector('.item-familia').value; card.querySelector('.item-unMedida').value='SERV'; }
+  if(p){ input.value=p.codigo; card.querySelector('.item-descricao').value=p.descricao+'\n'+(p.uso||''); card.querySelector('.item-familia').value=familiaCodigo(p.tipo||card.querySelector('.item-familia').value); card.querySelector('.item-unMedida').value='SERV'; }
 }
 async function salvarSolicitacao(){
   const itens=[];
   for(const card of $$('.item-card')){
+    normalizarFamiliaInput(card.querySelector('.item-familia'));
     const item={id:crypto.randomUUID(), familia:card.querySelector('.item-familia').value.trim(), codigoProduto:card.querySelector('.item-codigo').value.trim(), descricao:card.querySelector('.item-descricao').value.trim(), unMedida:card.querySelector('.item-unMedida').value.trim(), quantidade:Number(card.querySelector('.item-quantidade').value), valorEstimado:Number(card.querySelector('.item-valorEstimado').value||0), linkReferencia:card.querySelector('.item-linkReferencia').value.trim(), imagemProduto:''};
     const file=card.querySelector('.item-imagem').files[0]; if(file) item.imagemProduto = await fileToDataUrl(file);
     if(!item.familia || !item.descricao || !item.quantidade) return toast('Preencha família, descrição e quantidade em todos os itens.');
@@ -102,8 +168,8 @@ function getAlertas(s){
   s.itens.forEach(item=>{
     const dup=state.solicitacoes.find(x=>x.itens?.some(i=>i.codigoProduto && item.codigoProduto && i.codigoProduto===item.codigoProduto) && relevantes.includes(x.status));
     if(dup) alerts.push(`Item ${item.codigoProduto}: produto/código já solicitado por ${dup.solicitante} em ${fmtDate(dup.criadoEm)}. Status: ${dup.status}.`);
-    const fam=state.solicitacoes.find(x=>x.itens?.some(i=>norm(i.familia)===norm(item.familia)) && (diffDays(now,new Date(x.criadoEm))<=dias) && relevantes.includes(x.status));
-    if(fam) alerts.push(`Família ${item.familia}: já existe compra/solicitação nos últimos ${dias} dias. Solicitante: ${fam.solicitante}, data: ${fmtDate(fam.criadoEm)}, status: ${fam.status}.`);
+    const fam=state.solicitacoes.find(x=>x.itens?.some(i=>familiaCodigo(i.familia)===familiaCodigo(item.familia)) && (diffDays(now,new Date(x.criadoEm))<=dias) && relevantes.includes(x.status));
+    if(fam) alerts.push(`Família ${familiaLabel(item.familia)}: já existe compra/solicitação nos últimos ${dias} dias. Solicitante: ${fam.solicitante}, data: ${fmtDate(fam.criadoEm)}, status: ${fam.status}.`);
   });
   return unique(alerts);
 }
@@ -112,7 +178,7 @@ function renderDashboard(){
   $('#kpiMeus').textContent=mine.length; $('#kpiTotal').textContent=all.length; $('#kpiPendentes').textContent=all.filter(s=>s.status==='Pendente').length; $('#kpiAlertas').textContent=all.filter(s=>s.temAlerta).length;
   $('#meusPedidosList').innerHTML=(filtrarDashboard(mine).slice(0,8).map(miniCard).join('')) || '<p>Nenhum pedido seu encontrado.</p>';
   $('#recentList').innerHTML=f.slice(0,10).map(miniCard).join('') || '<p>Nenhuma compra encontrada.</p>';
-  renderBars('#familiaBars', countBy(allItems(f), 'familia'), 10);
+  renderBars('#familiaBars', countBy(allItems(f).map(i=>({...i, familia:familiaLabel(i.familia)})), 'familia'), 10);
   renderBars('#statusBars', countBy(all, 'status'), STATUSES.length);
 }
 function miniCard(s){ return `<div class="mini-item"><b>${esc(s.status)}</b> • ${esc(itemResumo(s,'familias'))}<br>${esc(itemResumo(s,'produtos')).slice(0,120)}<br><small>${fmtDate(s.criadoEm)} • ${esc(s.solicitante)}${s.comprador?' • Comprador: '+esc(s.comprador):''} ${s.temAlerta?' • <span class="alert">⚠ 90 dias</span>':''}</small></div>`; }
@@ -125,7 +191,7 @@ function renderSolicitacoes(){
 }
 window.openDetail=function(id){
   const s=state.solicitacoes.find(x=>x.id===id); if(!s) return; const canEdit = ['admin','compras','gestor'].includes(state.user.perfil);
-  const itensHtml=s.itens.map((i,idx)=>`<div class="detail-item"><h4>Item ${idx+1}</h4>${item('Família/código',i.familia)}${item('Código Protheus',i.codigoProduto||'-')}${item('Quantidade',i.quantidade+' '+(i.unMedida||''))}${item('Valor estimado',money(i.valorEstimado))}${item('Descrição',i.descricao,'wide')}${item('Link referência',i.linkReferencia?`<a href="${escAttr(i.linkReferencia)}" target="_blank">Abrir referência</a>`:'-','wide')}${item('Imagem',i.imagemProduto?`<img class="produto-img" src="${escAttr(i.imagemProduto)}" alt="Imagem do produto">`:'-','wide')}</div>`).join('');
+  const itensHtml=s.itens.map((i,idx)=>`<div class="detail-item"><h4>Item ${idx+1}</h4>${item('Família/código',familiaLabel(i.familia))}${item('Código Protheus',i.codigoProduto||'-')}${item('Quantidade',i.quantidade+' '+(i.unMedida||''))}${item('Valor estimado',money(i.valorEstimado))}${item('Descrição',i.descricao,'wide')}${item('Link referência',i.linkReferencia?`<a href="${escAttr(i.linkReferencia)}" target="_blank">Abrir referência</a>`:'-','wide')}${item('Imagem',i.imagemProduto?`<img class="produto-img" src="${escAttr(i.imagemProduto)}" alt="Imagem do produto">`:'-','wide')}</div>`).join('');
   $('#detailContent').innerHTML=`<h3>Solicitação PMC</h3><div class="detail-grid">${item('Data',fmtDate(s.criadoEm))}${item('Solicitante',s.solicitante)}${item('Setor',s.setor)}${item('Unidade',s.unidade)}${item('Entidade',s.entidade)}${item('Centro/Classe',s.centroCusto)}${item('Finalidade',s.finalidade)}${item('Comprador',s.comprador||'-')}${item('Urgência',s.urgencia)}${item('Justificativa',s.justificativa,'wide')}${item('Anexo/orçamento',s.anexo?`<a href="${escAttr(s.anexo)}" target="_blank">Abrir orçamento/anexo</a>`:'-','wide')}${item('Alerta',s.alertaTexto||'Sem alerta','wide')}</div><h3>Itens</h3>${itensHtml}
     ${canEdit?`<hr><label>Status<select id="statusEdit">${STATUSES.map(x=>`<option ${x===s.status?'selected':''}>${x}</option>`).join('')}</select></label><label>Comprador responsável<input id="compradorEdit" value="${escAttr(s.comprador||'')}"></label><label>Comentário de compras/gestor<textarea id="comentarioEdit" rows="3"></textarea></label><button class="primary" onclick="saveStatus('${s.id}')">Salvar atualização</button><button class="danger-btn" onclick="delSol('${s.id}')">Excluir</button>`:''}
     <h4>Histórico</h4><ul>${(s.historico||[]).map(h=>`<li>${fmtDateTime(h.data)} - ${esc(h.usuario)}: ${esc(h.acao)}</li>`).join('')}</ul>`;
@@ -135,6 +201,7 @@ window.saveStatus=function(id){ const s=state.solicitacoes.find(x=>x.id===id); c
 window.delSol=function(id){ if(confirm('Excluir esta solicitação?')){state.solicitacoes=state.solicitacoes.filter(x=>x.id!==id); saveLocal(); renderAll(); $('#detailDialog').close();}}
 function renderReferencias(){
   const q=norm($('#refBusca').value||''); const list=[];
+  FAMILIAS_PRODUTO.forEach(f=>list.push({tipo:'Família de produto', titulo:`${f.codigo} - ${f.descricao}`, txt:'Código oficial para informar no campo Família do produto'}));
   state.refs.finalidades.forEach(f=>list.push({tipo:'Família/finalidade', titulo:`${f.codigo} - ${f.descricao}`, txt:`Conta ${f.conta} - ${f.contaDescricao}`}));
   state.refs.servicosProtheus.forEach(p=>list.push({tipo:'Produto/serviço Protheus', titulo:`${p.codigo} - ${p.descricao}`, txt:`Família/tipo ${p.tipo} | ${p.uso}`}));
   state.refs.centrosClasseValor.forEach(c=>list.push({tipo:'Centro/Classe', titulo:`${c.entidade} | ${c.centroCusto} - ${c.centroCustoNome}`, txt:`Classe ${c.classeValor} - ${c.classeValorNome}`}));
@@ -148,11 +215,14 @@ function exportCsv(){
   const lines=[head, ...state.solicitacoes.map(s=>[fmtDate(s.criadoEm),s.solicitante,s.setor,s.unidade,s.entidade,s.centroCusto,s.finalidade,itemResumo(s,'familias'),itemResumo(s,'codigos'),itemResumo(s,'produtos'),s.itens.reduce((a,i)=>a+Number(i.quantidade||0),0),s.itens.reduce((a,i)=>a+Number(i.valorEstimado||0),0),s.urgencia,s.status,s.comprador||'',s.alertaTexto||'',s.justificativa,s.anexo,s.itens.map(i=>i.linkReferencia).filter(Boolean).join(' | ')])];
   const csv=lines.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(';')).join('\n'); const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'})); a.download='pmc-solicitacoes.csv'; a.click();
 }
-function normalizarSolicitacao(s){ if(s.itens) return s; s.itens=[{id:crypto.randomUUID(), familia:s.familia||'', codigoProduto:s.codigoProduto||'', descricao:s.descricao||'', unMedida:s.unMedida||'', quantidade:s.quantidade||0, valorEstimado:s.valorEstimado||0, linkReferencia:'', imagemProduto:''}]; s.comprador=s.comprador||''; return s; }
+function normalizarSolicitacao(s){ if(s.itens){ s.itens=s.itens.map(i=>({...i, familia:familiaCodigo(i.familia)})); return s; } s.itens=[{id:crypto.randomUUID(), familia:familiaCodigo(s.familia)||'', codigoProduto:s.codigoProduto||'', descricao:s.descricao||'', unMedida:s.unMedida||'', quantidade:s.quantidade||0, valorEstimado:s.valorEstimado||0, linkReferencia:'', imagemProduto:''}]; s.comprador=s.comprador||''; return s; }
 function allItems(rows=state.solicitacoes){ return rows.flatMap(s=>(s.itens||[]).map(i=>({...i, status:s.status, solicitante:s.solicitante, comprador:s.comprador, criadoEm:s.criadoEm}))); }
 function meusPedidos(){ return state.solicitacoes.filter(s=>s.solicitanteEmail===state.user?.email || norm(s.solicitante)===norm(state.user?.nome)); }
-function searchText(s){ return JSON.stringify({...s, itens:s.itens}); }
-function itemResumo(s,t){ const arr=s.itens||[]; if(t==='familias') return unique(arr.map(i=>i.familia)).join(', '); if(t==='codigos') return unique(arr.map(i=>i.codigoProduto).filter(Boolean)).join(', '); if(t==='produtos') return arr.map(i=>i.descricao).join(' | '); }
+function searchText(s){ return JSON.stringify({...s, familiasRotulo:(s.itens||[]).map(i=>familiaLabel(i.familia)), itens:s.itens}); }
+function itemResumo(s,t){ const arr=s.itens||[]; if(t==='familias') return unique(arr.map(i=>familiaLabel(i.familia))).join(', '); if(t==='codigos') return unique(arr.map(i=>i.codigoProduto).filter(Boolean)).join(', '); if(t==='produtos') return arr.map(i=>i.descricao).join(' | '); }
+function familiaCodigo(v){ const raw=String(v||'').trim(); if(!raw) return ''; const code=(raw.match(/^\d+/)||[''])[0]; const byCode=FAMILIAS_PRODUTO.find(f=>f.codigo===code); if(byCode) return byCode.codigo; const byDesc=FAMILIAS_PRODUTO.find(f=>norm(f.descricao)===norm(raw) || norm(raw).includes(norm(f.descricao))); return byDesc?byDesc.codigo:raw; }
+function familiaLabel(v){ const code=familiaCodigo(v); const f=FAMILIAS_PRODUTO.find(x=>x.codigo===code); return f?`${f.codigo} - ${f.descricao}`:String(v||''); }
+function normalizarFamiliaInput(input){ input.value=familiaCodigo(input.value); }
 function countBy(rows, key){ const c={}; rows.forEach(r=>c[r[key]]=(c[r[key]]||0)+1); return c; }
 function log(acao){return {data:new Date().toISOString(), usuario:state.user?.nome||'Sistema', acao};}
 function unique(a){return [...new Set(a.filter(Boolean))];}
