@@ -34,8 +34,8 @@ Sistema criado para a unidade SESI/SENAI São João del-Rei, com base na planilh
 2. Abra a pasta `pmc-digital-sistema`.
 3. Clique duas vezes em `index.html`.
 4. Entre com:
-   - E-mail: `admin@pmc.local`
-   - Senha: `123456`
+   - E-mail: `a.camilo@fiemg.com.br`
+   - Senha: `K@ua2510@#$%`
 
 Nesta versão, os dados ficam salvos no navegador usando `localStorage`. Para teste local funciona muito bem.
 
@@ -109,3 +109,12 @@ A regra dos 3 meses foi implementada como 90 dias e pode ser alterada em `Config
 - Todos os usuários podem consultar o limite, o valor utilizado e o saldo disponível de cada família.
 - O cálculo considera itens com status Comprado ou Entregue e data de finalização dentro dos últimos 90 dias.
 - O painel mostra próxima liberação estimada e histórico das compras que compõem o cálculo.
+
+
+## Cadastro e perfis
+
+- Novos usuários criam o próprio acesso na tela de login.
+- Todo novo cadastro recebe automaticamente o perfil `solicitante`.
+- O administrador pode alterar os perfis para `compras`, `gestor` ou `admin` na área Usuários.
+- O nome informado no cadastro é utilizado como nome do solicitante nas novas PMCs.
+- Detalhes, atualização de produtos e histórico do budget são exibidos em páginas completas, e não em abas laterais.

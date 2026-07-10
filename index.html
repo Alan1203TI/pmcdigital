@@ -16,13 +16,25 @@
         <h1>Sistema Digital de Solicitação de Compras</h1>
         <p>PMC • SESI / SENAI São João del-Rei</p>
       </div>
-      <form id="loginForm" class="form-grid compact">
-        <label>E-mail<input id="loginEmail" type="email" value="admin@pmc.local" required></label>
-        <label>Senha<input id="loginSenha" type="password" value="123456" required></label>
+      <div class="auth-tabs">
+        <button id="showLoginBtn" class="auth-tab active" type="button">Entrar</button>
+        <button id="showRegisterBtn" class="auth-tab" type="button">Criar meu usuário</button>
+      </div>
+      <form id="loginForm" class="form-grid compact auth-form">
+        <label>E-mail<input id="loginEmail" type="email" autocomplete="username" required></label>
+        <label>Senha<input id="loginSenha" type="password" autocomplete="current-password" required></label>
         <button class="primary" type="submit">Entrar no sistema</button>
       </form>
+      <form id="registerForm" class="form-grid compact auth-form hidden">
+        <label>Nome completo<input id="registerNome" required placeholder="Nome que aparecerá nas solicitações"></label>
+        <label>E-mail<input id="registerEmail" type="email" autocomplete="username" required></label>
+        <label>Setor<input id="registerSetor" required placeholder="Ex.: TI, Pedagogia, Secretaria"></label>
+        <label>Senha<input id="registerSenha" type="password" minlength="6" autocomplete="new-password" required></label>
+        <label>Confirmar senha<input id="registerSenhaConfirm" type="password" minlength="6" autocomplete="new-password" required></label>
+        <button class="primary" type="submit">Cadastrar como solicitante</button>
+      </form>
       <div class="brand-strip"><img src="assets/logo-sesi.png" alt="SESI"><img src="assets/logo-senai.png" alt="SENAI"></div>
-      <small>Primeiro acesso local: <b>admin@pmc.local</b> / <b>123456</b>. Depois cadastre os usuários no painel Admin.</small>
+      <small>Novos cadastros recebem automaticamente o perfil <b>solicitante</b>. O administrador pode alterar o perfil posteriormente.</small>
       <div class="developer-credit">Alan Camilo Rodrigues / Desenvolvedor</div>
     </div>
   </section>
@@ -182,8 +194,13 @@
       </section>
 
       <section id="usuarios" class="page">
-        <form id="userForm" class="panel form-grid compact"><h3>Cadastrar usuário</h3><label>Nome<input id="uNome" required></label><label>E-mail<input id="uEmail" type="email" required></label><label>Senha inicial<input id="uSenha" required value="123456"></label><label>Perfil<select id="uPerfil"><option>solicitante</option><option>compras</option><option>gestor</option><option>admin</option></select></label><label>Setor<input id="uSetor"></label><div class="wide actions"><button class="primary">Salvar usuário</button></div></form>
-        <div class="panel table-wrap"><table id="userTable"><thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Setor</th><th>Ação</th></tr></thead><tbody></tbody></table></div>
+        <div class="panel"><h3>Gestão de usuários</h3><p class="muted">Os colaboradores criam o próprio acesso na tela inicial e entram como solicitantes. Aqui o administrador pode alterar o perfil de cada usuário.</p></div>
+        <div class="panel table-wrap"><table id="userTable"><thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Setor</th><th>Ações</th></tr></thead><tbody></tbody></table></div>
+      </section>
+
+      <section id="detalhe" class="page">
+        <div class="page-detail-toolbar"><button id="backDetailBtn" type="button">← Voltar</button><div><p class="eyebrow">PMC Digital</p><h3 id="detailPageTitle">Detalhes</h3></div></div>
+        <div id="detailContent" class="detail-page-content"></div>
       </section>
 
       <section id="config" class="page">
@@ -194,7 +211,6 @@
   </main>
 
   <dialog id="fragmentDialog" class="fragment-dialog"><div id="fragmentContent"></div><div class="dialog-actions"><button id="cancelFragment" type="button">Voltar e revisar</button><button id="confirmFragment" class="primary" type="button">Salvar mesmo assim</button></div></dialog>
-  <dialog id="detailDialog"><div id="detailContent"></div><form method="dialog"><button>Fechar</button></form></dialog>
   <script type="module" src="app.js"></script>
 </body>
 </html>
