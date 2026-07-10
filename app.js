@@ -1,6 +1,7 @@
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
-const STATUSES = ['Pendente','Aprovado','Em cotação','Em compra','Comprado','Aguardando entrega','Entregue','Recusado'];
+const STATUSES = ['Pendente','Aprovado','Em cotação','Em compra','Comprado','Recusado'];
+const DELIVERY_STATUSES = ['Não iniciado','Aguardando entrega','Entregue'];
 
 let FAMILIAS_PRODUTO = [
   {codigo:'18', descricao:'PRODUTO'},
@@ -321,7 +322,7 @@ function renderSolicitacoes(){
 }
 window.openDetail=function(id){
   const s=state.solicitacoes.find(x=>x.id===id); if(!s) return; const canEdit = ['admin','compras','gestor'].includes(state.user.perfil);
-  const itensHtml=s.itens.map((i,idx)=>`<div class="detail-item"><h4>Item ${idx+1}</h4><div class="detail-grid">${item('Status do item',badge(i.status||s.status))}${item('Compradora',i.comprador||'-')}${item('Data finalizada',i.dataFinalizada?fmtDate(i.dataFinalizada):'-')}${item('Data da entrega',i.dataEntrega?fmtDate(i.dataEntrega):'-')}${item('Família/código',familiaLabel(i.familia))}${item('Código Protheus',i.codigoProduto||'-')}${item('Quantidade',i.quantidade+' '+(i.unMedida||''))}${item('Valor estimado',money(i.valorEstimado))}${item('Valor efetivamente comprado',money(i.valorComprado||0))}${item('Saldo da família nos 90 dias',saldoFamiliaHtml(i.familia,i.id))}${item('Descrição',i.descricao,'wide')}${item('Estudo dos orçamentos',quoteAnalysisHtml(i),'wide')}${item('Orçamentos por fornecedor',documentosHtml(i),'wide')}${item('NFE da compra',i.nfeUrl?`<a href="${escAttr(i.nfeUrl)}" target="_blank">Abrir NFE</a>${i.nfeNome?`<br><small>${esc(i.nfeNome)}</small>`:''}`:(i.nfeNome?esc(i.nfeNome):'-'),'wide')}${item('Link referência',i.linkReferencia?`<a href="${escAttr(i.linkReferencia)}" target="_blank">Abrir referência</a>`:'-','wide')}${item('Imagem',i.imagemProduto?`<img class="produto-img" src="${escAttr(i.imagemProduto)}" alt="Imagem do produto">`:'-','wide')}</div>${canEdit?itemEditor(s.id,i,idx):''}</div>`).join('');
+  const itensHtml=s.itens.map((i,idx)=>`<div class="detail-item"><div class="detail-item-heading"><h4>Item ${idx+1} — ${esc(i.codigoProduto||'Sem código')}</h4>${canEdit?`<button class="primary item-update-button" type="button" onclick="openItemUpdate('${s.id}','${i.id}')">Atualizar produto</button>`:''}</div><div class="detail-grid">${item('Status do item',badge(i.status||s.status))}${item('Compradora',i.comprador||'-')}${item('Data finalizada',i.dataFinalizada?fmtDate(i.dataFinalizada):'-')}${item('Status da entrega',badge(i.statusEntrega||'Não iniciado'))}${item('Data da entrega',i.dataEntrega?fmtDate(i.dataEntrega):'-')}${item('Família/código',familiaLabel(i.familia))}${item('Código Protheus',i.codigoProduto||'-')}${item('Quantidade',i.quantidade+' '+(i.unMedida||''))}${item('Valor estimado',money(i.valorEstimado))}${item('Valor efetivamente comprado',money(i.valorComprado||0))}${item('Saldo da família nos 90 dias',saldoFamiliaHtml(i.familia,i.id))}${item('Descrição',i.descricao,'wide')}${item('Estudo dos orçamentos',quoteAnalysisHtml(i),'wide')}${item('Orçamentos por fornecedor',documentosHtml(i),'wide')}${item('NFE da compra',i.nfeUrl?`<a href="${escAttr(i.nfeUrl)}" target="_blank">Abrir NFE</a>${i.nfeNome?`<br><small>${esc(i.nfeNome)}</small>`:''}`:(i.nfeNome?esc(i.nfeNome):'-'),'wide')}${item('Link referência',i.linkReferencia?`<a href="${escAttr(i.linkReferencia)}" target="_blank">Abrir referência</a>`:'-','wide')}${item('Imagem',i.imagemProduto?`<img class="produto-img" src="${escAttr(i.imagemProduto)}" alt="Imagem do produto">`:'-','wide')}</div></div>`).join('');
   $('#detailContent').classList.toggle('buyer-compact', canEdit);
   $('#detailContent').innerHTML=`<div class="detail-document-actions"><button class="primary pdf-order-btn" type="button" onclick="downloadPedidoWord('${s.id}')">Gerar modelo de cotação (.docx)</button><span>Documento Word editável, com somente os itens e campos necessários para o fornecedor.</span></div><h3>Solicitação PMC nº ${esc(s.numeroPedido||'-')}</h3><div class="detail-grid">${item('Data do pedido',fmtDate(s.criadoEm))}${item('Data da necessidade',s.dataNecessidade?fmtDate(s.dataNecessidade):'-')}${item('Solicitante',s.solicitante)}${item('Setor',s.setor)}${item('Unidade',s.unidade)}${item('Entidade',s.entidade)}${item('Centro/Classe',s.centroCusto)}${item('Finalidade',s.finalidade)}${item('Status geral calculado',badge(s.status))}${item('Urgência',s.urgencia)}${item('Justificativa',s.justificativa,'wide')}${item('Anexo/orçamento',s.anexo?`<a href="${escAttr(s.anexo)}" target="_blank">Abrir orçamento/anexo</a>`:'-','wide')}${item('Alerta',s.alertaTexto?`<span class="fragment-alert-red">${esc(s.alertaTexto)}</span>`:'Sem alerta','wide')}</div><h3>Itens da solicitação</h3>${itensHtml}
     ${canEdit?`<hr><button class="danger-btn" onclick="delSol('${s.id}')">Excluir solicitação completa</button>`:''}
@@ -347,6 +348,24 @@ function quoteAnalysisHtml(i){
   const q=quoteStats(i); if(!q.count) return '<div class="quote-empty">Anexe e analise os documentos ou informe os valores manualmente para comparar este produto.</div>';
   return `<div class="quote-analysis"><div><small>Propostas deste produto</small><b>${q.count}</b></div><div><small>Preço unitário médio</small><b>${money(q.media)}</b></div><div><small>Total médio</small><b>${money(q.mediaTotal)}</b></div><div class="best-quote"><small>Menor preço unitário</small><b>${money(q.menor.valorComparacao)}</b><span>${esc(q.menor.fornecedor)}</span></div></div><p class="quote-note">A comparação é feita exclusivamente por este produto, usando o preço unitário para evitar distorções quando as quantidades cotadas forem diferentes.</p>`;
 }
+window.openItemUpdate=function(sid,itemId){
+  const pedido=state.solicitacoes.find(x=>x.id===sid);
+  const produto=pedido?.itens?.find(x=>x.id===itemId);
+  if(!pedido||!produto) return toast('Produto não encontrado.');
+  closeItemUpdate();
+  const modal=document.createElement('div');
+  modal.id='itemUpdateModal';
+  modal.className='item-update-overlay';
+  modal.innerHTML=`<div class="item-update-dialog" role="dialog" aria-modal="true" aria-labelledby="itemUpdateTitle"><div class="item-update-header"><div><span class="eyebrow">PMC ${esc(pedido.numeroPedido||'-')}</span><h3 id="itemUpdateTitle">Atualizar produto ${esc(produto.codigoProduto||'')}</h3><p>${esc(produto.descricao||'')}</p></div><button class="item-update-close" type="button" onclick="closeItemUpdate()" aria-label="Fechar">×</button></div><div class="item-update-body buyer-compact">${itemEditor(sid,produto,0)}</div></div>`;
+  modal.addEventListener('click',e=>{if(e.target===modal) closeItemUpdate();});
+  document.body.appendChild(modal);
+  document.body.classList.add('modal-open');
+};
+window.closeItemUpdate=function(){
+  document.getElementById('itemUpdateModal')?.remove();
+  document.body.classList.remove('modal-open');
+};
+
 function itemEditor(sid,i,idx){
   return `<div class="item-editor"><h4>Atualizar este produto</h4>
   <div class="editor-grid">
@@ -354,18 +373,18 @@ function itemEditor(sid,i,idx){
     <label>Compradora responsável<input id="itemComprador_${i.id}" value="${escAttr(i.comprador||'')}"></label>
     <label>Data finalizada pela compradora<input id="itemFinalizado_${i.id}" type="date" value="${i.dataFinalizada?String(i.dataFinalizada).slice(0,10):''}"></label>
     <label>Valor efetivamente comprado (R$)<input id="itemValorComprado_${i.id}" type="number" step="0.01" min="0" value="${Number(i.valorComprado||0)}"></label>
-    <label>Data da entrega<input id="itemDataEntrega_${i.id}" type="date" value="${i.dataEntrega?String(i.dataEntrega).slice(0,10):''}"></label>
+    <label>Status da entrega<select id="itemDeliveryStatus_${i.id}" onchange="setDeliveryStatus('${i.id}',this.value)">${DELIVERY_STATUSES.map(x=>`<option ${x===(i.statusEntrega||'Não iniciado')?'selected':''}>${x}</option>`).join('')}</select></label>
+    <label>Data da entrega<input id="itemDataEntrega_${i.id}" type="date" value="${i.dataEntrega?String(i.dataEntrega).slice(0,10):''}" ${(i.statusEntrega||'Não iniciado')==='Entregue'?'':'disabled'}></label>
     <label>Link protegido da NFE (OneDrive/SharePoint)<input id="itemNfeUrl_${i.id}" type="url" value="${escAttr(i.nfeUrl||'')}" placeholder="https://..."></label>
     <label class="wide">Selecionar NFE para identificação local<input id="itemNfeFile_${i.id}" type="file" accept=".pdf,image/*,.xml"></label>
   </div>
-  <div class="delivery-actions"><button type="button" onclick="setDeliveryStatus('${i.id}','Aguardando entrega')">Aguardando entrega</button><button type="button" class="primary" onclick="setDeliveryStatus('${i.id}','Entregue')">Entregue</button></div>
   <div class="family-budget">${saldoFamiliaHtml(i.familia,i.id)}</div>
   <div class="supplier-doc-box"><div class="supplier-title"><div><h5>Orçamentos deste produto</h5><p>Anexe documentos de fornecedores diferentes. O sistema compara o preço unitário somente deste item.</p></div><button class="template-download" type="button" onclick="downloadPedidoWord('${sid}')">Gerar modelo padrão de cotação</button></div>${quoteAnalysisHtml(i)}
   <div class="editor-grid quote-form"><label>Fornecedor<input id="itemFornecedor_${i.id}" placeholder="Preenchido automaticamente ou manualmente"></label><label>Quantidade cotada<input id="itemQtdCotada_${i.id}" type="number" step="0.001" min="0" value="${Number(i.quantidade||1)}"></label><label>Valor unitário (R$)<input id="itemValorUnitario_${i.id}" type="number" step="0.01" min="0" placeholder="0,00"></label><label>Valor total deste produto (R$)<input id="itemValorOrcado_${i.id}" type="number" step="0.01" min="0" placeholder="0,00"></label><label class="wide">Documento para leitura local (não é enviado ao Firestore)<input id="itemDocFornecedor_${i.id}" type="file" accept=".pdf,image/*,.doc,.docx"></label><label class="wide">Link protegido do orçamento (OneDrive/SharePoint)<input id="itemDocUrl_${i.id}" type="url" placeholder="https://..."></label></div>
   <div class="quote-actions"><button type="button" onclick="analisarOrcamento('${i.id}')">Ler documento automaticamente</button><span id="ocrStatus_${i.id}" class="ocr-status">PDF, imagem e Word (.docx) podem ser analisados. Revise os dados antes de salvar.</span></div><div id="ocrPreview_${i.id}" class="ocr-preview"></div>${documentosHtml(i)}</div>
   <label>Comentário<textarea id="itemComentario_${i.id}" rows="2">${esc(i.comentario||'')}</textarea></label><button class="primary" onclick="saveItemStatus('${sid}','${i.id}')">Salvar dados deste produto</button></div>`;
 }
-window.setDeliveryStatus=function(itemId,status){ const sel=$(`#itemStatus_${itemId}`); if(sel) sel.value=status; if(status==='Entregue' && !$(`#itemDataEntrega_${itemId}`).value) $(`#itemDataEntrega_${itemId}`).value=new Date().toISOString().slice(0,10); };
+window.setDeliveryStatus=function(itemId,status){ const date=$(`#itemDataEntrega_${itemId}`); if(!date) return; date.disabled=status!=='Entregue'; if(status==='Entregue'&&!date.value) date.value=new Date().toISOString().slice(0,10); if(status!=='Entregue') date.value=''; };
 
 async function loadExternalScript(src,globalName){
   if(globalName && window[globalName]) return window[globalName];
@@ -423,24 +442,23 @@ window.analisarOrcamento=async function(itemId){
 }
 window.saveItemStatus=async function(sid,itemId){
   const s=state.solicitacoes.find(x=>x.id===sid); if(!s) return; const i=s.itens.find(x=>x.id===itemId); if(!i) return;
-  const status=$(`#itemStatus_${itemId}`).value; const comprador=$(`#itemComprador_${itemId}`).value.trim(); const finalizado=$(`#itemFinalizado_${itemId}`).value; const dataEntrega=$(`#itemDataEntrega_${itemId}`)?.value||''; const comentario=$(`#itemComentario_${itemId}`).value.trim(); const valorComprado=Number($(`#itemValorComprado_${itemId}`).value||0); const nfeUrl=$(`#itemNfeUrl_${itemId}`)?.value.trim()||''; const nfeFile=$(`#itemNfeFile_${itemId}`)?.files?.[0];
+  const status=$(`#itemStatus_${itemId}`).value; const statusEntrega=$(`#itemDeliveryStatus_${itemId}`)?.value||'Não iniciado'; const comprador=$(`#itemComprador_${itemId}`).value.trim(); const finalizado=$(`#itemFinalizado_${itemId}`).value; const dataEntrega=$(`#itemDataEntrega_${itemId}`)?.value||''; const comentario=$(`#itemComentario_${itemId}`).value.trim(); const valorComprado=Number($(`#itemValorComprado_${itemId}`).value||0); const nfeUrl=$(`#itemNfeUrl_${itemId}`)?.value.trim()||''; const nfeFile=$(`#itemNfeFile_${itemId}`)?.files?.[0];
   const fornecedor=$(`#itemFornecedor_${itemId}`).value.trim(); const qtdCotada=Number($(`#itemQtdCotada_${itemId}`).value||i.quantidade||1); let valorUnitario=Number($(`#itemValorUnitario_${itemId}`).value||0); let valorOrcado=Number($(`#itemValorOrcado_${itemId}`).value||0); const docInput=$(`#itemDocFornecedor_${itemId}`); const docUrl=$(`#itemDocUrl_${itemId}`)?.value.trim()||'';
   if(!valorUnitario&&valorOrcado&&qtdCotada) valorUnitario=valorOrcado/qtdCotada; if(!valorOrcado&&valorUnitario&&qtdCotada) valorOrcado=valorUnitario*qtdCotada;
-  if(['Comprado','Aguardando entrega','Entregue'].includes(status) && !valorComprado) return toast('Informe o valor efetivamente comprado para finalizar este produto.');
-  if(['Comprado','Aguardando entrega','Entregue'].includes(status) && !finalizado && !i.dataFinalizada) return toast('Informe a data de finalização da compra.');
-  if(['Comprado','Aguardando entrega','Entregue'].includes(status)){ const antes=calcularSaldoFamilia(i.familia,i.id); const proj=antes.limite-antes.usadoAnterior-valorComprado; if(proj<0 && !confirm(`A compra ultrapassa o limite da família em ${money(Math.abs(proj))} dentro dos últimos ${state.config.diasRegra||90} dias. Deseja salvar mesmo assim?`)) return; }
-  i.status=status; i.comprador=comprador; i.dataFinalizada = finalizado || (['Comprado','Aguardando entrega','Entregue'].includes(status) ? (i.dataFinalizada||new Date().toISOString().slice(0,10)) : ''); i.dataEntrega=dataEntrega || (status==='Entregue'?(i.dataEntrega||new Date().toISOString().slice(0,10)):''); i.valorComprado=valorComprado; i.comentario=comentario; i.nfeUrl=nfeUrl; if(nfeFile) i.nfeNome=nfeFile.name; i.documentosFornecedores=i.documentosFornecedores||[];
+  if(status==='Comprado' && !valorComprado) return toast('Informe o valor efetivamente comprado para finalizar este produto.');
+  if(status==='Comprado' && !finalizado && !i.dataFinalizada) return toast('Informe a data de finalização da compra.');
+  if(status==='Comprado'){ const antes=calcularSaldoFamilia(i.familia,i.id); const proj=antes.limite-antes.usadoAnterior-valorComprado; if(proj<0 && !confirm(`A compra ultrapassa o limite da família em ${money(Math.abs(proj))} dentro dos últimos ${state.config.diasRegra||90} dias. Deseja salvar mesmo assim?`)) return; }
+  if(statusEntrega!=='Não iniciado' && status!=='Comprado') return toast('Marque o status da compra como Comprado antes de atualizar a entrega.'); if(statusEntrega==='Entregue' && !dataEntrega) return toast('Informe a data da entrega.'); i.status=status; i.statusEntrega=statusEntrega; i.comprador=comprador; i.dataFinalizada = finalizado || (status==='Comprado' ? (i.dataFinalizada||new Date().toISOString().slice(0,10)) : ''); i.dataEntrega=statusEntrega==='Entregue'?dataEntrega:''; i.valorComprado=valorComprado; i.comentario=comentario; i.nfeUrl=nfeUrl; if(nfeFile) i.nfeNome=nfeFile.name; i.documentosFornecedores=i.documentosFornecedores||[];
   const docFile=docInput?.files?.[0]; if(docFile || docUrl || fornecedor || valorOrcado || valorUnitario){ if(!fornecedor) return toast('Informe ou confirme o nome do fornecedor.'); if(!valorOrcado&&!valorUnitario) return toast('Informe ou confirme o valor do produto no orçamento.'); if(!docUrl) return toast('Informe o link protegido do orçamento no OneDrive ou SharePoint.'); let ocr={}; try{ocr=JSON.parse(docInput.dataset.ocr||'{}')}catch{} i.documentosFornecedores.push({id:crypto.randomUUID(), fornecedor, quantidadeCotada:qtdCotada, valorUnitario, valorTotal:valorOrcado, nomeArquivo:docFile?.name||'Documento online', tipo:docFile?.type||'link', urlDocumento:docUrl, enviadoEm:new Date().toISOString(), dadosExtraidos:ocr, revisadoPor:state.user.nome}); }
   s.comprador = unique((s.itens||[]).map(x=>x.comprador).filter(Boolean)).join(', ');
   if(comentario) { i.comentarios = i.comentarios||[]; i.comentarios.push({data:new Date().toISOString(), usuario:state.user.nome, texto:comentario}); }
-  const saldo=calcularSaldoFamilia(i.familia,i.id); i.alertaLimiteFamilia=saldo.restante<0; s.historico.push(log(`Item ${i.codigoProduto||itemId} alterado para ${status}${comprador?' | Compradora: '+comprador:''}${i.dataFinalizada?' | Finalizada: '+fmtDate(i.dataFinalizada):''}${valorComprado?' | Valor comprado: '+money(valorComprado):''}${fornecedor&&(docFile||docUrl)?' | Orçamento por produto: '+fornecedor:''}${comentario?' | '+comentario:''}`));
-  atualizarStatusPedido(s); await persistSolicitacao(s); renderAll(); openDetail(sid); toast('Dados do produto atualizados.');
+  const saldo=calcularSaldoFamilia(i.familia,i.id); i.alertaLimiteFamilia=saldo.restante<0; s.historico.push(log(`Item ${i.codigoProduto||itemId} alterado para compra: ${status} | entrega: ${statusEntrega}${comprador?' | Compradora: '+comprador:''}${i.dataFinalizada?' | Finalizada: '+fmtDate(i.dataFinalizada):''}${valorComprado?' | Valor comprado: '+money(valorComprado):''}${fornecedor&&(docFile||docUrl)?' | Orçamento por produto: '+fornecedor:''}${comentario?' | '+comentario:''}`));
+  atualizarStatusPedido(s); await persistSolicitacao(s); closeItemUpdate(); renderAll(); openDetail(sid); toast('Dados do produto atualizados.');
 }
 function atualizarStatusPedido(s){
   const statuses=(s.itens||[]).map(i=>i.status||'Pendente');
   if(!statuses.length) {s.status='Pendente'; return;}
-  if(statuses.every(x=>x==='Entregue')) s.status='Entregue';
-  else if(statuses.every(x=>x==='Comprado' || x==='Entregue')) s.status='Comprado';
+  if(statuses.every(x=>x==='Comprado')) s.status='Comprado';
   else if(statuses.some(x=>x==='Em compra')) s.status='Em compra';
   else if(statuses.some(x=>x==='Em cotação')) s.status='Em cotação';
   else if(statuses.some(x=>x==='Aprovado')) s.status='Aprovado';
@@ -450,11 +468,11 @@ function atualizarStatusPedido(s){
 window.delSol=function(id){confirmAction('Excluir esta solicitação completa?',async()=>{await db.collection('pmcSolicitacoes').doc(id).delete(); state.solicitacoes=state.solicitacoes.filter(x=>x.id!==id); renderAll(); showPage('solicitacoes'); toast('Solicitação excluída.');},'Excluir solicitação');}
 function comprasFamiliaNosUltimosDias(familia, ignorarItemId=''){
   const dias=Number(state.config.diasRegra||90), hoje=new Date();
-  return allItems().filter(i=>i.id!==ignorarItemId && familiaCodigo(i.familia)===familiaCodigo(familia) && ['Comprado','Aguardando entrega','Entregue'].includes(i.status) && i.dataFinalizada && diffDays(hoje,new Date(i.dataFinalizada))>=0 && diffDays(hoje,new Date(i.dataFinalizada))<=dias);
+  return allItems().filter(i=>i.id!==ignorarItemId && familiaCodigo(i.familia)===familiaCodigo(familia) && i.status==='Comprado' && i.dataFinalizada && diffDays(hoje,new Date(i.dataFinalizada))>=0 && diffDays(hoje,new Date(i.dataFinalizada))<=dias);
 }
 function calcularSaldoFamilia(familia, incluirItemId=''){
   const limite=Number(state.config.limiteFamilia||3000); const anteriores=comprasFamiliaNosUltimosDias(familia,incluirItemId); const usadoAnterior=anteriores.reduce((t,i)=>t+Number(i.valorComprado||0),0);
-  const atual=incluirItemId?allItems().find(i=>i.id===incluirItemId):null; const valorAtual=atual&&['Comprado','Entregue'].includes(atual.status)?Number(atual.valorComprado||0):0;
+  const atual=incluirItemId?allItems().find(i=>i.id===incluirItemId):null; const valorAtual=atual&&atual.status==='Comprado'?Number(atual.valorComprado||0):0;
   return {limite, usado:usadoAnterior+valorAtual, usadoAnterior, valorAtual, restante:limite-usadoAnterior-valorAtual};
 }
 function saldoFamiliaHtml(familia,itemId=''){
@@ -477,7 +495,7 @@ window.deleteQuote=function(pedidoId,itemId,quoteId){
     item.documentosFornecedores=(item.documentosFornecedores||[]).filter(x=>x.id!==quoteId);
     pedido.historico=pedido.historico||[];
     pedido.historico.push(log(`Orçamento de ${quote.fornecedor} excluído do produto ${item.codigoProduto||item.descricao}`));
-    await persistSolicitacao(pedido); renderAll(); openDetail(pedido.id); toast('Orçamento excluído e cálculos atualizados.');
+    const modalAberto=!!document.getElementById('itemUpdateModal'); await persistSolicitacao(pedido); renderAll(); openDetail(pedido.id); if(modalAberto) openItemUpdate(pedido.id,item.id); toast('Orçamento excluído e cálculos atualizados.');
   },'Excluir orçamento');
 }
 function renderCompradora(){
@@ -485,8 +503,8 @@ function renderCompradora(){
   const items=allItems();
   $('#buyerPendentes').textContent=items.filter(i=>i.status==='Pendente').length;
   $('#buyerCotacao').textContent=items.filter(i=>i.status==='Em cotação').length;
-  $('#buyerComprados').textContent=items.filter(i=>['Comprado','Aguardando entrega','Entregue'].includes(i.status)).length;
-  const q=norm($('#buscaCompradora')?.value||''), st=$('#statusCompradora')?.value||'', fam=$('#familiaCompradora')?.value||'', situacao=$('#abertosCompradora')?.value||''; const fechados=['Comprado','Aguardando entrega','Entregue','Recusado'];
+  $('#buyerComprados').textContent=items.filter(i=>i.status==='Comprado').length;
+  const q=norm($('#buscaCompradora')?.value||''), st=$('#statusCompradora')?.value||'', fam=$('#familiaCompradora')?.value||'', situacao=$('#abertosCompradora')?.value||''; const fechados=['Comprado','Recusado'];
   const rows=items.filter(i=>(!st||i.status===st)&&(!fam||familiaCodigo(i.familia)===fam)&&(!situacao||(situacao==='abertos'?!fechados.includes(i.status):fechados.includes(i.status)))&&(!q||norm([i.solicitante,i.codigoProduto,i.descricao,familiaLabel(i.familia),i.comprador].join(' ')).includes(q)));
   $('#compradoraTable tbody').innerHTML = rows.map(i=>`<tr>
     <td><b>${esc(i.solicitante)}</b><br><small>Pedido: ${fmtDate(i.criadoEm)}${i.dataNecessidade?'<br>Necessidade: '+fmtDate(i.dataNecessidade):''}${i.dataFinalizada?'<br>Finalizado: '+fmtDate(i.dataFinalizada):''}</small></td>
@@ -494,7 +512,7 @@ function renderCompradora(){
     <td>${esc(familiaLabel(i.familia))}<br>${saldoFamiliaHtml(i.familia,i.id)}${i.temAlerta?'<br><span class="alert">⚠ 90 dias</span>':''}</td>
     <td>${esc(i.quantidade)} ${esc(i.unMedida||'')}</td>
     <td><b>${money(i.valorComprado||0)}</b></td>
-    <td>${badge(i.status)}</td>
+    <td>${badge(i.status)}<br><small>Entrega: ${esc(i.statusEntrega||'Não iniciado')}</small></td>
     <td>${esc(i.comprador||'-')}</td>
     <td>${i.dataFinalizada?fmtDate(i.dataFinalizada):'-'}</td>
     <td><button onclick="openDetail('${i.pedidoId}')">Atualizar produto</button></td>
@@ -678,7 +696,7 @@ function exportCsv(){
   const lines=[head, ...state.solicitacoes.flatMap(s=>(s.itens||[]).map(i=>[fmtDate(s.criadoEm),s.dataNecessidade?fmtDate(s.dataNecessidade):'',s.solicitante,s.setor,s.unidade,s.entidade,s.centroCusto,s.finalidade,familiaLabel(i.familia),i.codigoProduto||'',i.descricao||'',i.quantidade||'',i.valorEstimado||'',i.valorComprado||'',s.urgencia,i.status||s.status,i.comprador||'',i.dataFinalizada?fmtDate(i.dataFinalizada):'',s.status,s.alertaTexto||'',s.justificativa,s.anexo,i.linkReferencia||'']))];
   const csv=lines.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(';')).join('\n'); const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'})); a.download='pmc-solicitacoes.csv'; a.click();
 }
-function normalizarSolicitacao(s){ if(s.itens){ s.itens=s.itens.map(i=>({id:i.id||crypto.randomUUID(), ...i, familia:familiaCodigo(i.familia), status:i.status||s.status||'Pendente', comprador:i.comprador||s.comprador||'', dataFinalizada:i.dataFinalizada||'', valorComprado:Number(i.valorComprado||0), documentosFornecedores:i.documentosFornecedores||[], comentarios:i.comentarios||[], dataEntrega:i.dataEntrega||'', nfeUrl:i.nfeUrl||'', nfeNome:i.nfeNome||''})); atualizarStatusPedido(s); return s; } s.itens=[{id:crypto.randomUUID(), familia:familiaCodigo(s.familia)||'', codigoProduto:s.codigoProduto||'', descricao:s.descricao||'', unMedida:s.unMedida||'', quantidade:s.quantidade||0, valorEstimado:s.valorEstimado||0, linkReferencia:'', imagemProduto:'', status:s.status||'Pendente', comprador:s.comprador||'', dataFinalizada:'', valorComprado:0, documentosFornecedores:[], comentarios:[]}]; s.comprador=s.comprador||''; atualizarStatusPedido(s); return s; }
+function normalizarSolicitacao(s){ if(s.itens){ s.itens=s.itens.map(i=>({id:i.id||crypto.randomUUID(), ...i, familia:familiaCodigo(i.familia), status:['Aguardando entrega','Entregue'].includes(i.status)?'Comprado':(i.status||s.status||'Pendente'), statusEntrega:i.statusEntrega||(['Aguardando entrega','Entregue'].includes(i.status)?i.status:'Não iniciado'), comprador:i.comprador||s.comprador||'', dataFinalizada:i.dataFinalizada||'', valorComprado:Number(i.valorComprado||0), documentosFornecedores:i.documentosFornecedores||[], comentarios:i.comentarios||[], dataEntrega:i.dataEntrega||'', nfeUrl:i.nfeUrl||'', nfeNome:i.nfeNome||''})); atualizarStatusPedido(s); return s; } s.itens=[{id:crypto.randomUUID(), familia:familiaCodigo(s.familia)||'', codigoProduto:s.codigoProduto||'', descricao:s.descricao||'', unMedida:s.unMedida||'', quantidade:s.quantidade||0, valorEstimado:s.valorEstimado||0, linkReferencia:'', imagemProduto:'', status:s.status||'Pendente', statusEntrega:'Não iniciado', comprador:s.comprador||'', dataFinalizada:'', valorComprado:0, documentosFornecedores:[], comentarios:[]}]; s.comprador=s.comprador||''; atualizarStatusPedido(s); return s; }
 function allItems(rows=state.solicitacoes){ return rows.flatMap(s=>(s.itens||[]).map(i=>({...i, status:i.status||s.status, solicitante:s.solicitante, solicitanteEmail:s.solicitanteEmail, comprador:i.comprador||s.comprador, criadoEm:s.criadoEm, dataNecessidade:s.dataNecessidade||'', pedidoId:s.id, numeroPedido:s.numeroPedido||'', temAlerta:s.temAlerta, dataFinalizada:i.dataFinalizada||''}))); }
 function meusPedidos(){ return state.solicitacoes.filter(s=>s.solicitanteEmail===state.user?.email || norm(s.solicitante)===norm(state.user?.nome)); }
 function searchText(s){ return JSON.stringify({...s, familiasRotulo:(s.itens||[]).map(i=>familiaLabel(i.familia)), itens:s.itens}); }

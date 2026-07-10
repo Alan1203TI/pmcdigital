@@ -238,3 +238,19 @@ dialog:not(.fragment-dialog)::backdrop{background:rgba(15,23,42,.48);backdrop-fi
 .delivery-actions{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 10px}.delivery-actions button{width:auto;min-width:150px}
 .family-admin-form{display:grid;grid-template-columns:160px minmax(260px,1fr) auto;gap:10px;align-items:end;margin:12px 0}.families-admin-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:6px;max-height:460px;overflow:auto}.family-admin-row{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid #d8e1ef;border-radius:6px;padding:7px 9px;background:#fff}.danger-btn.compact{width:auto;padding:5px 9px;font-size:12px}
 @media(max-width:760px){.family-admin-form{grid-template-columns:1fr}.delivery-actions button{width:100%}}
+
+/* Atualização de produto em janela dedicada */
+.detail-item-heading{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:10px}
+.detail-item-heading h4{margin:0;color:var(--fiemg-blue)}
+.item-update-button{width:auto;white-space:nowrap;padding:8px 14px;font-size:12px}
+.item-update-overlay{position:fixed;inset:0;z-index:5000;background:rgba(15,23,42,.58);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:24px}
+.item-update-dialog{width:min(1180px,96vw);max-height:92vh;background:#fff;border-radius:12px;box-shadow:0 28px 80px rgba(15,23,42,.28);overflow:hidden;display:flex;flex-direction:column;border:1px solid #d8e0ee}
+.item-update-header{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;padding:16px 20px;border-bottom:1px solid var(--line);background:#f8fbff}
+.item-update-header h3{margin:3px 0 2px;color:var(--fiemg-blue);font-size:20px}
+.item-update-header p{margin:0;color:var(--muted);font-size:12px;max-width:850px}
+.item-update-close{width:38px;height:38px;padding:0;border-radius:8px;font-size:25px;line-height:1;background:#fff;color:#344054;border:1px solid var(--line)}
+.item-update-body{overflow:auto;padding:12px 16px 18px}
+.item-update-body .item-editor{margin:0;border:0;background:transparent;padding:0}
+.item-update-body .item-editor>h4{display:none}
+body.modal-open{overflow:hidden}
+@media(max-width:760px){.item-update-overlay{padding:8px}.item-update-dialog{width:100%;max-height:96vh}.detail-item-heading{align-items:flex-start;flex-direction:column}.item-update-button{width:100%}}
