@@ -96,7 +96,7 @@ function bind(){
   $('#busca').oninput = renderSolicitacoes; $('#filtroStatus').onchange=renderSolicitacoes; $('#filtroFamilia').onchange=renderSolicitacoes;
   $('#buscaDashboard').oninput = renderDashboard; $('#statusDashboard').onchange = renderDashboard;
   $('#buscaCompradora').oninput = renderCompradora; $('#statusCompradora').onchange=renderCompradora; $('#familiaCompradora').onchange=renderCompradora; $('#abertosCompradora').onchange=renderCompradora;
-  $('#refBusca').oninput = renderReferencias;
+  $('#refBusca').oninput = renderReferencias; $('#budgetSituacao').onchange = renderReferencias;
   $('#userForm').onsubmit = e => {e.preventDefault(); salvarUsuario();};
   $('#exportCsvBtn').onclick = exportCsv;
   $('#salvarConfig').onclick = () => {state.config.diasRegra = Number($('#diasRegra').value||90); state.config.limiteFamilia = Number($('#limiteFamilia').value||3000); saveLocal(); toast('Configuração salva.'); renderAll();};
@@ -116,7 +116,7 @@ function login(){
 function showPage(id){
   $$('.page').forEach(p=>p.classList.toggle('active',p.id===id));
   $$('.nav').forEach(n=>n.classList.toggle('active',n.dataset.page===id));
-  const titles={dashboard:['Dashboard','Meus pedidos, pedidos geral, status e consulta de compras realizadas.'],nova:['Nova Solicitação','Adicione um ou mais itens na mesma PMC.'],solicitacoes:['Meus / Pedidos Gerais','Consulte por código Protheus, produto, família, solicitante ou comprador.'],referencias:['Consulta PMC','Códigos de famílias, produtos Protheus, finalidades e centros de custo.'],compradora:['Área da Compradora','Controle exclusivo das PMC solicitadas, com atualização por produto/item.'],usuarios:['Usuários','Cadastro de acessos.'],config:['Configurações','Regras do sistema.']};
+  const titles={dashboard:['Dashboard','Meus pedidos, pedidos geral, status e consulta de compras realizadas.'],nova:['Nova Solicitação','Adicione um ou mais itens na mesma PMC.'],solicitacoes:['Meus / Pedidos Gerais','Consulte por código Protheus, produto, família, solicitante ou comprador.'],referencias:['Budget de Valor','Saldo disponível por família conforme o limite móvel de 90 dias.'],compradora:['Área da Compradora','Controle exclusivo das PMC solicitadas, com atualização por produto/item.'],usuarios:['Usuários','Cadastro de acessos.'],config:['Configurações','Regras do sistema.']};
   $('#pageTitle').textContent=titles[id]?.[0]||'PMC'; $('#pageSubtitle').textContent=titles[id]?.[1]||'';
 }
 function renderAll(){ fillSelects(); renderDashboard(); renderSolicitacoes(); renderCompradora(); renderReferencias(); renderUsuarios(); $('#diasRegra').value=state.config.diasRegra; if($('#limiteFamilia')) $('#limiteFamilia').value=state.config.limiteFamilia||3000; }
@@ -288,13 +288,39 @@ function renderCompradora(){
     <td><button onclick="openDetail('${i.pedidoId}')">Atualizar produto</button></td>
   </tr>`).join('') || '<tr><td colspan="9">Nenhum item encontrado.</td></tr>';
 }
+function resumoBudgetFamilia(familia){
+  const compras=comprasFamiliaNosUltimosDias(familia).sort((a,b)=>new Date(a.dataFinalizada)-new Date(b.dataFinalizada));
+  const limite=Number(state.config.limiteFamilia||3000);
+  const usado=compras.reduce((t,i)=>t+Number(i.valorComprado||0),0);
+  const disponivel=Math.max(0,limite-usado);
+  const ultima=compras.length?compras[compras.length-1].dataFinalizada:'';
+  const primeira=compras.length?compras[0].dataFinalizada:'';
+  const proxima=primeira?new Date(new Date(primeira).getTime()+Number(state.config.diasRegra||90)*86400000):null;
+  const percentual=limite>0?usado/limite:0;
+  const situacao=disponivel<=0?'sem':percentual>=.8?'quase':'saldo';
+  return {familia, compras, limite, usado, disponivel, ultima, proxima, percentual, situacao};
+}
 function renderReferencias(){
-  const q=norm($('#refBusca').value||''); const list=[];
-  FAMILIAS_PRODUTO.forEach(f=>list.push({tipo:'Família de produto', titulo:`${f.codigo} - ${f.descricao}`, txt:'Código oficial para informar no campo Família do produto'}));
-  state.refs.finalidades.forEach(f=>list.push({tipo:'Família/finalidade', titulo:`${f.codigo} - ${f.descricao}`, txt:`Conta ${f.conta} - ${f.contaDescricao}`}));
-  state.refs.servicosProtheus.forEach(p=>list.push({tipo:'Produto/serviço Protheus', titulo:`${p.codigo} - ${p.descricao}`, txt:`Família/tipo ${p.tipo} | ${p.uso}`}));
-  state.refs.centrosClasseValor.forEach(c=>list.push({tipo:'Centro/Classe', titulo:`${c.entidade} | ${c.centroCusto}/${c.classeValor}`, txt:`${c.centroCustoNome} | ${c.classeValorNome}`}));
-  $('#refList').innerHTML=list.filter(x=>!q||norm(x.tipo+x.titulo+x.txt).includes(q)).slice(0,350).map(x=>`<div class="ref-item"><small>${x.tipo}</small><br><b>${esc(x.titulo)}</b><p>${esc(x.txt)}</p></div>`).join('');
+  if(!$('#budgetTable')) return;
+  const q=norm($('#refBusca')?.value||''), filtro=$('#budgetSituacao')?.value||'';
+  const rows=FAMILIAS_PRODUTO.map(f=>({...f,...resumoBudgetFamilia(f.codigo)})).filter(x=>(!q||norm(x.codigo+' '+x.descricao).includes(q))&&(!filtro||x.situacao===filtro));
+  const todos=FAMILIAS_PRODUTO.map(f=>resumoBudgetFamilia(f.codigo));
+  $('#budgetRuleValue').textContent=money(state.config.limiteFamilia||3000);
+  $('#budgetComSaldo').textContent=todos.filter(x=>x.situacao==='saldo').length;
+  $('#budgetQuaseLimite').textContent=todos.filter(x=>x.situacao==='quase').length;
+  $('#budgetSemSaldo').textContent=todos.filter(x=>x.situacao==='sem').length;
+  $('#budgetTotalDisponivel').textContent=money(todos.reduce((t,x)=>t+x.disponivel,0));
+  $('#budgetTable tbody').innerHTML=rows.map(x=>{
+    const cls=x.situacao==='sem'?'budget-over':x.situacao==='quase'?'budget-warning':'budget-ok';
+    const label=x.situacao==='sem'?'Sem saldo':x.situacao==='quase'?'Próxima do limite':'Disponível';
+    return `<tr><td><b>${esc(x.codigo)}</b></td><td>${esc(x.descricao)}</td><td>${money(x.limite)}</td><td><b>${money(x.usado)}</b><div class="budget-progress"><span style="width:${Math.min(100,x.percentual*100)}%"></span></div></td><td class="budget-available">${money(x.disponivel)}</td><td>${x.ultima?fmtDate(x.ultima):'-'}</td><td>${x.proxima?fmtDate(x.proxima):'-'}</td><td><span class="family-balance ${cls}">${label}</span></td><td><button onclick="openBudgetDetail('${escAttr(x.codigo)}')">Ver histórico</button></td></tr>`;
+  }).join('')||'<tr><td colspan="9">Nenhuma família encontrada.</td></tr>';
+}
+window.openBudgetDetail=function(codigo){
+  const x=resumoBudgetFamilia(codigo), fam=FAMILIAS_PRODUTO.find(f=>f.codigo===familiaCodigo(codigo));
+  const linhas=x.compras.map(i=>`<tr><td>${fmtDate(i.dataFinalizada)}</td><td><b>${esc(i.codigoProduto||'-')}</b><br>${esc(i.descricao||'')}</td><td>${esc(i.solicitante||'-')}</td><td>${esc(i.comprador||'-')}</td><td>${money(i.valorComprado||0)}</td></tr>`).join('')||'<tr><td colspan="5">Nenhuma compra finalizada desta família dentro do período atual.</td></tr>';
+  $('#detailContent').innerHTML=`<div class="budget-detail-head"><p class="eyebrow">Budget da família</p><h2>${esc(fam?fam.codigo+' - '+fam.descricao:codigo)}</h2></div><div class="cards budget-detail-cards"><div class="card kpi"><span>Limite</span><b>${money(x.limite)}</b></div><div class="card kpi"><span>Utilizado</span><b>${money(x.usado)}</b></div><div class="card kpi"><span>Disponível</span><b>${money(x.disponivel)}</b></div></div><p><b>Próxima liberação estimada:</b> ${x.proxima?fmtDate(x.proxima):'Não há valor comprometido no período.'}</p><div class="table-wrap"><table><thead><tr><th>Finalização</th><th>Produto</th><th>Solicitante</th><th>Compradora</th><th>Valor</th></tr></thead><tbody>${linhas}</tbody></table></div>`;
+  $('#detailDialog').showModal();
 }
 function salvarUsuario(){ const u={id:crypto.randomUUID(),nome:$('#uNome').value.trim(),email:$('#uEmail').value.trim(),senha:$('#uSenha').value,perfil:$('#uPerfil').value,setor:$('#uSetor').value.trim()}; if(state.usuarios.some(x=>x.email.toLowerCase()===u.email.toLowerCase())) return toast('E-mail já cadastrado.'); state.usuarios.push(u); saveLocal(); $('#userForm').reset(); $('#uSenha').value='123456'; renderUsuarios(); toast('Usuário cadastrado.'); }
 function renderUsuarios(){ $('#userTable tbody').innerHTML=state.usuarios.map(u=>`<tr><td>${esc(u.nome)}</td><td>${esc(u.email)}</td><td>${esc(u.perfil)}</td><td>${esc(u.setor||'')}</td><td>${u.email==='admin@pmc.local'?'Padrão':`<button onclick="delUser('${u.id}')">Excluir</button>`}</td></tr>`).join(''); }

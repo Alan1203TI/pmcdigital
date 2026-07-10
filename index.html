@@ -36,7 +36,7 @@
       <button data-page="dashboard" class="nav active">🏠 Dashboard</button>
       <button data-page="nova" class="nav">🛒 Nova Solicitação</button>
       <button data-page="solicitacoes" class="nav">📋 Meus / Pedidos Gerais</button>
-      <button data-page="referencias" class="nav">🔎 Consulta PMC</button>
+      <button data-page="referencias" class="nav">💰 Budget de Valor</button>
       <button data-page="compradora" class="nav compras-only">🧾 Área da Compradora</button>
       <button data-page="usuarios" class="nav admin-only">👥 Usuários</button>
       <button data-page="config" class="nav admin-only">⚙ Configurações</button>
@@ -67,7 +67,7 @@
           <button class="action-card quick-action" data-page="solicitacoes"><span>📝</span><b>Meus Pedidos</b><small>Acompanhar minhas solicitações</small></button>
           <button class="action-card quick-action" data-page="solicitacoes"><span>🌎</span><b>Pedidos Gerais</b><small>Pesquisar compras da unidade</small></button>
           <button class="action-card quick-action" data-page="nova"><span>🛒</span><b>Nova Solicitação</b><small>Adicionar um ou mais itens</small></button>
-          <button class="action-card quick-action" data-page="referencias"><span>🔍</span><b>Consultar Compras</b><small>Códigos, famílias e Protheus</small></button>
+          <button class="action-card quick-action" data-page="referencias"><span>💰</span><b>Budget de Valor</b><small>Saldo disponível por família</small></button>
         </div>
 
         <div class="cards">
@@ -136,7 +136,21 @@
       </section>
 
       <section id="referencias" class="page">
-        <div class="panel"><h3>Consulta PMC</h3><p>Pesquise códigos de família, produtos/serviços Protheus, finalidades e centros de custo importados da PMC.</p><input id="refBusca" placeholder="Buscar por código, descrição ou família"><div id="refList" class="ref-list"></div></div>
+        <div class="panel budget-hero">
+          <div><p class="eyebrow">Transparência para toda a unidade</p><h3>Budget de Valor por Família</h3><p>Consulte quanto já foi utilizado e quanto ainda está disponível no limite móvel de 90 dias de cada família.</p></div>
+          <div class="budget-rule"><b id="budgetRuleValue">R$ 3.000,00</b><span>por família / 90 dias</span></div>
+        </div>
+        <div class="cards budget-summary">
+          <div class="card kpi"><span>Famílias com saldo</span><b id="budgetComSaldo">0</b></div>
+          <div class="card kpi warning"><span>Próximas do limite</span><b id="budgetQuaseLimite">0</b></div>
+          <div class="card kpi danger"><span>Sem saldo</span><b id="budgetSemSaldo">0</b></div>
+          <div class="card kpi"><span>Total disponível</span><b id="budgetTotalDisponivel">R$ 0,00</b></div>
+        </div>
+        <div class="panel filters budget-filters">
+          <input id="refBusca" placeholder="Pesquisar por código ou descrição da família...">
+          <select id="budgetSituacao"><option value="">Todas as situações</option><option value="saldo">Com saldo disponível</option><option value="quase">Próximas do limite</option><option value="sem">Sem saldo</option></select>
+        </div>
+        <div class="panel table-wrap"><table id="budgetTable"><thead><tr><th>Código</th><th>Família</th><th>Limite 90 dias</th><th>Utilizado</th><th>Disponível</th><th>Última compra</th><th>Próxima liberação</th><th>Situação</th><th>Detalhes</th></tr></thead><tbody></tbody></table></div>
       </section>
 
 

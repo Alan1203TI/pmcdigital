@@ -102,3 +102,10 @@ A regra dos 3 meses foi implementada como 90 dias e pode ser alterada em `Config
 - Orçamentos de fornecedores anexados individualmente em cada produto.
 - Limite configurável, inicialmente em R$ 3.000,00 por família, considerando compras finalizadas nos últimos 90 dias corridos.
 - O saldo da família é recalculado automaticamente pela data de finalização do item.
+
+
+## Budget de Valor por Família
+- A antiga tela **Consulta PMC** foi substituída pelo painel **Budget de Valor**.
+- Todos os usuários podem consultar o limite, o valor utilizado e o saldo disponível de cada família.
+- O cálculo considera itens com status Comprado ou Entregue e data de finalização dentro dos últimos 90 dias.
+- O painel mostra próxima liberação estimada e histórico das compras que compõem o cálculo.
