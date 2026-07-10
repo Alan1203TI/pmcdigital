@@ -14,16 +14,16 @@
       <img class="login-logo" src="assets/logo-fiemg.png" alt="Sistema FIEMG">
       <div class="login-title">
         <h1>Sistema Digital de Solicitação de Compras</h1>
-        <p>PMC • SESI / SENAI São João del-Rei</p>
+        <p class="unit-name">SESI Dom Bosco – São João del-Rei</p><p class="system-name">PMC • Solicitação Digital de Compras</p>
       </div>
       <div class="auth-tabs">
-        <button id="showLoginBtn" class="auth-tab active" type="button">Entrar</button>
+        <button id="showLoginBtn" class="auth-tab active" type="button">Já tenho cadastro</button>
         <button id="showRegisterBtn" class="auth-tab" type="button">Criar meu usuário</button>
       </div>
       <form id="loginForm" class="form-grid compact auth-form">
         <label>E-mail<input id="loginEmail" type="email" autocomplete="username" required></label>
         <label>Senha<input id="loginSenha" type="password" autocomplete="current-password" required></label>
-        <button class="primary" type="submit">Entrar no sistema</button>
+        <button class="primary login-submit" type="submit">Entrar</button>
       </form>
       <form id="registerForm" class="form-grid compact auth-form hidden">
         <label>Nome completo<input id="registerNome" required placeholder="Nome que aparecerá nas solicitações"></label>
@@ -33,7 +33,7 @@
         <label>Confirmar senha<input id="registerSenhaConfirm" type="password" minlength="6" autocomplete="new-password" required></label>
         <button class="primary" type="submit">Cadastrar como solicitante</button>
       </form>
-      <div class="brand-strip"><img src="assets/logo-sesi.png" alt="SESI"><img src="assets/logo-senai.png" alt="SENAI"></div>
+      <div class="brand-strip"><div class="brand-logo"><img src="assets/logo-sesi.png" alt="SESI"></div><div class="brand-logo"><img src="assets/logo-senai.png" alt="SENAI"></div></div>
       <small>Novos cadastros recebem automaticamente o perfil <b>solicitante</b>. O administrador pode alterar o perfil posteriormente.</small>
       <div class="developer-credit">Alan Camilo Rodrigues / Desenvolvedor</div>
     </div>
