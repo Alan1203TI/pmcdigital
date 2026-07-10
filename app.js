@@ -255,13 +255,13 @@ function renderSolicitacoes(){
   let rows=state.solicitacoes.filter(s=>(!st||s.itens?.some(i=>(i.status||s.status)===st))&&(!fam||s.itens?.some(i=>i.familia===fam))&&(!q||norm(searchText(s)).includes(q)));
   $('#solTable tbody').innerHTML=rows.map(s=>{
     const itens=(s.itens||[]).map(i=>`<div class="item-line"><b>${esc(i.codigoProduto||'-')}</b> • ${esc(i.quantidade)} ${esc(i.unMedida||'')} • ${esc(i.descricao||'-')}<br><small>${badge(i.status||s.status)}${i.comprador?' • Compradora: '+esc(i.comprador):''}${i.dataFinalizada?' • Finalizada: '+fmtDate(i.dataFinalizada):''}</small></div>`).join('');
-    return `<tr><td>${fmtDate(s.criadoEm)}</td><td>${esc(s.solicitante)}<br><small>${esc(s.setor)}</small></td><td>${esc(itemResumo(s,'familias'))}</td><td colspan="3">${itens}</td><td>${badge(s.status)}</td><td>${s.temAlerta?'<span class="alert">⚠ 90 dias/duplicidade</span>':'<span class="ok">OK</span>'}</td><td><div class="table-action-stack"><button onclick="openDetail('${s.id}')">Ver/Atualizar itens</button><button class="pdf-inline-btn" onclick="downloadPedidoPdf('${s.id}')">Baixar PDF</button></div></td></tr>`;
+    return `<tr><td>${fmtDate(s.criadoEm)}</td><td>${esc(s.solicitante)}<br><small>${esc(s.setor)}</small></td><td>${esc(itemResumo(s,'familias'))}</td><td colspan="3">${itens}</td><td>${badge(s.status)}</td><td>${s.temAlerta?'<span class="alert">⚠ 90 dias/duplicidade</span>':'<span class="ok">OK</span>'}</td><td><div class="table-action-stack"><button onclick="openDetail('${s.id}')">Ver/Atualizar itens</button><button class="pdf-inline-btn" onclick="downloadPedidoWord('${s.id}')">Gerar Word</button></div></td></tr>`;
   }).join('') || '<tr><td colspan="9">Nenhuma solicitação encontrada.</td></tr>';
 }
 window.openDetail=function(id){
   const s=state.solicitacoes.find(x=>x.id===id); if(!s) return; const canEdit = ['admin','compras','gestor'].includes(state.user.perfil);
   const itensHtml=s.itens.map((i,idx)=>`<div class="detail-item"><h4>Item ${idx+1}</h4><div class="detail-grid">${item('Status do item',badge(i.status||s.status))}${item('Compradora',i.comprador||'-')}${item('Data finalizada',i.dataFinalizada?fmtDate(i.dataFinalizada):'-')}${item('Família/código',familiaLabel(i.familia))}${item('Código Protheus',i.codigoProduto||'-')}${item('Quantidade',i.quantidade+' '+(i.unMedida||''))}${item('Valor estimado',money(i.valorEstimado))}${item('Valor efetivamente comprado',money(i.valorComprado||0))}${item('Saldo da família nos 90 dias',saldoFamiliaHtml(i.familia,i.id))}${item('Descrição',i.descricao,'wide')}${item('Estudo dos orçamentos',quoteAnalysisHtml(i),'wide')}${item('Orçamentos por fornecedor',documentosHtml(i),'wide')}${item('Link referência',i.linkReferencia?`<a href="${escAttr(i.linkReferencia)}" target="_blank">Abrir referência</a>`:'-','wide')}${item('Imagem',i.imagemProduto?`<img class="produto-img" src="${escAttr(i.imagemProduto)}" alt="Imagem do produto">`:'-','wide')}</div>${canEdit?itemEditor(s.id,i,idx):''}</div>`).join('');
-  $('#detailContent').innerHTML=`<div class="detail-document-actions"><button class="primary pdf-order-btn" type="button" onclick="downloadPedidoPdf('${s.id}')">Baixar PDF para cotação</button><span>Documento simplificado: somente itens e campos de valores para o fornecedor.</span></div><h3>Solicitação PMC</h3><div class="detail-grid">${item('Data do pedido',fmtDate(s.criadoEm))}${item('Data da necessidade',s.dataNecessidade?fmtDate(s.dataNecessidade):'-')}${item('Solicitante',s.solicitante)}${item('Setor',s.setor)}${item('Unidade',s.unidade)}${item('Entidade',s.entidade)}${item('Centro/Classe',s.centroCusto)}${item('Finalidade',s.finalidade)}${item('Status geral calculado',badge(s.status))}${item('Urgência',s.urgencia)}${item('Justificativa',s.justificativa,'wide')}${item('Anexo/orçamento',s.anexo?`<a href="${escAttr(s.anexo)}" target="_blank">Abrir orçamento/anexo</a>`:'-','wide')}${item('Alerta',s.alertaTexto||'Sem alerta','wide')}</div><h3>Itens da solicitação</h3>${itensHtml}
+  $('#detailContent').innerHTML=`<div class="detail-document-actions"><button class="primary pdf-order-btn" type="button" onclick="downloadPedidoWord('${s.id}')">Gerar modelo de cotação (.docx)</button><span>Documento Word editável, com somente os itens e campos necessários para o fornecedor.</span></div><h3>Solicitação PMC</h3><div class="detail-grid">${item('Data do pedido',fmtDate(s.criadoEm))}${item('Data da necessidade',s.dataNecessidade?fmtDate(s.dataNecessidade):'-')}${item('Solicitante',s.solicitante)}${item('Setor',s.setor)}${item('Unidade',s.unidade)}${item('Entidade',s.entidade)}${item('Centro/Classe',s.centroCusto)}${item('Finalidade',s.finalidade)}${item('Status geral calculado',badge(s.status))}${item('Urgência',s.urgencia)}${item('Justificativa',s.justificativa,'wide')}${item('Anexo/orçamento',s.anexo?`<a href="${escAttr(s.anexo)}" target="_blank">Abrir orçamento/anexo</a>`:'-','wide')}${item('Alerta',s.alertaTexto||'Sem alerta','wide')}</div><h3>Itens da solicitação</h3>${itensHtml}
     ${canEdit?`<hr><button class="danger-btn" onclick="delSol('${s.id}')">Excluir solicitação completa</button>`:''}
     <h4>Histórico</h4><ul>${(s.historico||[]).map(h=>`<li>${fmtDateTime(h.data)} - ${esc(h.usuario)}: ${esc(h.acao)}</li>`).join('')}</ul>`;
   const paginaAtual=document.querySelector('.page.active')?.id||'solicitacoes'; if(paginaAtual!=='detalhe') state.previousPage=paginaAtual; $('#detailPageTitle').textContent='Detalhes da Solicitação PMC'; showPage('detalhe');
@@ -462,87 +462,120 @@ function renderUsuarios(){
 window.saveUserProfile=function(id){ const u=state.usuarios.find(x=>x.id===id); if(!u) return; u.perfil=$(`#perfil_${id}`).value; saveLocal(); renderUsuarios(); toast('Perfil atualizado.'); }
 window.delUser=id=>{ const u=state.usuarios.find(x=>x.id===id); if(!u||u.email.toLowerCase()===ADMIN_EMAIL) return; confirmAction(`Excluir o usuário ${u.nome}?`,()=>{state.usuarios=state.usuarios.filter(x=>x.id!==id); saveLocal(); renderUsuarios(); toast('Usuário excluído.');},'Excluir usuário');}
 
-function pdfWinAnsi(text){
-  const map={'€':128,'‚':130,'ƒ':131,'„':132,'…':133,'†':134,'‡':135,'ˆ':136,'‰':137,'Š':138,'‹':139,'Œ':140,'Ž':142,'‘':145,'’':146,'“':147,'”':148,'•':149,'–':150,'—':151,'˜':152,'™':153,'š':154,'›':155,'œ':156,'ž':158,'Ÿ':159};
-  let out='';
-  for(const ch of String(text??'')){
-    const cp=ch.codePointAt(0);
-    if(map[ch]!=null) out+=String.fromCharCode(map[ch]);
-    else if(cp<=255) out+=String.fromCharCode(cp);
-    else out+='?';
+async function ensureDocxLibrary(){
+  if(window.docx?.Document && window.docx?.Packer) return window.docx;
+  await loadExternalScript('https://unpkg.com/docx@8.5.0/build/index.umd.js','docx');
+  if(!window.docx?.Document || !window.docx?.Packer) throw new Error('Não foi possível carregar o gerador de documentos Word. Verifique a conexão com a internet.');
+  return window.docx;
+}
+async function fetchImageBytes(path){
+  try{
+    const response=await fetch(path);
+    if(!response.ok) return null;
+    return new Uint8Array(await response.arrayBuffer());
+  }catch{return null;}
+}
+window.downloadPedidoWord=async function(id){
+  const s=state.solicitacoes.find(x=>x.id===id);
+  if(!s) return toast('Pedido não encontrado.');
+  const button=document.activeElement;
+  const oldText=button?.textContent;
+  try{
+    if(button?.tagName==='BUTTON'){button.disabled=true;button.textContent='Gerando Word...';}
+    const d=await ensureDocxLibrary();
+    const {
+      Document,Packer,Paragraph,TextRun,Table,TableRow,TableCell,WidthType,
+      AlignmentType,BorderStyle,ShadingType,VerticalAlign,ImageRun,Header,Footer
+    }=d;
+    const blue='23448F', light='EAF0FA', gray='F3F5F8', border='AAB8D4';
+    const borders={top:{style:BorderStyle.SINGLE,size:4,color:border},bottom:{style:BorderStyle.SINGLE,size:4,color:border},left:{style:BorderStyle.SINGLE,size:4,color:border},right:{style:BorderStyle.SINGLE,size:4,color:border}};
+    const cell=(children,opts={})=>new TableCell({
+      children:Array.isArray(children)?children:[children],
+      borders,
+      verticalAlign:VerticalAlign.CENTER,
+      shading:opts.fill?{fill:opts.fill,type:ShadingType.CLEAR}:undefined,
+      width:opts.width?{size:opts.width,type:WidthType.PERCENTAGE}:undefined,
+      margins:{top:90,bottom:90,left:90,right:90}
+    });
+    const para=(text,opts={})=>new Paragraph({
+      alignment:opts.align||AlignmentType.LEFT,
+      spacing:{after:opts.after??80,before:opts.before??0},
+      children:[new TextRun({text:String(text??''),bold:!!opts.bold,size:opts.size||20,color:opts.color||'000000'})]
+    });
+    const fiemg=await fetchImageBytes('assets/logo-fiemg.png');
+    const sesi=await fetchImageBytes('assets/logo-sesi.png');
+    const senai=await fetchImageBytes('assets/logo-senai.png');
+    const headerChildren=[];
+    if(fiemg) headerChildren.push(new Paragraph({alignment:AlignmentType.CENTER,children:[new ImageRun({data:fiemg,transformation:{width:130,height:55}})]}));
+    headerChildren.push(para('SOLICITAÇÃO DE COTAÇÃO DE PREÇOS',{bold:true,size:30,color:blue,align:AlignmentType.CENTER,after:40}));
+    headerChildren.push(para(`Referência: COT-${String(s.id).slice(0,8).toUpperCase()}`,{size:18,color:'586783',align:AlignmentType.CENTER,after:140}));
+
+    const supplierTable=new Table({width:{size:100,type:WidthType.PERCENTAGE},rows:[
+      new TableRow({children:[cell(para('DADOS DO FORNECEDOR',{bold:true,color:'FFFFFF'}),{fill:blue,width:100})]}),
+      new TableRow({children:[cell(para('Razão Social: _______________________________________________________________'),{width:100})]}),
+      new TableRow({children:[cell(para('CNPJ: ______________________________  Contato: ______________________________'),{width:100})]}),
+      new TableRow({children:[cell(para('Telefone: ___________________________  E-mail: ______________________________'),{width:100})]}),
+      new TableRow({children:[cell(para('Data da cotação: ____/____/________  Validade da proposta: _________________'),{width:100})]})
+    ]});
+
+    const widths=[12,31,10,17,15,15];
+    const headerRow=new TableRow({tableHeader:true,children:[
+      ['Código',widths[0]],['Descrição do produto',widths[1]],['Qtd.',widths[2]],['Marca / Modelo',widths[3]],['Valor unitário',widths[4]],['Valor total',widths[5]]
+    ].map(([t,w])=>cell(para(t,{bold:true,color:'FFFFFF',size:17,align:AlignmentType.CENTER}),{fill:blue,width:w}))});
+    const itemRows=(s.itens||[]).map(i=>new TableRow({children:[
+      cell(para(i.codigoProduto||'-',{size:17}),{width:widths[0]}),
+      cell(para(i.descricao||'-',{size:17}),{width:widths[1]}),
+      cell(para(`${i.quantidade||'-'} ${i.unMedida||''}`.trim(),{size:17,align:AlignmentType.CENTER}),{width:widths[2]}),
+      cell(para('\n\n',{size:17}),{width:widths[3]}),
+      cell(para('R$ ____________',{size:17}),{width:widths[4]}),
+      cell(para('R$ ____________',{size:17}),{width:widths[5]})
+    ]}));
+    const productTable=new Table({width:{size:100,type:WidthType.PERCENTAGE},rows:[headerRow,...itemRows]});
+
+    const commercialTable=new Table({width:{size:100,type:WidthType.PERCENTAGE},rows:[
+      new TableRow({children:[cell(para('RESUMO E CONDIÇÕES DA PROPOSTA',{bold:true,color:'FFFFFF'}),{fill:blue,width:100})]}),
+      new TableRow({children:[cell(para('Valor total geral da proposta: R$ __________________________________________'),{fill:light,width:100})]}),
+      new TableRow({children:[cell(para('Prazo de entrega: __________________________  Forma de pagamento: __________________________'),{width:100})]}),
+      new TableRow({children:[cell(para('Frete incluso: (   ) Sim   (   ) Não             Garantia: _________________________________'),{width:100})]}),
+      new TableRow({children:[cell(para('Observações:\n________________________________________________________________________________\n________________________________________________________________________________\n________________________________________________________________________________'),{width:100})]}),
+      new TableRow({children:[cell(para('Responsável pela proposta: __________________________________  Data: ____/____/________'),{width:100})]})
+    ]});
+
+    const footerRuns=[];
+    if(sesi) footerRuns.push(new ImageRun({data:sesi,transformation:{width:70,height:31}}));
+    footerRuns.push(new TextRun({text:'     '}));
+    if(senai) footerRuns.push(new ImageRun({data:senai,transformation:{width:78,height:31}}));
+    const doc=new Document({
+      creator:'PMC Digital - Alan Camilo Rodrigues',
+      title:`Cotação ${String(s.id).slice(0,8).toUpperCase()}`,
+      description:'Modelo editável para cotação de produtos',
+      sections:[{
+        properties:{page:{margin:{top:650,right:650,bottom:650,left:650}}},
+        headers:{default:new Header({children:headerChildren})},
+        footers:{default:new Footer({children:[new Paragraph({alignment:AlignmentType.CENTER,children:footerRuns}),para('Documento gerado pelo PMC Digital • SESI Dom Bosco – São João del-Rei',{size:15,color:'69778E',align:AlignmentType.CENTER,after:0})]})},
+        children:[
+          para('Preencha os valores individualmente para cada produto. Não altere os códigos ou descrições dos itens.',{size:18,color:'4D5C73',after:150}),
+          supplierTable,
+          para('',{after:80}),
+          productTable,
+          para('',{after:80}),
+          commercialTable
+        ]
+      }]
+    });
+    const blob=await Packer.toBlob(doc);
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=`Cotacao_${String(s.id).slice(0,8).toUpperCase()}.docx`;
+    document.body.appendChild(a);a.click();
+    setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500);
+    toast('Modelo de cotação em Word gerado.');
+  }catch(err){
+    console.error(err);
+    toast('Erro ao gerar o Word: '+(err.message||err));
+  }finally{
+    if(button?.tagName==='BUTTON'){button.disabled=false;button.textContent=oldText||'Gerar Word';}
   }
-  return out.replace(/\\/g,'\\\\').replace(/\(/g,'\\(').replace(/\)/g,'\\)').replace(/[\r\n]+/g,' ');
-}
-function pdfWrap(text,max=92){
-  const words=String(text??'').replace(/\s+/g,' ').trim().split(' '); const lines=[]; let line='';
-  words.forEach(w=>{const test=line?line+' '+w:w; if(test.length>max&&line){lines.push(line);line=w;}else line=test;});
-  if(line) lines.push(line); return lines.length?lines:['-'];
-}
-function createSimplePdf(pages){
-  const objects=[]; const add=o=>{objects.push(o);return objects.length;};
-  const fontId=add('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>');
-  const boldId=add('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>');
-  const pagesId=add(''); const pageIds=[];
-  pages.forEach(content=>{
-    const stream=content;
-    const contentId=add(`<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`);
-    const pageId=add(`<< /Type /Page /Parent ${pagesId} 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 ${fontId} 0 R /F2 ${boldId} 0 R >> >> /Contents ${contentId} 0 R >>`);
-    pageIds.push(pageId);
-  });
-  objects[pagesId-1]=`<< /Type /Pages /Kids [${pageIds.map(id=>id+' 0 R').join(' ')}] /Count ${pageIds.length} >>`;
-  const catalogId=add(`<< /Type /Catalog /Pages ${pagesId} 0 R >>`);
-  let pdf='%PDF-1.4\n%âãÏÓ\n'; const offsets=[0];
-  objects.forEach((obj,i)=>{offsets.push(pdf.length);pdf+=`${i+1} 0 obj\n${obj}\nendobj\n`;});
-  const xref=pdf.length; pdf+=`xref\n0 ${objects.length+1}\n0000000000 65535 f \n`;
-  for(let i=1;i<=objects.length;i++) pdf+=String(offsets[i]).padStart(10,'0')+' 00000 n \n';
-  pdf+=`trailer\n<< /Size ${objects.length+1} /Root ${catalogId} 0 R >>\nstartxref\n${xref}\n%%EOF`;
-  return new Blob([Uint8Array.from(pdf,c=>c.charCodeAt(0)&255)],{type:'application/pdf'});
-}
-window.downloadPedidoPdf=function(id){
-  const s=state.solicitacoes.find(x=>x.id===id); if(!s) return toast('Pedido não encontrado.');
-  const pages=[]; let commands=[], y=800, pageNo=1;
-  const addPage=()=>{ if(commands.length) pages.push(commands.join('\n')); commands=[]; y=800; pageNo=pages.length+1; header(); };
-  const text=(value,x=45,size=10,bold=false)=>{commands.push(`BT /${bold?'F2':'F1'} ${size} Tf ${x} ${y} Td (${pdfWinAnsi(value)}) Tj ET`); y-=size+5;};
-  const line=()=>{commands.push(`0.75 w 45 ${y} m 550 ${y} l S`); y-=12;};
-  const ensure=(needed=70)=>{if(y<needed) addPage();};
-  const wrapped=(value,x=45,size=9,max=96,bold=false)=>{pdfWrap(value,max).forEach(l=>{ensure(55);text(l,x,size,bold);});};
-  const header=()=>{
-    commands.push('0.13 0.27 0.58 rg 0 812 595 30 re f');
-    commands.push(`BT /F2 14 Tf 45 821 Td (${pdfWinAnsi('SOLICITAÇÃO DE COTAÇÃO')}) Tj ET`);
-    commands.push(`BT /F1 8 Tf 460 821 Td (${pdfWinAnsi('Página '+pageNo)}) Tj ET`);
-    y=792;
-  };
-  header();
-  text('ITENS PARA COTAÇÃO',45,16,true);
-  wrapped('Preencha o valor unitário e o valor total de cada item. Ao final, informe o valor total geral do orçamento.',45,9,100,false);
-  line();
-  (s.itens||[]).forEach((i,idx)=>{
-    ensure(170);
-    commands.push(`0.96 0.97 0.99 rg 42 ${y-112} 511 120 re f`);
-    commands.push(`0.13 0.27 0.58 RG 0.8 w 42 ${y-112} 511 120 re S`);
-    text(`ITEM ${idx+1}`,50,11,true);
-    wrapped(`Código: ${i.codigoProduto||'-'}`,50,9,88,true);
-    wrapped(`Descrição: ${i.descricao||'-'}`,50,9,88,false);
-    wrapped(`Quantidade: ${i.quantidade||'-'} ${i.unMedida||''}`,50,9,88,false);
-    text('Marca/Modelo: ______________________________________________________',50,8,false);
-    text('Valor unitário: R$ ____________________',50,8,false);
-    text('Valor total do item: R$ _______________',50,8,false);
-    y-=12;
-  });
-  ensure(170); line();
-  text('RESUMO DO ORÇAMENTO',45,12,true);
-  y-=8;
-  text('Valor total geral do orçamento: R$ __________________________________________',45,10,true);
-  y-=8;
-  text('Observações do fornecedor:',45,9,true);
-  text('_____________________________________________________________________________',45,9,false);
-  text('_____________________________________________________________________________',45,9,false);
-  text('_____________________________________________________________________________',45,9,false);
-  y-=10;
-  text('Data: ____/____/________',45,9,false);
-  pages.push(commands.join('\n'));
-  const blob=createSimplePdf(pages); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`Cotacao_${String(s.id).slice(0,8).toUpperCase()}.pdf`; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500);
-  toast('PDF simplificado para cotação gerado.');
 }
 
 function exportCsv(){

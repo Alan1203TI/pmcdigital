@@ -149,4 +149,8 @@ A comparação por preço unitário evita distorções quando fornecedores cotam
 ## Atualização - orçamento e PDF
 - O botão Excluir de cada orçamento foi reduzido ao padrão visual do sistema.
 - A exclusão agora altera diretamente o item original do pedido, grava histórico e recalcula média/menor preço.
-- Cada PMC possui a opção "Baixar PDF para cotação", com dados gerais, justificativa, todos os produtos e campos para preenchimento do fornecedor.
+- Cada PMC possui a opção "Gerar modelo de cotação em Word (.docx)", com dados gerais, justificativa, todos os produtos e campos para preenchimento do fornecedor.
+
+
+## Cotação editável em Word
+Na tela de detalhes do pedido, use **Gerar modelo de cotação (.docx)**. O arquivo contém somente os produtos, quantidades e campos comerciais que o fornecedor deve preencher. Dados internos da PMC não são incluídos. A geração utiliza a biblioteca docx carregada pela internet.
