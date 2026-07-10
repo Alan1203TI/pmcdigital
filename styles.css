@@ -315,3 +315,6 @@ body.modal-open{overflow:hidden}
 }
 
 /* Permissões de menu por perfil revisadas em 2026-07-10 */
+
+/* Regra final de visibilidade por perfil: supera o display:flex do menu horizontal. */
+.horizontal-nav .nav.hidden, .horizontal-nav .nav[hidden], .quick-action.hidden, .quick-action[hidden]{display:none!important;}

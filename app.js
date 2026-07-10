@@ -132,6 +132,7 @@ function showLoggedOut(){
   $('#appView').classList.add('hidden'); $('#loginView').classList.remove('hidden'); toggleAuth('login');
 }
 function paginasPermitidasPorPerfil(perfil){
+  perfil=String(perfil||'solicitante').trim().toLowerCase();
   const mapa={
     solicitante:['dashboard','nova','referencias','detalhe'],
     compras:['dashboard','nova','referencias','detalhe'],
@@ -150,6 +151,8 @@ function showLoggedIn(){
   $$('.nav').forEach(el=>{
     const permitido=permitidas.includes(el.dataset.page);
     el.classList.toggle('hidden', !permitido);
+    el.hidden = !permitido;
+    el.style.setProperty('display', permitido ? 'flex' : 'none', 'important');
     el.setAttribute('aria-hidden', permitido ? 'false' : 'true');
     el.tabIndex = permitido ? 0 : -1;
   });
@@ -157,6 +160,8 @@ function showLoggedIn(){
     const pagina=el.dataset.page;
     const permitido=!pagina||permitidas.includes(pagina);
     el.classList.toggle('hidden', !permitido);
+    el.hidden = !permitido;
+    el.style.setProperty('display', permitido ? '' : 'none', 'important');
     el.setAttribute('aria-hidden', permitido ? 'false' : 'true');
     el.tabIndex = permitido ? 0 : -1;
   });
