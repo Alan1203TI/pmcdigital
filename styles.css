@@ -162,3 +162,14 @@ dialog:not(.fragment-dialog)::backdrop{background:rgba(15,23,42,.48);backdrop-fi
   .main-header-row{height:auto;padding:10px 14px}.header-session-role{display:none}.header-session-person{min-width:0}.horizontal-brand{min-width:0}.horizontal-brand div{display:none}.horizontal-nav{padding:0 8px}.horizontal-nav .nav{padding:0 11px}.content{padding:12px!important}.topbar{display:flex!important}.top-actions{margin-top:0!important}
 }
 @media(max-width:600px){.header-session-person{display:none}.horizontal-brand img{width:96px}.topbar{display:block!important}.top-actions{margin-top:10px!important}.brand-strip{gap:20px}.brand-strip img{height:42px;max-width:150px}}
+
+
+/* Ajustes dos orçamentos e PDF para cotação */
+.supplier-doc{grid-template-columns:minmax(0,1fr) auto auto!important}
+.supplier-doc-actions{display:flex;align-items:center;justify-content:flex-end;gap:7px;white-space:nowrap}
+.supplier-doc-delete{display:inline-flex!important;width:auto!important;min-width:72px!important;max-width:96px!important;min-height:32px!important;padding:6px 12px!important;margin:0!important;align-items:center;justify-content:center;border:1px solid #e6a6a6!important;border-radius:5px!important;background:#fff7f7!important;color:#b42318!important;font-size:12px!important;font-weight:800!important;line-height:1!important;box-shadow:none!important}
+.supplier-doc-delete:hover{background:#fde8e8!important;border-color:#d87878!important;transform:none!important}
+.supplier-doc-download{min-height:32px!important;padding:6px 11px!important;font-size:12px!important}
+.detail-document-actions{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 16px;margin-bottom:16px;border:1px solid #cbd9ee;border-left:4px solid var(--senai-blue);border-radius:7px;background:#f7faff}
+.detail-document-actions span{color:var(--muted);font-size:13px}.pdf-order-btn{width:auto!important;min-width:210px}.table-action-stack{display:flex;flex-direction:column;align-items:flex-start;gap:6px}.table-action-stack button{width:100%;white-space:nowrap}.pdf-inline-btn{border-color:#9cb7df!important;background:#f5f9ff!important;color:var(--fiemg-blue)!important}
+@media(max-width:700px){.supplier-doc{grid-template-columns:1fr!important}.supplier-doc-actions{justify-content:flex-start}.detail-document-actions{align-items:flex-start;flex-direction:column}.pdf-order-btn{width:100%!important}.supplier-doc-delete{min-width:72px!important}}

@@ -145,3 +145,8 @@ A comparação por preço unitário evita distorções quando fornecedores cotam
 - Arquivos antigos `.doc` devem ser abertos no Word e salvos como `.docx`.
 - O modelo padrão para envio aos fornecedores está em `documentos/Modelo_Padrao_Orcamento_FIEMG.docx` e também pode ser baixado na área da compradora.
 - A comparação permanece individual por produto, usando o valor unitário.
+
+## Atualização - orçamento e PDF
+- O botão Excluir de cada orçamento foi reduzido ao padrão visual do sistema.
+- A exclusão agora altera diretamente o item original do pedido, grava histórico e recalcula média/menor preço.
+- Cada PMC possui a opção "Baixar PDF para cotação", com dados gerais, justificativa, todos os produtos e campos para preenchimento do fornecedor.
