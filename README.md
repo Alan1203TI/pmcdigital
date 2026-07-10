@@ -118,3 +118,23 @@ A regra dos 3 meses foi implementada como 90 dias e pode ser alterada em `Config
 - O administrador pode alterar os perfis para `compras`, `gestor` ou `admin` na área Usuários.
 - O nome informado no cadastro é utilizado como nome do solicitante nas novas PMCs.
 - Detalhes, atualização de produtos e histórico do budget são exibidos em páginas completas, e não em abas laterais.
+
+## Leitura e comparação de orçamentos por produto
+
+Na área da compradora, cada item da PMC possui seu próprio conjunto de orçamentos. A comparação nunca usa o valor geral do documento: ela considera o produto aberto, a quantidade cotada, o valor unitário e o total daquele item.
+
+- PDFs com texto pesquisável são lidos no navegador com PDF.js.
+- Imagens e PDFs convertidos em imagem podem ser lidos por OCR com Tesseract.js.
+- Os documentos dos fornecedores não precisam seguir um modelo padronizado.
+- Os dados extraídos são sugestões: a compradora deve revisar fornecedor, quantidade e valores antes de salvar.
+- Word e Excel podem ser anexados, mas exigem preenchimento manual nesta versão.
+- A leitura automática carrega bibliotecas públicas pela internet. Sem internet, o cadastro manual continua funcionando.
+- Para documentos escaneados dentro de PDF sem camada de texto, recomenda-se anexar a página como imagem ou preencher os campos manualmente.
+
+O sistema calcula, para cada produto:
+- preço unitário médio;
+- valor total médio;
+- menor preço unitário;
+- fornecedor da proposta mais barata.
+
+A comparação por preço unitário evita distorções quando fornecedores cotam quantidades diferentes.

@@ -262,33 +262,89 @@ window.openDetail=function(id){
     <h4>Histórico</h4><ul>${(s.historico||[]).map(h=>`<li>${fmtDateTime(h.data)} - ${esc(h.usuario)}: ${esc(h.acao)}</li>`).join('')}</ul>`;
   const paginaAtual=document.querySelector('.page.active')?.id||'solicitacoes'; if(paginaAtual!=='detalhe') state.previousPage=paginaAtual; $('#detailPageTitle').textContent='Detalhes da Solicitação PMC'; showPage('detalhe');
 }
+function quoteUnitValue(d, item){
+  const qtd=Number(d.quantidadeCotada||item.quantidade||1)||1;
+  const unit=Number(d.valorUnitario||0);
+  return unit>0?unit:Number(d.valorTotal||0)/qtd;
+}
 function quoteStats(i){
-  const docs=(i.documentosFornecedores||[]).filter(d=>Number(d.valorTotal||0)>0);
-  if(!docs.length) return {count:0,media:0,menor:null};
-  const media=docs.reduce((a,d)=>a+Number(d.valorTotal||0),0)/docs.length;
-  const menor=[...docs].sort((a,b)=>Number(a.valorTotal)-Number(b.valorTotal))[0];
-  return {count:docs.length,media,menor};
+  const docs=(i.documentosFornecedores||[]).filter(d=>Number(d.valorTotal||0)>0 || Number(d.valorUnitario||0)>0);
+  if(!docs.length) return {count:0,media:0,menor:null,mediaTotal:0};
+  const enriched=docs.map(d=>({...d, valorComparacao:quoteUnitValue(d,i), valorTotalCalculado:Number(d.valorTotal||0)||quoteUnitValue(d,i)*(Number(d.quantidadeCotada||i.quantidade||1)||1)})).filter(d=>d.valorComparacao>0);
+  if(!enriched.length) return {count:0,media:0,menor:null,mediaTotal:0};
+  const media=enriched.reduce((a,d)=>a+d.valorComparacao,0)/enriched.length;
+  const mediaTotal=enriched.reduce((a,d)=>a+d.valorTotalCalculado,0)/enriched.length;
+  const menor=[...enriched].sort((a,b)=>a.valorComparacao-b.valorComparacao)[0];
+  return {count:enriched.length,media,menor,mediaTotal};
 }
 function quoteAnalysisHtml(i){
-  const q=quoteStats(i); if(!q.count) return '<div class="quote-empty">Adicione valores aos orçamentos para gerar o estudo comparativo.</div>';
-  return `<div class="quote-analysis"><div><small>Orçamentos válidos</small><b>${q.count}</b></div><div><small>Valor médio do produto</small><b>${money(q.media)}</b></div><div class="best-quote"><small>Menor orçamento</small><b>${money(q.menor.valorTotal)}</b><span>${esc(q.menor.fornecedor)}</span></div></div>`;
+  const q=quoteStats(i); if(!q.count) return '<div class="quote-empty">Anexe e analise os documentos ou informe os valores manualmente para comparar este produto.</div>';
+  return `<div class="quote-analysis"><div><small>Propostas deste produto</small><b>${q.count}</b></div><div><small>Preço unitário médio</small><b>${money(q.media)}</b></div><div><small>Total médio</small><b>${money(q.mediaTotal)}</b></div><div class="best-quote"><small>Menor preço unitário</small><b>${money(q.menor.valorComparacao)}</b><span>${esc(q.menor.fornecedor)}</span></div></div><p class="quote-note">A comparação é feita exclusivamente por este produto, usando o preço unitário para evitar distorções quando as quantidades cotadas forem diferentes.</p>`;
 }
 function itemEditor(sid,i,idx){
-  return `<div class="item-editor"><h4>Atualizar este produto</h4><div class="editor-grid"><label>Status<select id="itemStatus_${i.id}">${STATUSES.map(x=>`<option ${x===(i.status||'Pendente')?'selected':''}>${x}</option>`).join('')}</select></label><label>Compradora responsável<input id="itemComprador_${i.id}" value="${escAttr(i.comprador||'')}"></label><label>Data finalizada pela compradora<input id="itemFinalizado_${i.id}" type="date" value="${i.dataFinalizada?String(i.dataFinalizada).slice(0,10):''}"></label><label>Valor efetivamente comprado (R$)<input id="itemValorComprado_${i.id}" type="number" step="0.01" min="0" value="${Number(i.valorComprado||0)}"></label></div><div class="family-budget">${saldoFamiliaHtml(i.familia,i.id)}</div><div class="supplier-doc-box"><div class="supplier-title"><div><h5>Orçamentos de fornecedores</h5><p>Cadastre quantos fornecedores forem necessários. O sistema calcula a média e destaca o menor orçamento.</p></div></div>${quoteAnalysisHtml(i)}<div class="editor-grid quote-form"><label>Fornecedor<input id="itemFornecedor_${i.id}" placeholder="Nome do fornecedor"></label><label>Valor total orçado (R$)<input id="itemValorOrcado_${i.id}" type="number" step="0.01" min="0" placeholder="0,00"></label><label>Documento do orçamento<input id="itemDocFornecedor_${i.id}" type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,image/*"></label></div>${documentosHtml(i)}</div><label>Comentário<textarea id="itemComentario_${i.id}" rows="2">${esc(i.comentario||'')}</textarea></label><button class="primary" onclick="saveItemStatus('${sid}','${i.id}')">Salvar dados deste produto</button></div>`;
+  return `<div class="item-editor"><h4>Atualizar este produto</h4><div class="editor-grid"><label>Status<select id="itemStatus_${i.id}">${STATUSES.map(x=>`<option ${x===(i.status||'Pendente')?'selected':''}>${x}</option>`).join('')}</select></label><label>Compradora responsável<input id="itemComprador_${i.id}" value="${escAttr(i.comprador||'')}"></label><label>Data finalizada pela compradora<input id="itemFinalizado_${i.id}" type="date" value="${i.dataFinalizada?String(i.dataFinalizada).slice(0,10):''}"></label><label>Valor efetivamente comprado (R$)<input id="itemValorComprado_${i.id}" type="number" step="0.01" min="0" value="${Number(i.valorComprado||0)}"></label></div><div class="family-budget">${saldoFamiliaHtml(i.familia,i.id)}</div><div class="supplier-doc-box"><div class="supplier-title"><div><h5>Orçamentos deste produto</h5><p>Anexe documentos de fornecedores diferentes. O sistema tenta extrair os dados e compara o preço unitário somente deste item.</p></div></div>${quoteAnalysisHtml(i)}<div class="editor-grid quote-form"><label>Fornecedor<input id="itemFornecedor_${i.id}" placeholder="Preenchido automaticamente ou manualmente"></label><label>Quantidade cotada<input id="itemQtdCotada_${i.id}" type="number" step="0.001" min="0" value="${Number(i.quantidade||1)}"></label><label>Valor unitário (R$)<input id="itemValorUnitario_${i.id}" type="number" step="0.01" min="0" placeholder="0,00"></label><label>Valor total deste produto (R$)<input id="itemValorOrcado_${i.id}" type="number" step="0.01" min="0" placeholder="0,00"></label><label class="wide">Documento do orçamento<input id="itemDocFornecedor_${i.id}" type="file" accept=".pdf,image/*,.doc,.docx,.xls,.xlsx"></label></div><div class="quote-actions"><button type="button" onclick="analisarOrcamento('${i.id}')">Ler documento automaticamente</button><span id="ocrStatus_${i.id}" class="ocr-status">PDF e imagem podem ser analisados. Revise os dados antes de salvar.</span></div><div id="ocrPreview_${i.id}" class="ocr-preview"></div>${documentosHtml(i)}</div><label>Comentário<textarea id="itemComentario_${i.id}" rows="2">${esc(i.comentario||'')}</textarea></label><button class="primary" onclick="saveItemStatus('${sid}','${i.id}')">Salvar dados deste produto</button></div>`;
+}
+async function loadExternalScript(src,globalName){
+  if(globalName && window[globalName]) return window[globalName];
+  await new Promise((resolve,reject)=>{const old=[...document.scripts].find(x=>x.src===src); if(old){old.addEventListener('load',resolve,{once:true}); old.addEventListener('error',reject,{once:true}); return;} const sc=document.createElement('script'); sc.src=src; sc.onload=resolve; sc.onerror=reject; document.head.appendChild(sc);});
+  return globalName?window[globalName]:true;
+}
+async function extractPdfText(file){
+  await loadExternalScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js','pdfjsLib');
+  window.pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  const pdf=await window.pdfjsLib.getDocument({data:await file.arrayBuffer()}).promise; let text='';
+  for(let n=1;n<=pdf.numPages;n++){const page=await pdf.getPage(n); const content=await page.getTextContent(); text+='\n'+content.items.map(x=>x.str).join(' ');}
+  if(text.trim().length<20) throw new Error('PDF sem texto pesquisável. Converta para imagem ou informe os valores manualmente.');
+  return text;
+}
+async function extractImageText(file,statusEl){
+  await loadExternalScript('https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js','Tesseract');
+  const result=await window.Tesseract.recognize(file,'por',{logger:m=>{if(statusEl&&m.status==='recognizing text') statusEl.textContent=`Lendo imagem: ${Math.round((m.progress||0)*100)}%`;}});
+  return result.data.text||'';
+}
+function brNumber(v){
+  let x=String(v||'').replace(/R\$\s?/gi,'').replace(/\s/g,'');
+  if(x.includes(',') && x.includes('.')) x=x.replace(/\./g,'').replace(',','.'); else if(x.includes(',')) x=x.replace(',','.');
+  return Number(x.replace(/[^0-9.-]/g,''))||0;
+}
+function inferQuoteData(text,item){
+  const clean=String(text||'').replace(/\r/g,' '); const lines=clean.split(/\n+/).map(x=>x.trim()).filter(Boolean);
+  const moneyMatches=[...clean.matchAll(/(?:R\$\s*)?(\d{1,3}(?:\.\d{3})*,\d{2}|\d+[,\.]\d{2})/gi)].map(m=>({raw:m[0],value:brNumber(m[1]),index:m.index})).filter(x=>x.value>0);
+  const totalHints=[...clean.matchAll(/(?:total\s*(?:geral|do\s*item|produto)?|valor\s*total|pre[cç]o\s*total)[^\d]{0,25}(?:R\$\s*)?(\d{1,3}(?:\.\d{3})*,\d{2}|\d+[,\.]\d{2})/gi)].map(m=>brNumber(m[1])).filter(Boolean);
+  const unitHints=[...clean.matchAll(/(?:valor|pre[cç]o)\s*unit[aá]rio[^\d]{0,25}(?:R\$\s*)?(\d{1,3}(?:\.\d{3})*,\d{2}|\d+[,\.]\d{2})/gi)].map(m=>brNumber(m[1])).filter(Boolean);
+  const qtdHints=[...clean.matchAll(/(?:qtd\.?|quantidade)\s*[:\-]?\s*(\d+(?:[,\.]\d+)?)/gi)].map(m=>brNumber(m[1])).filter(Boolean);
+  const fornecedorLine=lines.find(l=>/(ltda|eireli|s\/a|me\b|com[eé]rcio|ind[uú]stria|fornecedor)/i.test(l))||lines[0]||'';
+  const qtd=qtdHints[0]||Number(item.quantidade||1)||1;
+  const total=totalHints.at(-1)||Math.max(0,...moneyMatches.map(x=>x.value));
+  const unit=unitHints[0]||(total&&qtd?total/qtd:0);
+  const confidence=(total?40:0)+(unitHints.length?25:0)+(qtdHints.length?15:0)+(fornecedorLine?20:0);
+  return {fornecedor:fornecedorLine.slice(0,100),quantidade:qtd,valorUnitario:unit,valorTotal:total,confianca:Math.min(100,confidence),texto:clean.slice(0,12000)};
+}
+window.analisarOrcamento=async function(itemId){
+  const item=allItems().find(x=>x.id===itemId); const input=$(`#itemDocFornecedor_${itemId}`); const status=$(`#ocrStatus_${itemId}`); const preview=$(`#ocrPreview_${itemId}`); const file=input?.files?.[0];
+  if(!file) return toast('Selecione primeiro o documento do orçamento.');
+  status.textContent='Analisando documento...'; preview.innerHTML='';
+  try{
+    let text=''; if(file.type==='application/pdf'||/\.pdf$/i.test(file.name)) text=await extractPdfText(file); else if(file.type.startsWith('image/')) text=await extractImageText(file,status); else throw new Error('A leitura automática está disponível para PDF e imagens. Para Word ou Excel, preencha os dados manualmente.');
+    const d=inferQuoteData(text,item); $(`#itemFornecedor_${itemId}`).value=d.fornecedor; $(`#itemQtdCotada_${itemId}`).value=d.quantidade; $(`#itemValorUnitario_${itemId}`).value=d.valorUnitario?d.valorUnitario.toFixed(2):''; $(`#itemValorOrcado_${itemId}`).value=d.valorTotal?d.valorTotal.toFixed(2):'';
+    input.dataset.ocr=JSON.stringify(d); status.textContent=`Leitura concluída • confiança estimada: ${d.confianca}%`;
+    preview.innerHTML=`<b>Dados sugeridos para este produto</b><span>Fornecedor: ${esc(d.fornecedor||'não identificado')}</span><span>Quantidade: ${d.quantidade||'-'}</span><span>Unitário: ${money(d.valorUnitario||0)}</span><span>Total: ${money(d.valorTotal||0)}</span><small>Confira e corrija os campos antes de salvar. Documentos de fornecedores não precisam ter o mesmo modelo.</small>`;
+  }catch(e){status.textContent='Não foi possível concluir a leitura automática.'; preview.innerHTML=`<span class="alert">${esc(e.message||String(e))}</span><small>O documento ainda pode ser anexado com os dados preenchidos manualmente.</small>`;}
 }
 window.saveItemStatus=async function(sid,itemId){
   const s=state.solicitacoes.find(x=>x.id===sid); if(!s) return; const i=s.itens.find(x=>x.id===itemId); if(!i) return;
   const status=$(`#itemStatus_${itemId}`).value; const comprador=$(`#itemComprador_${itemId}`).value.trim(); const finalizado=$(`#itemFinalizado_${itemId}`).value; const comentario=$(`#itemComentario_${itemId}`).value.trim(); const valorComprado=Number($(`#itemValorComprado_${itemId}`).value||0);
-  const fornecedor=$(`#itemFornecedor_${itemId}`).value.trim(); const valorOrcado=Number($(`#itemValorOrcado_${itemId}`).value||0); const docInput=$(`#itemDocFornecedor_${itemId}`);
+  const fornecedor=$(`#itemFornecedor_${itemId}`).value.trim(); const qtdCotada=Number($(`#itemQtdCotada_${itemId}`).value||i.quantidade||1); let valorUnitario=Number($(`#itemValorUnitario_${itemId}`).value||0); let valorOrcado=Number($(`#itemValorOrcado_${itemId}`).value||0); const docInput=$(`#itemDocFornecedor_${itemId}`);
+  if(!valorUnitario&&valorOrcado&&qtdCotada) valorUnitario=valorOrcado/qtdCotada; if(!valorOrcado&&valorUnitario&&qtdCotada) valorOrcado=valorUnitario*qtdCotada;
   if(['Comprado','Entregue'].includes(status) && !valorComprado) return toast('Informe o valor efetivamente comprado para finalizar este produto.');
   if(['Comprado','Entregue'].includes(status) && !finalizado && !i.dataFinalizada) return toast('Informe a data de finalização da compra.');
   if(['Comprado','Entregue'].includes(status)){ const antes=calcularSaldoFamilia(i.familia,i.id); const proj=antes.limite-antes.usadoAnterior-valorComprado; if(proj<0 && !confirm(`A compra ultrapassa o limite da família em ${money(Math.abs(proj))} dentro dos últimos ${state.config.diasRegra||90} dias. Deseja salvar mesmo assim?`)) return; }
   i.status=status; i.comprador=comprador; i.dataFinalizada = finalizado || ((status==='Comprado'||status==='Entregue') ? (i.dataFinalizada||new Date().toISOString().slice(0,10)) : ''); i.valorComprado=valorComprado; i.comentario=comentario; i.documentosFornecedores=i.documentosFornecedores||[];
-  const docFile=docInput?.files?.[0]; if(docFile || fornecedor || valorOrcado){ if(!fornecedor) return toast('Informe o nome do fornecedor do orçamento.'); if(!valorOrcado) return toast('Informe o valor total do orçamento.'); if(!docFile) return toast('Selecione o documento do orçamento.'); i.documentosFornecedores.push({id:crypto.randomUUID(), fornecedor, valorTotal:valorOrcado, nomeArquivo:docFile.name, tipo:docFile.type, conteudo:await fileToDataUrl(docFile), enviadoEm:new Date().toISOString()}); }
+  const docFile=docInput?.files?.[0]; if(docFile || fornecedor || valorOrcado || valorUnitario){ if(!fornecedor) return toast('Informe ou confirme o nome do fornecedor.'); if(!valorOrcado&&!valorUnitario) return toast('Informe ou confirme o valor do produto no orçamento.'); if(!docFile) return toast('Selecione o documento do orçamento.'); let ocr={}; try{ocr=JSON.parse(docInput.dataset.ocr||'{}')}catch{} i.documentosFornecedores.push({id:crypto.randomUUID(), fornecedor, quantidadeCotada:qtdCotada, valorUnitario, valorTotal:valorOrcado, nomeArquivo:docFile.name, tipo:docFile.type, conteudo:await fileToDataUrl(docFile), enviadoEm:new Date().toISOString(), dadosExtraidos:ocr, revisadoPor:state.user.nome}); }
   s.comprador = unique((s.itens||[]).map(x=>x.comprador).filter(Boolean)).join(', ');
   if(comentario) { i.comentarios = i.comentarios||[]; i.comentarios.push({data:new Date().toISOString(), usuario:state.user.nome, texto:comentario}); }
-  const saldo=calcularSaldoFamilia(i.familia,i.id); i.alertaLimiteFamilia=saldo.restante<0; s.historico.push(log(`Item ${i.codigoProduto||itemId} alterado para ${status}${comprador?' | Compradora: '+comprador:''}${i.dataFinalizada?' | Finalizada: '+fmtDate(i.dataFinalizada):''}${valorComprado?' | Valor comprado: '+money(valorComprado):''}${fornecedor&&docFile?' | Orçamento: '+fornecedor:''}${comentario?' | '+comentario:''}`));
-  atualizarStatusPedido(s); saveLocal(); renderAll(); openDetail(sid); toast('Status do produto atualizado.');
+  const saldo=calcularSaldoFamilia(i.familia,i.id); i.alertaLimiteFamilia=saldo.restante<0; s.historico.push(log(`Item ${i.codigoProduto||itemId} alterado para ${status}${comprador?' | Compradora: '+comprador:''}${i.dataFinalizada?' | Finalizada: '+fmtDate(i.dataFinalizada):''}${valorComprado?' | Valor comprado: '+money(valorComprado):''}${fornecedor&&docFile?' | Orçamento por produto: '+fornecedor:''}${comentario?' | '+comentario:''}`));
+  atualizarStatusPedido(s); saveLocal(); renderAll(); openDetail(sid); toast('Dados do produto atualizados.');
 }
 function atualizarStatusPedido(s){
   const statuses=(s.itens||[]).map(i=>i.status||'Pendente');
@@ -316,9 +372,9 @@ function saldoFamiliaHtml(familia,itemId=''){
   return `<span class="family-balance ${cls}">Usado: ${money(x.usado)} • Restante: ${money(x.restante)} / ${money(x.limite)}</span>`;
 }
 function documentosHtml(i){
-  const docs=i.documentosFornecedores||[]; if(!docs.length) return '<span class="muted">Nenhum orçamento anexado.</span>';
+  const docs=i.documentosFornecedores||[]; if(!docs.length) return '<span class="muted">Nenhum orçamento anexado para este produto.</span>';
   const menor=quoteStats(i).menor;
-  return `<div class="supplier-doc-list">${docs.map(d=>`<a class="supplier-doc ${menor&&menor.id===d.id?'cheapest':''}" href="${escAttr(d.conteudo)}" download="${escAttr(d.nomeArquivo)}"><div><b>${esc(d.fornecedor)}</b>${menor&&menor.id===d.id?'<span class="cheapest-tag">Menor valor</span>':''}</div><strong>${money(d.valorTotal||0)}</strong><small>${esc(d.nomeArquivo)} • enviado em ${fmtDateTime(d.enviadoEm)}</small></a>`).join('')}</div>`;
+  return `<div class="supplier-doc-list">${docs.map(d=>{const uv=quoteUnitValue(d,i); const isBest=menor&&menor.id===d.id; return `<a class="supplier-doc ${isBest?'cheapest':''}" href="${escAttr(d.conteudo)}" download="${escAttr(d.nomeArquivo)}"><div><b>${esc(d.fornecedor)}</b>${isBest?'<span class="cheapest-tag">Menor preço unitário</span>':''}</div><strong>${money(uv)} / un.</strong><span>Total: ${money(d.valorTotal||uv*(Number(d.quantidadeCotada||i.quantidade||1)))} • Qtd.: ${esc(d.quantidadeCotada||i.quantidade||'-')}</span><small>${esc(d.nomeArquivo)} • ${d.dadosExtraidos?.confianca?`leitura automática ${d.dadosExtraidos.confianca}% • `:''}revisado por ${esc(d.revisadoPor||'compradora')} • ${fmtDateTime(d.enviadoEm)}</small></a>`}).join('')}</div>`;
 }
 function renderCompradora(){
   if(!$('#compradoraTable')) return;
