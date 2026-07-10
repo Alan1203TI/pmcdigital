@@ -65,32 +65,71 @@ const FAMILIAS_PRODUTO = [
   {codigo:'3401', descricao:'Servicos Genericos'}
 ];
 
-const STORAGE_KEYS = {usuarios:'pmcUsuarios', solicitacoes:'pmcSolicitacoes', config:'pmcConfig'};
 const ADMIN_EMAIL = 'a.camilo@fiemg.com.br';
-const ADMIN_PASSWORD = 'K@ua2510@#$%';
 let state = {user:null, usuarios:[], solicitacoes:[], refs:{finalidades:[], servicosProtheus:[], centrosClasseValor:[]}, config:{diasRegra:90, limiteFamilia:3000}};
+let db=null, auth=null, authReady=false, registrationInProgress=false;
 
-async function start(){ document.body.classList.add('auth-mode'); document.body.classList.remove('app-mode'); $('#loginView').classList.remove('hidden'); $('#appView').classList.add('hidden'); await loadRefs(); loadLocal(); seedAdmin(); bind(); renderAll(); }
+async function start(){
+  document.body.classList.add('auth-mode'); document.body.classList.remove('app-mode');
+  $('#loginView').classList.remove('hidden'); $('#appView').classList.add('hidden');
+  await loadRefs(); bind();
+  try{
+    if(typeof firebaseConfig==='undefined') throw new Error('Arquivo firebase-config.js não configurado.');
+    firebase.initializeApp(firebaseConfig); auth=firebase.auth(); db=firebase.firestore();
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+    auth.onAuthStateChanged(async user=>{
+      authReady=true;
+      if(registrationInProgress) return;
+      if(!user){ showLoggedOut(); return; }
+      try{
+        const ref=db.collection('pmcUsuarios').doc(user.uid); let snap=await ref.get();
+        if(!snap.exists && user.email?.toLowerCase()===ADMIN_EMAIL){
+          await ref.set({nome:'Alan Camilo Rodrigues',email:user.email.toLowerCase(),setor:'Tecnologia da Informação',perfil:'admin',ativo:true,criadoEm:firebase.firestore.FieldValue.serverTimestamp()});
+          snap=await ref.get();
+        }
+        if(!snap.exists) throw new Error('Perfil não encontrado no Firestore.');
+        const perfil=snap.data();
+        if(perfil.ativo===false) throw new Error('Usuário desativado.');
+        state.user={id:user.uid,uid:user.uid,...perfil,email:user.email?.toLowerCase()||perfil.email};
+        if(user.emailVerified===false) toast('Confirme seu e-mail antes de usar o sistema. Verifique sua caixa de entrada.','Verificação necessária');
+        await loadFirestoreData(); showLoggedIn();
+      }catch(err){ console.error(err); await auth.signOut(); toast(err.message||'Não foi possível carregar seu perfil.'); }
+    });
+  }catch(err){ console.error(err); toast('Falha ao iniciar o Firebase: '+err.message); }
+}
 async function loadRefs(){
   try{ state.refs = await fetch('./data/referencias.json').then(r=>r.json()); }
   catch(e){ state.refs = {finalidades:[], servicosProtheus:[], centrosClasseValor:[]}; }
 }
-function loadLocal(){
-  state.usuarios = JSON.parse(localStorage.getItem(STORAGE_KEYS.usuarios)||'[]');
-  state.solicitacoes = JSON.parse(localStorage.getItem(STORAGE_KEYS.solicitacoes)||'[]').map(normalizarSolicitacao);
-  state.config = {...{diasRegra:90, limiteFamilia:3000}, ...JSON.parse(localStorage.getItem(STORAGE_KEYS.config)||'{}')};
+async function loadFirestoreData(){
+  const configSnap=await db.collection('pmcConfig').doc('geral').get();
+  state.config={diasRegra:90,limiteFamilia:3000,...(configSnap.exists?configSnap.data():{})};
+  const pedidosSnap=await db.collection('pmcSolicitacoes').get();
+  state.solicitacoes=pedidosSnap.docs.map(d=>normalizarSolicitacao({id:d.id,...d.data()})).sort((a,b)=>new Date(b.criadoEm)-new Date(a.criadoEm));
+  state.usuarios=[];
+  if(state.user.perfil==='admin'){
+    const us=await db.collection('pmcUsuarios').get();
+    state.usuarios=us.docs.map(d=>({id:d.id,uid:d.id,...d.data()})).filter(u=>u.ativo!==false);
+  }
 }
-function saveLocal(){
-  localStorage.setItem(STORAGE_KEYS.usuarios, JSON.stringify(state.usuarios));
-  localStorage.setItem(STORAGE_KEYS.solicitacoes, JSON.stringify(state.solicitacoes));
-  localStorage.setItem(STORAGE_KEYS.config, JSON.stringify(state.config));
+async function persistSolicitacao(s){
+  const clean=JSON.parse(JSON.stringify(s));
+  await db.collection('pmcSolicitacoes').doc(s.id).set(clean,{merge:true});
 }
-function seedAdmin(){
-  state.usuarios = state.usuarios.filter(u=>u.email?.toLowerCase()!=='admin@pmc.local');
-  let admin=state.usuarios.find(u=>u.email?.toLowerCase()===ADMIN_EMAIL);
-  if(!admin){ admin={id:crypto.randomUUID(), nome:'Alan Camilo Rodrigues', email:ADMIN_EMAIL, senha:ADMIN_PASSWORD, perfil:'admin', setor:'Administração'}; state.usuarios.push(admin); }
-  else { admin.nome='Alan Camilo Rodrigues'; admin.senha=ADMIN_PASSWORD; admin.perfil='admin'; }
-  saveLocal();
+async function persistConfig(){ await db.collection('pmcConfig').doc('geral').set(state.config,{merge:true}); }
+function showLoggedOut(){
+  state.user=null; state.solicitacoes=[]; state.usuarios=[];
+  clearInterval(window.__pmcClock); document.body.classList.remove('app-mode'); document.body.classList.add('auth-mode');
+  $('#appView').classList.add('hidden'); $('#loginView').classList.remove('hidden'); toggleAuth('login');
+}
+function showLoggedIn(){
+  const u=state.user; document.body.classList.remove('auth-mode'); document.body.classList.add('app-mode');
+  $('#loginView').classList.add('hidden'); $('#appView').classList.remove('hidden'); updateHeaderClock();
+  clearInterval(window.__pmcClock); window.__pmcClock=setInterval(updateHeaderClock,30000);
+  $('#solicitante').value=u.nome; $('#setor').value=u.setor||'';
+  $$('.admin-only').forEach(el=>el.style.display = u.perfil==='admin'?'block':'none');
+  $$('.compras-only').forEach(el=>el.style.display = ['admin','compras','gestor'].includes(u.perfil)?'block':'none');
+  showPage('dashboard'); renderAll();
 }
 function toast(msg, title='PMC Digital'){
   const dlg=$('#messageDialog'); $('#messageDialogTitle').textContent=title; $('#messageDialogText').textContent=msg;
@@ -115,7 +154,7 @@ function bind(){
   $('#showLoginBtn').onclick = () => toggleAuth('login');
   $('#showRegisterBtn').onclick = () => toggleAuth('register');
   $('#backDetailBtn').onclick = () => showPage(state.previousPage||'solicitacoes');
-  $('#logoutBtn').onclick = () => {state.user=null; clearInterval(window.__pmcClock); document.body.classList.remove('app-mode'); document.body.classList.add('auth-mode'); $('#appView').classList.add('hidden'); $('#loginView').classList.remove('hidden'); toggleAuth('login');};
+  $('#logoutBtn').onclick = async () => { if(auth) await auth.signOut(); };
   $$('.nav').forEach(b=>b.onclick=()=>showPage(b.dataset.page));
   $$('.quick-action').forEach(b=>b.onclick=()=>showPage(b.dataset.page));
   $('#solicitacaoForm').onsubmit = e => {e.preventDefault(); salvarSolicitacao();};
@@ -126,8 +165,8 @@ function bind(){
   $('#buscaCompradora').oninput = renderCompradora; $('#statusCompradora').onchange=renderCompradora; $('#familiaCompradora').onchange=renderCompradora; $('#abertosCompradora').onchange=renderCompradora;
   $('#refBusca').oninput = renderReferencias; $('#budgetSituacao').onchange = renderReferencias;
   $('#exportCsvBtn').onclick = exportCsv;
-  $('#salvarConfig').onclick = () => {state.config.diasRegra = Number($('#diasRegra').value||90); state.config.limiteFamilia = Number($('#limiteFamilia').value||3000); saveLocal(); toast('Configuração salva.'); renderAll();};
-  $('#limparDemo').onclick = () => confirmAction('Apagar todas as solicitações? Esta ação não poderá ser desfeita.',()=>{state.solicitacoes=[]; saveLocal(); renderAll(); toast('Solicitações apagadas.');},'Apagar solicitações');
+  $('#salvarConfig').onclick = async () => {state.config.diasRegra = Number($('#diasRegra').value||90); state.config.limiteFamilia = Number($('#limiteFamilia').value||3000); await persistConfig(); toast('Configuração salva.'); renderAll();};
+  $('#limparDemo').onclick = () => toast('Exclusão em massa foi desativada por segurança. Exclua pedidos individualmente quando necessário.');
   addItem();
 }
 function toggleAuth(mode){
@@ -135,25 +174,32 @@ function toggleAuth(mode){
   $('#loginForm').classList.toggle('hidden',!loginMode); $('#registerForm').classList.toggle('hidden',loginMode);
   $('#showLoginBtn').classList.toggle('active',loginMode); $('#showRegisterBtn').classList.toggle('active',!loginMode);
 }
-function registerUser(){
+async function registerUser(){
   const nome=$('#registerNome').value.trim(), email=$('#registerEmail').value.trim().toLowerCase(), setor=$('#registerSetor').value.trim();
   const senha=$('#registerSenha').value, confirmar=$('#registerSenhaConfirm').value;
   if(!nome||!email||!setor||!senha) return toast('Preencha todos os campos do cadastro.');
-  if(senha.length<6) return toast('A senha deve ter pelo menos 6 caracteres.');
+  if(!email.endsWith('@fiemg.com.br')) return toast('Utilize seu e-mail institucional @fiemg.com.br.');
+  if(senha.length<8) return toast('A senha deve ter pelo menos 8 caracteres.');
   if(senha!==confirmar) return toast('As senhas não coincidem.');
-  if(state.usuarios.some(u=>u.email.toLowerCase()===email)) return toast('Este e-mail já está cadastrado.');
-  state.usuarios.push({id:crypto.randomUUID(),nome,email,senha,perfil:'solicitante',setor,criadoEm:new Date().toISOString()}); saveLocal();
-  $('#registerForm').reset(); $('#loginEmail').value=email; toggleAuth('login'); toast('Cadastro realizado. Entre com seu e-mail e senha.');
+  try{
+    registrationInProgress=true;
+    const cred=await auth.createUserWithEmailAndPassword(email,senha);
+    await db.collection('pmcUsuarios').doc(cred.user.uid).set({nome,email,setor,perfil:'solicitante',ativo:true,criadoEm:firebase.firestore.FieldValue.serverTimestamp(),atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()});
+    await cred.user.sendEmailVerification();
+    await auth.signOut();
+    registrationInProgress=false;
+    $('#registerForm').reset(); $('#loginEmail').value=email; toggleAuth('login');
+    toast('Cadastro realizado. Enviamos uma confirmação para seu e-mail.');
+  }catch(err){ registrationInProgress=false; console.error(err); toast(firebaseErrorMessage(err)); }
 }
-function login(){
-  const email=$('#loginEmail').value.trim().toLowerCase(); const senha=$('#loginSenha').value;
-  const u=state.usuarios.find(x=>x.email.toLowerCase()===email && x.senha===senha);
-  if(!u) return toast('Usuário ou senha inválidos.');
-  state.user=u; document.body.classList.remove('auth-mode'); document.body.classList.add('app-mode'); $('#loginView').classList.add('hidden'); $('#appView').classList.remove('hidden'); updateHeaderClock(); clearInterval(window.__pmcClock); window.__pmcClock=setInterval(updateHeaderClock,30000);
-  $('#solicitante').value=u.nome; $('#setor').value=u.setor||'';
-  $$('.admin-only').forEach(el=>el.style.display = u.perfil==='admin'?'block':'none');
-  $$('.compras-only').forEach(el=>el.style.display = ['admin','compras','gestor'].includes(u.perfil)?'block':'none');
-  showPage('dashboard'); renderAll();
+async function login(){
+  const email=$('#loginEmail').value.trim().toLowerCase(), senha=$('#loginSenha').value;
+  try{ await auth.signInWithEmailAndPassword(email,senha); }
+  catch(err){ console.error(err); toast(firebaseErrorMessage(err)); }
+}
+function firebaseErrorMessage(err){
+  const m={'auth/invalid-credential':'E-mail ou senha inválidos.','auth/email-already-in-use':'Este e-mail já está cadastrado.','auth/weak-password':'A senha informada é muito fraca.','auth/too-many-requests':'Muitas tentativas. Aguarde alguns minutos.','auth/network-request-failed':'Falha de conexão com o Firebase.'};
+  return m[err.code]||err.message||'Não foi possível concluir a operação.';
 }
 function showPage(id){
   if(id==='usuarios' && state.user?.perfil!=='admin') id='dashboard';
@@ -215,7 +261,7 @@ async function salvarSolicitacao(){
 }
 function finalizarSolicitacao(s){
   atualizarStatusPedido(s);
-  state.solicitacoes.unshift(s); saveLocal(); $('#solicitacaoForm').reset(); $('#itensContainer').innerHTML=''; addItem(); $('#solicitante').value=state.user.nome; $('#setor').value=state.user.setor||''; renderAll(); showPage('solicitacoes'); toast('Solicitação salva.');
+  s.solicitanteUid=state.user.uid; state.solicitacoes.unshift(s); persistSolicitacao(s).catch(e=>toast('Erro ao salvar no Firebase: '+e.message)); $('#solicitacaoForm').reset(); $('#itensContainer').innerHTML=''; addItem(); $('#solicitante').value=state.user.nome; $('#setor').value=state.user.setor||''; renderAll(); showPage('solicitacoes'); toast('Solicitação salva.');
 }
 function showFragmentDialog(alertas, onConfirm){
   $('#fragmentContent').innerHTML=`<div class="fragment-head"><span>⚠</span><div><h3>Atenção à regra de 90 dias</h3><p>Encontramos possível fragmentação ou duplicidade. Você pode revisar o pedido ou salvar mesmo assim com o aviso registrado.</p></div></div><div class="fragment-list">${alertas.map(a=>`<div class="fragment-item">${esc(a)}</div>`).join('')}</div>`;
@@ -286,7 +332,7 @@ function quoteAnalysisHtml(i){
   return `<div class="quote-analysis"><div><small>Propostas deste produto</small><b>${q.count}</b></div><div><small>Preço unitário médio</small><b>${money(q.media)}</b></div><div><small>Total médio</small><b>${money(q.mediaTotal)}</b></div><div class="best-quote"><small>Menor preço unitário</small><b>${money(q.menor.valorComparacao)}</b><span>${esc(q.menor.fornecedor)}</span></div></div><p class="quote-note">A comparação é feita exclusivamente por este produto, usando o preço unitário para evitar distorções quando as quantidades cotadas forem diferentes.</p>`;
 }
 function itemEditor(sid,i,idx){
-  return `<div class="item-editor"><h4>Atualizar este produto</h4><div class="editor-grid"><label>Status<select id="itemStatus_${i.id}">${STATUSES.map(x=>`<option ${x===(i.status||'Pendente')?'selected':''}>${x}</option>`).join('')}</select></label><label>Compradora responsável<input id="itemComprador_${i.id}" value="${escAttr(i.comprador||'')}"></label><label>Data finalizada pela compradora<input id="itemFinalizado_${i.id}" type="date" value="${i.dataFinalizada?String(i.dataFinalizada).slice(0,10):''}"></label><label>Valor efetivamente comprado (R$)<input id="itemValorComprado_${i.id}" type="number" step="0.01" min="0" value="${Number(i.valorComprado||0)}"></label></div><div class="family-budget">${saldoFamiliaHtml(i.familia,i.id)}</div><div class="supplier-doc-box"><div class="supplier-title"><div><h5>Orçamentos deste produto</h5><p>Anexe documentos de fornecedores diferentes. O sistema lê PDF, imagem e Word (.docx) e compara o preço unitário somente deste item.</p></div><a class="template-download" href="documentos/Modelo_Padrao_Orcamento_FIEMG.docx" download>Baixar modelo padrão para fornecedores</a></div>${quoteAnalysisHtml(i)}<div class="editor-grid quote-form"><label>Fornecedor<input id="itemFornecedor_${i.id}" placeholder="Preenchido automaticamente ou manualmente"></label><label>Quantidade cotada<input id="itemQtdCotada_${i.id}" type="number" step="0.001" min="0" value="${Number(i.quantidade||1)}"></label><label>Valor unitário (R$)<input id="itemValorUnitario_${i.id}" type="number" step="0.01" min="0" placeholder="0,00"></label><label>Valor total deste produto (R$)<input id="itemValorOrcado_${i.id}" type="number" step="0.01" min="0" placeholder="0,00"></label><label class="wide">Documento do orçamento<input id="itemDocFornecedor_${i.id}" type="file" accept=".pdf,image/*,.doc,.docx"></label></div><div class="quote-actions"><button type="button" onclick="analisarOrcamento('${i.id}')">Ler documento automaticamente</button><span id="ocrStatus_${i.id}" class="ocr-status">PDF, imagem e Word (.docx) podem ser analisados. Revise os dados antes de salvar.</span></div><div id="ocrPreview_${i.id}" class="ocr-preview"></div>${documentosHtml(i)}</div><label>Comentário<textarea id="itemComentario_${i.id}" rows="2">${esc(i.comentario||'')}</textarea></label><button class="primary" onclick="saveItemStatus('${sid}','${i.id}')">Salvar dados deste produto</button></div>`;
+  return `<div class="item-editor"><h4>Atualizar este produto</h4><div class="editor-grid"><label>Status<select id="itemStatus_${i.id}">${STATUSES.map(x=>`<option ${x===(i.status||'Pendente')?'selected':''}>${x}</option>`).join('')}</select></label><label>Compradora responsável<input id="itemComprador_${i.id}" value="${escAttr(i.comprador||'')}"></label><label>Data finalizada pela compradora<input id="itemFinalizado_${i.id}" type="date" value="${i.dataFinalizada?String(i.dataFinalizada).slice(0,10):''}"></label><label>Valor efetivamente comprado (R$)<input id="itemValorComprado_${i.id}" type="number" step="0.01" min="0" value="${Number(i.valorComprado||0)}"></label></div><div class="family-budget">${saldoFamiliaHtml(i.familia,i.id)}</div><div class="supplier-doc-box"><div class="supplier-title"><div><h5>Orçamentos deste produto</h5><p>Anexe documentos de fornecedores diferentes. O sistema lê PDF, imagem e Word (.docx) e compara o preço unitário somente deste item.</p></div><a class="template-download" href="documentos/Modelo_Padrao_Orcamento_FIEMG.docx" download>Baixar modelo padrão para fornecedores</a></div>${quoteAnalysisHtml(i)}<div class="editor-grid quote-form"><label>Fornecedor<input id="itemFornecedor_${i.id}" placeholder="Preenchido automaticamente ou manualmente"></label><label>Quantidade cotada<input id="itemQtdCotada_${i.id}" type="number" step="0.001" min="0" value="${Number(i.quantidade||1)}"></label><label>Valor unitário (R$)<input id="itemValorUnitario_${i.id}" type="number" step="0.01" min="0" placeholder="0,00"></label><label>Valor total deste produto (R$)<input id="itemValorOrcado_${i.id}" type="number" step="0.01" min="0" placeholder="0,00"></label><label class="wide">Documento para leitura local (não é enviado ao Firestore)<input id="itemDocFornecedor_${i.id}" type="file" accept=".pdf,image/*,.doc,.docx"></label><label class="wide">Link protegido do orçamento (OneDrive/SharePoint)<input id="itemDocUrl_${i.id}" type="url" placeholder="https://..."></label></div><div class="quote-actions"><button type="button" onclick="analisarOrcamento('${i.id}')">Ler documento automaticamente</button><span id="ocrStatus_${i.id}" class="ocr-status">PDF, imagem e Word (.docx) podem ser analisados. Revise os dados antes de salvar.</span></div><div id="ocrPreview_${i.id}" class="ocr-preview"></div>${documentosHtml(i)}</div><label>Comentário<textarea id="itemComentario_${i.id}" rows="2">${esc(i.comentario||'')}</textarea></label><button class="primary" onclick="saveItemStatus('${sid}','${i.id}')">Salvar dados deste produto</button></div>`;
 }
 async function loadExternalScript(src,globalName){
   if(globalName && window[globalName]) return window[globalName];
@@ -345,17 +391,17 @@ window.analisarOrcamento=async function(itemId){
 window.saveItemStatus=async function(sid,itemId){
   const s=state.solicitacoes.find(x=>x.id===sid); if(!s) return; const i=s.itens.find(x=>x.id===itemId); if(!i) return;
   const status=$(`#itemStatus_${itemId}`).value; const comprador=$(`#itemComprador_${itemId}`).value.trim(); const finalizado=$(`#itemFinalizado_${itemId}`).value; const comentario=$(`#itemComentario_${itemId}`).value.trim(); const valorComprado=Number($(`#itemValorComprado_${itemId}`).value||0);
-  const fornecedor=$(`#itemFornecedor_${itemId}`).value.trim(); const qtdCotada=Number($(`#itemQtdCotada_${itemId}`).value||i.quantidade||1); let valorUnitario=Number($(`#itemValorUnitario_${itemId}`).value||0); let valorOrcado=Number($(`#itemValorOrcado_${itemId}`).value||0); const docInput=$(`#itemDocFornecedor_${itemId}`);
+  const fornecedor=$(`#itemFornecedor_${itemId}`).value.trim(); const qtdCotada=Number($(`#itemQtdCotada_${itemId}`).value||i.quantidade||1); let valorUnitario=Number($(`#itemValorUnitario_${itemId}`).value||0); let valorOrcado=Number($(`#itemValorOrcado_${itemId}`).value||0); const docInput=$(`#itemDocFornecedor_${itemId}`); const docUrl=$(`#itemDocUrl_${itemId}`)?.value.trim()||'';
   if(!valorUnitario&&valorOrcado&&qtdCotada) valorUnitario=valorOrcado/qtdCotada; if(!valorOrcado&&valorUnitario&&qtdCotada) valorOrcado=valorUnitario*qtdCotada;
   if(['Comprado','Entregue'].includes(status) && !valorComprado) return toast('Informe o valor efetivamente comprado para finalizar este produto.');
   if(['Comprado','Entregue'].includes(status) && !finalizado && !i.dataFinalizada) return toast('Informe a data de finalização da compra.');
   if(['Comprado','Entregue'].includes(status)){ const antes=calcularSaldoFamilia(i.familia,i.id); const proj=antes.limite-antes.usadoAnterior-valorComprado; if(proj<0 && !confirm(`A compra ultrapassa o limite da família em ${money(Math.abs(proj))} dentro dos últimos ${state.config.diasRegra||90} dias. Deseja salvar mesmo assim?`)) return; }
   i.status=status; i.comprador=comprador; i.dataFinalizada = finalizado || ((status==='Comprado'||status==='Entregue') ? (i.dataFinalizada||new Date().toISOString().slice(0,10)) : ''); i.valorComprado=valorComprado; i.comentario=comentario; i.documentosFornecedores=i.documentosFornecedores||[];
-  const docFile=docInput?.files?.[0]; if(docFile || fornecedor || valorOrcado || valorUnitario){ if(!fornecedor) return toast('Informe ou confirme o nome do fornecedor.'); if(!valorOrcado&&!valorUnitario) return toast('Informe ou confirme o valor do produto no orçamento.'); if(!docFile) return toast('Selecione o documento do orçamento.'); let ocr={}; try{ocr=JSON.parse(docInput.dataset.ocr||'{}')}catch{} i.documentosFornecedores.push({id:crypto.randomUUID(), fornecedor, quantidadeCotada:qtdCotada, valorUnitario, valorTotal:valorOrcado, nomeArquivo:docFile.name, tipo:docFile.type, conteudo:await fileToDataUrl(docFile), enviadoEm:new Date().toISOString(), dadosExtraidos:ocr, revisadoPor:state.user.nome}); }
+  const docFile=docInput?.files?.[0]; if(docFile || docUrl || fornecedor || valorOrcado || valorUnitario){ if(!fornecedor) return toast('Informe ou confirme o nome do fornecedor.'); if(!valorOrcado&&!valorUnitario) return toast('Informe ou confirme o valor do produto no orçamento.'); if(!docUrl) return toast('Informe o link protegido do orçamento no OneDrive ou SharePoint.'); let ocr={}; try{ocr=JSON.parse(docInput.dataset.ocr||'{}')}catch{} i.documentosFornecedores.push({id:crypto.randomUUID(), fornecedor, quantidadeCotada:qtdCotada, valorUnitario, valorTotal:valorOrcado, nomeArquivo:docFile?.name||'Documento online', tipo:docFile?.type||'link', urlDocumento:docUrl, enviadoEm:new Date().toISOString(), dadosExtraidos:ocr, revisadoPor:state.user.nome}); }
   s.comprador = unique((s.itens||[]).map(x=>x.comprador).filter(Boolean)).join(', ');
   if(comentario) { i.comentarios = i.comentarios||[]; i.comentarios.push({data:new Date().toISOString(), usuario:state.user.nome, texto:comentario}); }
-  const saldo=calcularSaldoFamilia(i.familia,i.id); i.alertaLimiteFamilia=saldo.restante<0; s.historico.push(log(`Item ${i.codigoProduto||itemId} alterado para ${status}${comprador?' | Compradora: '+comprador:''}${i.dataFinalizada?' | Finalizada: '+fmtDate(i.dataFinalizada):''}${valorComprado?' | Valor comprado: '+money(valorComprado):''}${fornecedor&&docFile?' | Orçamento por produto: '+fornecedor:''}${comentario?' | '+comentario:''}`));
-  atualizarStatusPedido(s); saveLocal(); renderAll(); openDetail(sid); toast('Dados do produto atualizados.');
+  const saldo=calcularSaldoFamilia(i.familia,i.id); i.alertaLimiteFamilia=saldo.restante<0; s.historico.push(log(`Item ${i.codigoProduto||itemId} alterado para ${status}${comprador?' | Compradora: '+comprador:''}${i.dataFinalizada?' | Finalizada: '+fmtDate(i.dataFinalizada):''}${valorComprado?' | Valor comprado: '+money(valorComprado):''}${fornecedor&&(docFile||docUrl)?' | Orçamento por produto: '+fornecedor:''}${comentario?' | '+comentario:''}`));
+  atualizarStatusPedido(s); await persistSolicitacao(s); renderAll(); openDetail(sid); toast('Dados do produto atualizados.');
 }
 function atualizarStatusPedido(s){
   const statuses=(s.itens||[]).map(i=>i.status||'Pendente');
@@ -368,7 +414,7 @@ function atualizarStatusPedido(s){
   else if(statuses.every(x=>x==='Recusado')) s.status='Recusado';
   else s.status='Pendente';
 }
-window.delSol=function(id){confirmAction('Excluir esta solicitação completa?',()=>{state.solicitacoes=state.solicitacoes.filter(x=>x.id!==id); saveLocal(); renderAll(); showPage('solicitacoes'); toast('Solicitação excluída.');},'Excluir solicitação');}
+window.delSol=function(id){confirmAction('Excluir esta solicitação completa?',async()=>{await db.collection('pmcSolicitacoes').doc(id).delete(); state.solicitacoes=state.solicitacoes.filter(x=>x.id!==id); renderAll(); showPage('solicitacoes'); toast('Solicitação excluída.');},'Excluir solicitação');}
 function comprasFamiliaNosUltimosDias(familia, ignorarItemId=''){
   const dias=Number(state.config.diasRegra||90), hoje=new Date();
   return allItems().filter(i=>i.id!==ignorarItemId && familiaCodigo(i.familia)===familiaCodigo(familia) && ['Comprado','Entregue'].includes(i.status) && i.dataFinalizada && diffDays(hoje,new Date(i.dataFinalizada))>=0 && diffDays(hoje,new Date(i.dataFinalizada))<=dias);
@@ -387,18 +433,18 @@ function documentosHtml(i){
   const menor=quoteStats(i).menor;
   const pedido=state.solicitacoes.find(s=>s.itens?.some(item=>item.id===i.id));
   const pedidoId=pedido?.id||'';
-  return `<div class="supplier-doc-list">${docs.map(d=>{const uv=quoteUnitValue(d,i); const isBest=menor&&menor.id===d.id; return `<div class="supplier-doc ${isBest?'cheapest':''}"><div class="supplier-doc-main"><b>${esc(d.fornecedor)}</b>${isBest?'<span class="cheapest-tag">Menor preço unitário</span>':''}</div><strong>${money(uv)} / un.</strong><div class="supplier-doc-actions"><a class="supplier-doc-download" href="${escAttr(d.conteudo)}" download="${escAttr(d.nomeArquivo)}">Baixar</a><button class="supplier-doc-delete" type="button" onclick="deleteQuote('${pedidoId}','${i.id}','${d.id}')" title="Excluir este orçamento">Excluir</button></div><span>Total: ${money(d.valorTotal||uv*(Number(d.quantidadeCotada||i.quantidade||1)))} • Qtd.: ${esc(d.quantidadeCotada||i.quantidade||'-')}</span><small>${esc(d.nomeArquivo)} • ${d.dadosExtraidos?.confianca?`leitura automática ${d.dadosExtraidos.confianca}% • `:''}revisado por ${esc(d.revisadoPor||'compradora')} • ${fmtDateTime(d.enviadoEm)}</small></div>`}).join('')}</div>`;
+  return `<div class="supplier-doc-list">${docs.map(d=>{const uv=quoteUnitValue(d,i); const isBest=menor&&menor.id===d.id; return `<div class="supplier-doc ${isBest?'cheapest':''}"><div class="supplier-doc-main"><b>${esc(d.fornecedor)}</b>${isBest?'<span class="cheapest-tag">Menor preço unitário</span>':''}</div><strong>${money(uv)} / un.</strong><div class="supplier-doc-actions">${d.urlDocumento?`<a class="supplier-doc-download" href="${escAttr(d.urlDocumento)}" target="_blank" rel="noopener">Abrir documento</a>`:`<span class="muted">Sem link</span>`}<button class="supplier-doc-delete" type="button" onclick="deleteQuote('${pedidoId}','${i.id}','${d.id}')" title="Excluir este orçamento">Excluir</button></div><span>Total: ${money(d.valorTotal||uv*(Number(d.quantidadeCotada||i.quantidade||1)))} • Qtd.: ${esc(d.quantidadeCotada||i.quantidade||'-')}</span><small>${esc(d.nomeArquivo)} • ${d.dadosExtraidos?.confianca?`leitura automática ${d.dadosExtraidos.confianca}% • `:''}revisado por ${esc(d.revisadoPor||'compradora')} • ${fmtDateTime(d.enviadoEm)}</small></div>`}).join('')}</div>`;
 }
 window.deleteQuote=function(pedidoId,itemId,quoteId){
   const pedido=state.solicitacoes.find(s=>s.id===pedidoId) || state.solicitacoes.find(s=>s.itens?.some(i=>i.id===itemId));
   const item=pedido?.itens?.find(i=>i.id===itemId);
   if(!pedido||!item) return toast('Produto não encontrado. Atualize a página e tente novamente.');
   const quote=(item.documentosFornecedores||[]).find(x=>x.id===quoteId); if(!quote) return toast('Orçamento não encontrado.');
-  confirmAction(`Excluir o orçamento de ${quote.fornecedor}? A média e o menor preço serão recalculados automaticamente.`,()=>{
+  confirmAction(`Excluir o orçamento de ${quote.fornecedor}? A média e o menor preço serão recalculados automaticamente.`,async()=>{
     item.documentosFornecedores=(item.documentosFornecedores||[]).filter(x=>x.id!==quoteId);
     pedido.historico=pedido.historico||[];
     pedido.historico.push(log(`Orçamento de ${quote.fornecedor} excluído do produto ${item.codigoProduto||item.descricao}`));
-    saveLocal(); renderAll(); openDetail(pedido.id); toast('Orçamento excluído e cálculos atualizados.');
+    await persistSolicitacao(pedido); renderAll(); openDetail(pedido.id); toast('Orçamento excluído e cálculos atualizados.');
   },'Excluir orçamento');
 }
 function renderCompradora(){
@@ -459,8 +505,8 @@ function renderUsuarios(){
   if(!$('#userTable')) return;
   $('#userTable tbody').innerHTML=state.usuarios.map(u=>`<tr><td><b>${esc(u.nome)}</b></td><td>${esc(u.email)}</td><td><select id="perfil_${u.id}" ${u.email.toLowerCase()===ADMIN_EMAIL?'disabled':''}>${['solicitante','compras','gestor','admin'].map(p=>`<option ${p===u.perfil?'selected':''}>${p}</option>`).join('')}</select></td><td>${esc(u.setor||'')}</td><td><button class="primary" onclick="saveUserProfile('${u.id}')" ${u.email.toLowerCase()===ADMIN_EMAIL?'disabled':''}>Salvar perfil</button> ${u.email.toLowerCase()===ADMIN_EMAIL?'<small>Administrador principal</small>':`<button class="danger-btn" onclick="delUser('${u.id}')">Excluir</button>`}</td></tr>`).join('');
 }
-window.saveUserProfile=function(id){ const u=state.usuarios.find(x=>x.id===id); if(!u) return; u.perfil=$(`#perfil_${id}`).value; saveLocal(); renderUsuarios(); toast('Perfil atualizado.'); }
-window.delUser=id=>{ const u=state.usuarios.find(x=>x.id===id); if(!u||u.email.toLowerCase()===ADMIN_EMAIL) return; confirmAction(`Excluir o usuário ${u.nome}?`,()=>{state.usuarios=state.usuarios.filter(x=>x.id!==id); saveLocal(); renderUsuarios(); toast('Usuário excluído.');},'Excluir usuário');}
+window.saveUserProfile=async function(id){ const u=state.usuarios.find(x=>x.id===id); if(!u||state.user.perfil!=='admin') return; u.perfil=$(`#perfil_${id}`).value; await db.collection('pmcUsuarios').doc(id).update({perfil:u.perfil,atualizadoEm:firebase.firestore.FieldValue.serverTimestamp(),atualizadoPorUid:state.user.uid}); renderUsuarios(); toast('Perfil atualizado.'); }
+window.delUser=id=>{ const u=state.usuarios.find(x=>x.id===id); if(!u||u.email.toLowerCase()===ADMIN_EMAIL) return; confirmAction(`Desativar o usuário ${u.nome}?`,async()=>{await db.collection('pmcUsuarios').doc(id).update({ativo:false,atualizadoEm:firebase.firestore.FieldValue.serverTimestamp(),atualizadoPorUid:state.user.uid}); state.usuarios=state.usuarios.filter(x=>x.id!==id); renderUsuarios(); toast('Usuário desativado.');},'Desativar usuário');}
 
 async function ensureDocxLibrary(){
   if(window.docx?.Document && window.docx?.Packer) return window.docx;

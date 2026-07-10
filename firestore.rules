@@ -1,10 +1,76 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    function signed() { return request.auth != null; }
-    match /pmcUsuarios/{uid} { allow read: if signed(); allow write: if signed(); }
-    match /pmcSolicitacoes/{id} { allow read: if signed(); allow create: if signed(); allow update: if signed(); allow delete: if signed(); }
-    match /pmcConfig/{id} { allow read, write: if signed(); }
-    match /pmcHistorico/{id} { allow read, write: if signed(); }
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function profile() {
+      return get(/databases/$(database)/documents/pmcUsuarios/$(request.auth.uid)).data;
+    }
+
+    function active() {
+      return signedIn() && profile().ativo == true;
+    }
+
+    function isAdmin() {
+      return active() && profile().perfil == 'admin';
+    }
+
+    function isBuyer() {
+      return active() && profile().perfil in ['compras', 'gestor', 'admin'];
+    }
+
+    function isMainAdminEmail() {
+      return signedIn() && request.auth.token.email == 'a.camilo@fiemg.com.br';
+    }
+
+    match /pmcUsuarios/{uid} {
+      allow create: if signedIn()
+        && request.auth.uid == uid
+        && request.resource.data.email == request.auth.token.email
+        && (
+          (request.resource.data.perfil == 'solicitante' && request.resource.data.ativo == true)
+          ||
+          (isMainAdminEmail() && request.resource.data.perfil == 'admin')
+        );
+
+      allow read: if active() && (request.auth.uid == uid || isAdmin());
+
+      allow update: if isAdmin()
+        && request.resource.data.email == resource.data.email;
+
+      allow delete: if false;
+    }
+
+    match /pmcSolicitacoes/{id} {
+      allow create: if active()
+        && request.resource.data.solicitanteUid == request.auth.uid
+        && request.resource.data.solicitanteEmail == request.auth.token.email;
+
+      // Todos os colaboradores autenticados podem consultar pedidos gerais e o Budget.
+      allow read: if active();
+
+      // Somente Compras, Gestor ou Administrador podem alterar status, valores e orçamentos.
+      allow update: if isBuyer();
+
+      allow delete: if isAdmin();
+    }
+
+    match /pmcConfig/{id} {
+      allow read: if active();
+      allow create, update: if isAdmin();
+      allow delete: if false;
+    }
+
+    match /pmcHistorico/{id} {
+      allow read: if active();
+      allow create: if active();
+      allow update, delete: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
   }
 }
