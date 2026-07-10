@@ -69,3 +69,10 @@ Envie todos os arquivos da pasta para o repositório, incluindo:
 - pasta `documentos`
 
 A configuração Web do Firebase não é uma senha. A proteção real vem do Authentication e das regras do Firestore.
+
+
+## Cadastro e verificação de e-mail
+
+Nesta versão, o cadastro por e-mail e senha cria o perfil `solicitante` e libera o acesso imediatamente. Não é necessário confirmar o e-mail para entrar no sistema.
+
+Após atualizar o site, publique também o arquivo `firestore.rules` desta versão no Firebase Console em **Firestore Database → Regras**.

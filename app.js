@@ -82,25 +82,32 @@ async function start(){
       authReady=true;
       if(registrationInProgress) return;
       if(!user){ showLoggedOut(); return; }
-      try{
-        const ref=db.collection('pmcUsuarios').doc(user.uid); let snap=await ref.get();
-        if(!snap.exists && user.email?.toLowerCase()===ADMIN_EMAIL){
-          await ref.set({nome:'Alan Camilo Rodrigues',email:user.email.toLowerCase(),setor:'Tecnologia da Informação',perfil:'admin',ativo:true,criadoEm:firebase.firestore.FieldValue.serverTimestamp()});
-          snap=await ref.get();
-        }
-        if(!snap.exists) throw new Error('Perfil não encontrado no Firestore.');
-        const perfil=snap.data();
-        if(perfil.ativo===false) throw new Error('Usuário desativado.');
-        state.user={id:user.uid,uid:user.uid,...perfil,email:user.email?.toLowerCase()||perfil.email};
-        if(user.emailVerified===false) toast('Confirme seu e-mail antes de usar o sistema. Verifique sua caixa de entrada.','Verificação necessária');
-        await loadFirestoreData(); showLoggedIn();
-      }catch(err){ console.error(err); await auth.signOut(); toast(err.message||'Não foi possível carregar seu perfil.'); }
+      await loadAuthenticatedUser(user);
     });
   }catch(err){ console.error(err); toast('Falha ao iniciar o Firebase: '+err.message); }
 }
 async function loadRefs(){
   try{ state.refs = await fetch('./data/referencias.json').then(r=>r.json()); }
   catch(e){ state.refs = {finalidades:[], servicosProtheus:[], centrosClasseValor:[]}; }
+}
+async function loadAuthenticatedUser(user){
+  try{
+    const ref=db.collection('pmcUsuarios').doc(user.uid); let snap=await ref.get();
+    if(!snap.exists && user.email?.toLowerCase()===ADMIN_EMAIL){
+      await ref.set({nome:'Alan Camilo Rodrigues',email:user.email.toLowerCase(),setor:'Tecnologia da Informação',perfil:'admin',ativo:true,criadoEm:firebase.firestore.FieldValue.serverTimestamp(),atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()});
+      snap=await ref.get();
+    }
+    if(!snap.exists) throw new Error('Perfil não encontrado no Firestore.');
+    const perfil=snap.data();
+    if(perfil.ativo===false) throw new Error('Usuário desativado.');
+    state.user={id:user.uid,uid:user.uid,...perfil,email:user.email?.toLowerCase()||perfil.email};
+    await loadFirestoreData();
+    showLoggedIn();
+  }catch(err){
+    console.error(err);
+    try{ await auth.signOut(); }catch(_){}
+    toast(firebaseErrorMessage(err),'Não foi possível entrar');
+  }
 }
 async function loadFirestoreData(){
   const configSnap=await db.collection('pmcConfig').doc('geral').get();
@@ -192,12 +199,16 @@ async function registerUser(){
     registrationInProgress=true;
     const cred=await auth.createUserWithEmailAndPassword(email,senha);
     await db.collection('pmcUsuarios').doc(cred.user.uid).set({nome,email,setor,perfil:'solicitante',ativo:true,criadoEm:firebase.firestore.FieldValue.serverTimestamp(),atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()});
-    await cred.user.sendEmailVerification();
-    await auth.signOut();
     registrationInProgress=false;
-    $('#registerForm').reset(); $('#loginEmail').value=email; toggleAuth('login');
-    toast('Cadastro realizado. Enviamos uma confirmação para seu e-mail.');
-  }catch(err){ registrationInProgress=false; console.error(err); toast(firebaseErrorMessage(err)); }
+    $('#registerForm').reset();
+    await loadAuthenticatedUser(cred.user);
+    toast('Conta criada com sucesso. Você já pode utilizar o sistema.','Cadastro concluído');
+  }catch(err){
+    registrationInProgress=false;
+    console.error(err);
+    if(auth?.currentUser && !state.user){ try{ await auth.signOut(); }catch(_){} }
+    toast(firebaseErrorMessage(err),'Não foi possível criar a conta');
+  }
 }
 async function login(){
   const email=$('#loginEmail').value.trim().toLowerCase(), senha=$('#loginSenha').value;

@@ -272,3 +272,44 @@ body.modal-open{overflow:hidden}
 
 @media(max-width:1050px){.dashboard-shortcuts{grid-template-columns:repeat(2,minmax(0,1fr))}.dashboard-welcome{align-items:flex-start}.dashboard-new-pmc{min-width:220px}}
 @media(max-width:700px){.dashboard-welcome{display:block;padding:17px}.dashboard-welcome h3{font-size:20px}.dashboard-new-pmc{width:100%;margin-top:15px}.dashboard-shortcuts{grid-template-columns:1fr}.detail-actions-row{align-items:stretch;flex-direction:column}.history-button{width:100%}}
+
+/* Janelas padronizadas e compactas em todo o sistema */
+#messageDialog,
+#confirmDialog {
+  width: min(430px, 92vw) !important;
+  max-width: 430px !important;
+  min-width: 0 !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: min(420px, 82vh) !important;
+  margin: auto !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  box-shadow: 0 24px 70px rgba(15,23,42,.28) !important;
+}
+#messageDialog .m365-dialog-head,
+#confirmDialog .m365-dialog-head {
+  padding: 18px 18px 14px !important;
+  min-height: 0 !important;
+  align-items: flex-start !important;
+}
+#messageDialog .m365-dialog-head p,
+#confirmDialog .m365-dialog-head p {
+  margin: 0 !important;
+  max-height: 180px !important;
+  overflow: auto !important;
+}
+#messageDialog .dialog-actions,
+#confirmDialog .dialog-actions {
+  padding: 12px 18px 16px !important;
+  min-height: 0 !important;
+  justify-content: flex-end !important;
+}
+#messageDialog .dialog-actions button,
+#confirmDialog .dialog-actions button {
+  width: auto !important;
+  min-width: 88px !important;
+  padding: 9px 15px !important;
+}
