@@ -251,7 +251,9 @@ function showPage(id){
   $$('.page').forEach(p=>p.classList.toggle('active',p.id===id));
   $$('.nav').forEach(n=>n.classList.toggle('active',n.dataset.page===id));
   const titles={dashboard:['Dashboard','Meus pedidos, pedidos geral, status e consulta de compras realizadas.'],nova:['Nova Solicitação','Adicione um ou mais itens na mesma PMC.'],solicitacoes:['Meus / Pedidos Gerais','Consulte por código Protheus, produto, família, solicitante ou comprador.'],referencias:['Budget de Valor','Saldo disponível por família conforme o limite móvel de 90 dias.'],compradora:['Área da Compradora','Controle exclusivo das PMC solicitadas, com atualização por produto/item.'],usuarios:['Usuários','Gerencie perfis e acessos cadastrados.'],detalhe:['Detalhes da PMC','Visualização e atualização em página completa.'],config:['Configurações','Regras do sistema.']};
-  $('#pageTitle').textContent=titles[id]?.[0]||'PMC'; $('#pageSubtitle').textContent=titles[id]?.[1]||'';
+  const pageTitleEl=$('#pageTitle'); const pageSubtitleEl=$('#pageSubtitle');
+  if(pageTitleEl) pageTitleEl.textContent=titles[id]?.[0]||'PMC';
+  if(pageSubtitleEl) pageSubtitleEl.textContent=titles[id]?.[1]||'';
 }
 function renderAll(){ fillSelects(); renderDashboard(); renderSolicitacoes(); renderCompradora(); renderReferencias(); renderUsuarios(); renderFamiliasAdmin(); $('#diasRegra').value=state.config.diasRegra; if($('#limiteFamilia')) $('#limiteFamilia').value=state.config.limiteFamilia||3000; }
 function fillSelects(){
