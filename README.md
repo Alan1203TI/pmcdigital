@@ -138,3 +138,10 @@ O sistema calcula, para cada produto:
 - fornecedor da proposta mais barata.
 
 A comparação por preço unitário evita distorções quando fornecedores cotam quantidades diferentes.
+
+
+## Leitura de orçamentos
+- Compatível com PDF com texto, imagens (OCR) e Word no formato `.docx`.
+- Arquivos antigos `.doc` devem ser abertos no Word e salvos como `.docx`.
+- O modelo padrão para envio aos fornecedores está em `documentos/Modelo_Padrao_Orcamento_FIEMG.docx` e também pode ser baixado na área da compradora.
+- A comparação permanece individual por produto, usando o valor unitário.

@@ -40,20 +40,24 @@
   </section>
 
   <main id="appView" class="app hidden">
-    <aside class="sidebar">
-      <div class="sidebar-brand">
-        <img src="assets/logo-fiemg.png" alt="Sistema FIEMG">
-        <span>PMC Digital</span>
+    <header class="main-header">
+      <div class="main-header-row">
+        <div class="horizontal-brand">
+          <img src="assets/logo-fiemg.png" alt="Sistema FIEMG">
+          <div><strong>PMC Digital</strong><span>SESI Dom Bosco • São João del-Rei</span></div>
+        </div>
+        <div class="header-user-actions"><span id="userBox"></span><button id="logoutBtn" type="button">Sair</button></div>
       </div>
-      <button data-page="dashboard" class="nav active"><span class="nav-icon">⌂</span> Dashboard</button>
-      <button data-page="nova" class="nav"><span class="nav-icon">＋</span> Nova Solicitação</button>
-      <button data-page="solicitacoes" class="nav"><span class="nav-icon">▤</span> Meus / Pedidos Gerais</button>
-      <button data-page="referencias" class="nav"><span class="nav-icon">◫</span> Budget de Valor</button>
-      <button data-page="compradora" class="nav compras-only"><span class="nav-icon">✓</span> Área da Compradora</button>
-      <button data-page="usuarios" class="nav admin-only"><span class="nav-icon">♙</span> Usuários</button>
-      <button data-page="config" class="nav admin-only"><span class="nav-icon">⚙</span> Configurações</button>
-      <div class="sidebar-footer"><span id="userBox"></span><button id="logoutBtn">Sair</button></div>
-    </aside>
+      <nav class="horizontal-nav" aria-label="Menu principal">
+        <button data-page="dashboard" class="nav active"><span class="nav-icon">⌂</span><span>Dashboard</span></button>
+        <button data-page="nova" class="nav"><span class="nav-icon">＋</span><span>Nova PMC</span></button>
+        <button data-page="solicitacoes" class="nav"><span class="nav-icon">▤</span><span>Pedidos</span></button>
+        <button data-page="referencias" class="nav"><span class="nav-icon">$</span><span>Budget</span></button>
+        <button data-page="compradora" class="nav compras-only"><span class="nav-icon">✓</span><span>Compradora</span></button>
+        <button data-page="usuarios" class="nav admin-only"><span class="nav-icon">♙</span><span>Usuários</span></button>
+        <button data-page="config" class="nav admin-only"><span class="nav-icon">⚙</span><span>Configurações</span></button>
+      </nav>
+    </header>
 
     <section class="content">
       <header class="topbar">
