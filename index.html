@@ -156,7 +156,7 @@
           <select id="filtroStatus"><option value="">Todos os status</option></select>
           <select id="filtroFamilia"><option value="">Todas as famílias</option></select>
         </div>
-        <div class="panel table-wrap"><table id="solTable"><thead><tr><th>Data do pedido</th><th>Quem pediu</th><th>Famílias</th><th colspan="3">Produtos do pedido: código, quantidade, descrição, status e data finalizada</th><th>Status geral</th><th>Alerta</th><th>Ações</th></tr></thead><tbody></tbody></table></div>
+        <div class="panel table-wrap"><table id="solTable"><thead><tr><th>Nº / Data do pedido</th><th>Quem pediu</th><th>Famílias</th><th colspan="3">Produtos do pedido: código, quantidade, descrição, status e data finalizada</th><th>Status geral</th><th>Alerta</th><th>Ações</th></tr></thead><tbody></tbody></table></div>
       </section>
 
       <section id="referencias" class="page">
@@ -216,7 +216,9 @@
       </section>
 
       <section id="config" class="page">
-        <div class="panel"><h3>Configurações da regra</h3><div class="config-grid"><label>Dias corridos considerados por família<input id="diasRegra" type="number" value="90"></label><label>Limite de compra por família (R$)<input id="limiteFamilia" type="number" step="0.01" min="0" value="3000"></label></div><button id="salvarConfig" class="primary">Salvar</button><hr><button id="limparDemo" class="danger-btn">Apagar solicitações de demonstração</button></div>
+        <div class="panel"><h3>Configurações da regra</h3><div class="config-grid"><label>Dias corridos considerados por família<input id="diasRegra" type="number" value="90"></label><label>Limite de compra por família (R$)<input id="limiteFamilia" type="number" step="0.01" min="0" value="3000"></label></div><button id="salvarConfig" class="primary">Salvar configurações</button></div>
+        <div class="panel"><h3>Famílias de produtos</h3><p class="muted">Adicione novas famílias ou remova famílias que ainda não foram utilizadas em pedidos.</p><div class="family-admin-form"><label>Código<input id="novaFamiliaCodigo" placeholder="Ex.: 1861"></label><label>Descrição<input id="novaFamiliaDescricao" placeholder="Descrição da família"></label><button id="adicionarFamiliaBtn" type="button" class="primary">Adicionar família</button></div><div id="familiasAdminList" class="families-admin-list"></div></div>
+        <div class="panel"><button id="limparDemo" class="danger-btn">Apagar solicitações de demonstração</button></div>
       </section>
       <footer class="app-footer"><span>Desenvolvido por</span><strong>Alan Camilo Rodrigues</strong><small>Técnico de TI • Desenvolvedor</small></footer>
     </section>

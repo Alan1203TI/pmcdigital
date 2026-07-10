@@ -63,6 +63,14 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+
+    match /pmcContadores/{id} {
+      allow read: if active();
+      allow create: if active() && id == 'pedidos' && request.resource.data.ultimo == 1;
+      allow update: if active() && id == 'pedidos'
+        && request.resource.data.ultimo == resource.data.ultimo + 1;
+      allow delete: if false;
+    }
     match /pmcHistorico/{id} {
       allow read: if active();
       allow create: if active();
