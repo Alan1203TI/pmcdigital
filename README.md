@@ -92,3 +92,13 @@ A regra dos 3 meses foi implementada como 90 dias e pode ser alterada em `Config
 - O campo **Família do produto** agora utiliza os códigos oficiais informados na tabela enviada.
 - A lista mostra o código com a descrição para facilitar a escolha, mas o sistema grava o código da família.
 - O aviso de fragmentação de 90 dias compara a família pelo código, evitando erro por nomes digitados diferentes.
+
+## Atualização: controle financeiro por família
+
+- Centro de custo e classe de valor exibidos no formato `centro/classe`.
+- Campo de data da necessidade na abertura da PMC.
+- Área da compradora com filtro de itens abertos por família.
+- Valor efetivamente comprado registrado por item.
+- Orçamentos de fornecedores anexados individualmente em cada produto.
+- Limite configurável, inicialmente em R$ 3.000,00 por família, considerando compras finalizadas nos últimos 90 dias corridos.
+- O saldo da família é recalculado automaticamente pela data de finalização do item.

@@ -66,7 +66,7 @@ const FAMILIAS_PRODUTO = [
 ];
 
 const STORAGE_KEYS = {usuarios:'pmcUsuarios', solicitacoes:'pmcSolicitacoes', config:'pmcConfig'};
-let state = {user:null, usuarios:[], solicitacoes:[], refs:{finalidades:[], servicosProtheus:[], centrosClasseValor:[]}, config:{diasRegra:90}};
+let state = {user:null, usuarios:[], solicitacoes:[], refs:{finalidades:[], servicosProtheus:[], centrosClasseValor:[]}, config:{diasRegra:90, limiteFamilia:3000}};
 
 async function start(){ await loadRefs(); loadLocal(); seedAdmin(); bind(); renderAll(); }
 async function loadRefs(){
@@ -76,7 +76,7 @@ async function loadRefs(){
 function loadLocal(){
   state.usuarios = JSON.parse(localStorage.getItem(STORAGE_KEYS.usuarios)||'[]');
   state.solicitacoes = JSON.parse(localStorage.getItem(STORAGE_KEYS.solicitacoes)||'[]').map(normalizarSolicitacao);
-  state.config = JSON.parse(localStorage.getItem(STORAGE_KEYS.config)||'{"diasRegra":90}');
+  state.config = {...{diasRegra:90, limiteFamilia:3000}, ...JSON.parse(localStorage.getItem(STORAGE_KEYS.config)||'{}')};
 }
 function saveLocal(){
   localStorage.setItem(STORAGE_KEYS.usuarios, JSON.stringify(state.usuarios));
@@ -95,11 +95,11 @@ function bind(){
   $('#entidade').addEventListener('change', fillCentroCusto);
   $('#busca').oninput = renderSolicitacoes; $('#filtroStatus').onchange=renderSolicitacoes; $('#filtroFamilia').onchange=renderSolicitacoes;
   $('#buscaDashboard').oninput = renderDashboard; $('#statusDashboard').onchange = renderDashboard;
-  $('#buscaCompradora').oninput = renderCompradora; $('#statusCompradora').onchange=renderCompradora; $('#familiaCompradora').onchange=renderCompradora;
+  $('#buscaCompradora').oninput = renderCompradora; $('#statusCompradora').onchange=renderCompradora; $('#familiaCompradora').onchange=renderCompradora; $('#abertosCompradora').onchange=renderCompradora;
   $('#refBusca').oninput = renderReferencias;
   $('#userForm').onsubmit = e => {e.preventDefault(); salvarUsuario();};
   $('#exportCsvBtn').onclick = exportCsv;
-  $('#salvarConfig').onclick = () => {state.config.diasRegra = Number($('#diasRegra').value||90); saveLocal(); toast('Configuração salva.'); renderAll();};
+  $('#salvarConfig').onclick = () => {state.config.diasRegra = Number($('#diasRegra').value||90); state.config.limiteFamilia = Number($('#limiteFamilia').value||3000); saveLocal(); toast('Configuração salva.'); renderAll();};
   $('#limparDemo').onclick = () => { if(confirm('Apagar todas as solicitações?')){state.solicitacoes=[]; saveLocal(); renderAll(); toast('Solicitações apagadas.');} };
   addItem();
 }
@@ -119,7 +119,7 @@ function showPage(id){
   const titles={dashboard:['Dashboard','Meus pedidos, pedidos geral, status e consulta de compras realizadas.'],nova:['Nova Solicitação','Adicione um ou mais itens na mesma PMC.'],solicitacoes:['Meus / Pedidos Gerais','Consulte por código Protheus, produto, família, solicitante ou comprador.'],referencias:['Consulta PMC','Códigos de famílias, produtos Protheus, finalidades e centros de custo.'],compradora:['Área da Compradora','Controle exclusivo das PMC solicitadas, com atualização por produto/item.'],usuarios:['Usuários','Cadastro de acessos.'],config:['Configurações','Regras do sistema.']};
   $('#pageTitle').textContent=titles[id]?.[0]||'PMC'; $('#pageSubtitle').textContent=titles[id]?.[1]||'';
 }
-function renderAll(){ fillSelects(); renderDashboard(); renderSolicitacoes(); renderCompradora(); renderReferencias(); renderUsuarios(); $('#diasRegra').value=state.config.diasRegra; }
+function renderAll(){ fillSelects(); renderDashboard(); renderSolicitacoes(); renderCompradora(); renderReferencias(); renderUsuarios(); $('#diasRegra').value=state.config.diasRegra; if($('#limiteFamilia')) $('#limiteFamilia').value=state.config.limiteFamilia||3000; }
 function fillSelects(){
   $('#finalidade').innerHTML='<option value="">Selecione</option>' + state.refs.finalidades.map(f=>`<option value="${esc(f.codigo+' - '+f.descricao)}" data-conta="${esc(f.conta)}">${esc(f.codigo)} - ${esc(f.descricao)}</option>`).join('');
   fillCentroCusto();
@@ -135,7 +135,7 @@ function fillSelects(){
 function fillCentroCusto(){
   const entidade=$('#entidade').value; let centros=state.refs.centrosClasseValor;
   if(entidade) centros=centros.filter(c=>c.entidade===entidade);
-  $('#centroCusto').innerHTML='<option value="">Selecione</option>'+centros.map(c=>`<option value="${esc(c.centroCusto+' - '+c.centroCustoNome+' / '+c.classeValor+' - '+c.classeValorNome)}">${esc(c.entidade)} | ${esc(c.centroCusto)} - ${esc(c.centroCustoNome)} | ${esc(c.classeValorNome)}</option>`).join('');
+  $('#centroCusto').innerHTML='<option value="">Selecione</option>'+centros.map(c=>`<option value="${esc(c.centroCusto+'/'+c.classeValor+' | '+c.centroCustoNome+' | '+c.classeValorNome)}">${esc(c.entidade)} | ${esc(c.centroCusto+'/'+c.classeValor)} | ${esc(c.centroCustoNome)} | ${esc(c.classeValorNome)}</option>`).join('');
 }
 function addItem(data={}){
   const frag=$('#itemTemplate').content.cloneNode(true); const card=frag.querySelector('.item-card');
@@ -156,12 +156,12 @@ async function salvarSolicitacao(){
   const itens=[];
   for(const card of $$('.item-card')){
     normalizarFamiliaInput(card.querySelector('.item-familia'));
-    const item={id:crypto.randomUUID(), familia:card.querySelector('.item-familia').value.trim(), codigoProduto:card.querySelector('.item-codigo').value.trim(), descricao:card.querySelector('.item-descricao').value.trim(), unMedida:card.querySelector('.item-unMedida').value.trim(), quantidade:Number(card.querySelector('.item-quantidade').value), valorEstimado:Number(card.querySelector('.item-valorEstimado').value||0), linkReferencia:card.querySelector('.item-linkReferencia').value.trim(), imagemProduto:'', status:'Pendente', comprador:'', dataFinalizada:'', comentarios:[]};
+    const item={id:crypto.randomUUID(), familia:card.querySelector('.item-familia').value.trim(), codigoProduto:card.querySelector('.item-codigo').value.trim(), descricao:card.querySelector('.item-descricao').value.trim(), unMedida:card.querySelector('.item-unMedida').value.trim(), quantidade:Number(card.querySelector('.item-quantidade').value), valorEstimado:Number(card.querySelector('.item-valorEstimado').value||0), linkReferencia:card.querySelector('.item-linkReferencia').value.trim(), imagemProduto:'', status:'Pendente', comprador:'', dataFinalizada:'', valorComprado:0, documentosFornecedores:[], comentarios:[]};
     const file=card.querySelector('.item-imagem').files[0]; if(file) item.imagemProduto = await fileToDataUrl(file);
     if(!item.familia || !item.descricao || !item.quantidade) return toast('Preencha família, descrição e quantidade em todos os itens.');
     itens.push(item);
   }
-  const s={id:crypto.randomUUID(), criadoEm:new Date().toISOString(), solicitante:$('#solicitante').value.trim(), solicitanteEmail:state.user?.email||'', setor:$('#setor').value.trim(), unidade:$('#unidade').value, entidade:$('#entidade').value, centroCusto:$('#centroCusto').value, finalidade:$('#finalidade').value, itens, urgencia:$('#urgencia').value, justificativa:$('#justificativa').value.trim(), anexo:$('#anexo').value.trim(), comprador:'', status:'Pendente', comentarios:[], historico:[log('Criada')]};
+  const s={id:crypto.randomUUID(), criadoEm:new Date().toISOString(), dataNecessidade:$('#dataNecessidade').value, solicitante:$('#solicitante').value.trim(), solicitanteEmail:state.user?.email||'', setor:$('#setor').value.trim(), unidade:$('#unidade').value, entidade:$('#entidade').value, centroCusto:$('#centroCusto').value, finalidade:$('#finalidade').value, itens, urgencia:$('#urgencia').value, justificativa:$('#justificativa').value.trim(), anexo:$('#anexo').value.trim(), comprador:'', status:'Pendente', comentarios:[], historico:[log('Criada')]};
   const alerta = getAlertas(s);
   if(alerta.length){
     s.temAlerta=true; s.alertaTexto=alerta.join(' | ');
@@ -216,22 +216,27 @@ function renderSolicitacoes(){
 }
 window.openDetail=function(id){
   const s=state.solicitacoes.find(x=>x.id===id); if(!s) return; const canEdit = ['admin','compras','gestor'].includes(state.user.perfil);
-  const itensHtml=s.itens.map((i,idx)=>`<div class="detail-item"><h4>Item ${idx+1}</h4><div class="detail-grid">${item('Status do item',badge(i.status||s.status))}${item('Compradora',i.comprador||'-')}${item('Data finalizada',i.dataFinalizada?fmtDate(i.dataFinalizada):'-')}${item('Família/código',familiaLabel(i.familia))}${item('Código Protheus',i.codigoProduto||'-')}${item('Quantidade',i.quantidade+' '+(i.unMedida||''))}${item('Valor estimado',money(i.valorEstimado))}${item('Descrição',i.descricao,'wide')}${item('Link referência',i.linkReferencia?`<a href="${escAttr(i.linkReferencia)}" target="_blank">Abrir referência</a>`:'-','wide')}${item('Imagem',i.imagemProduto?`<img class="produto-img" src="${escAttr(i.imagemProduto)}" alt="Imagem do produto">`:'-','wide')}</div>${canEdit?itemEditor(s.id,i,idx):''}</div>`).join('');
-  $('#detailContent').innerHTML=`<h3>Solicitação PMC</h3><div class="detail-grid">${item('Data do pedido',fmtDate(s.criadoEm))}${item('Solicitante',s.solicitante)}${item('Setor',s.setor)}${item('Unidade',s.unidade)}${item('Entidade',s.entidade)}${item('Centro/Classe',s.centroCusto)}${item('Finalidade',s.finalidade)}${item('Status geral calculado',badge(s.status))}${item('Urgência',s.urgencia)}${item('Justificativa',s.justificativa,'wide')}${item('Anexo/orçamento',s.anexo?`<a href="${escAttr(s.anexo)}" target="_blank">Abrir orçamento/anexo</a>`:'-','wide')}${item('Alerta',s.alertaTexto||'Sem alerta','wide')}</div><h3>Itens da solicitação</h3>${itensHtml}
+  const itensHtml=s.itens.map((i,idx)=>`<div class="detail-item"><h4>Item ${idx+1}</h4><div class="detail-grid">${item('Status do item',badge(i.status||s.status))}${item('Compradora',i.comprador||'-')}${item('Data finalizada',i.dataFinalizada?fmtDate(i.dataFinalizada):'-')}${item('Família/código',familiaLabel(i.familia))}${item('Código Protheus',i.codigoProduto||'-')}${item('Quantidade',i.quantidade+' '+(i.unMedida||''))}${item('Valor estimado',money(i.valorEstimado))}${item('Valor efetivamente comprado',money(i.valorComprado||0))}${item('Saldo da família nos 90 dias',saldoFamiliaHtml(i.familia,i.id))}${item('Descrição',i.descricao,'wide')}${item('Orçamentos por fornecedor',documentosHtml(i),'wide')}${item('Link referência',i.linkReferencia?`<a href="${escAttr(i.linkReferencia)}" target="_blank">Abrir referência</a>`:'-','wide')}${item('Imagem',i.imagemProduto?`<img class="produto-img" src="${escAttr(i.imagemProduto)}" alt="Imagem do produto">`:'-','wide')}</div>${canEdit?itemEditor(s.id,i,idx):''}</div>`).join('');
+  $('#detailContent').innerHTML=`<h3>Solicitação PMC</h3><div class="detail-grid">${item('Data do pedido',fmtDate(s.criadoEm))}${item('Data da necessidade',s.dataNecessidade?fmtDate(s.dataNecessidade):'-')}${item('Solicitante',s.solicitante)}${item('Setor',s.setor)}${item('Unidade',s.unidade)}${item('Entidade',s.entidade)}${item('Centro/Classe',s.centroCusto)}${item('Finalidade',s.finalidade)}${item('Status geral calculado',badge(s.status))}${item('Urgência',s.urgencia)}${item('Justificativa',s.justificativa,'wide')}${item('Anexo/orçamento',s.anexo?`<a href="${escAttr(s.anexo)}" target="_blank">Abrir orçamento/anexo</a>`:'-','wide')}${item('Alerta',s.alertaTexto||'Sem alerta','wide')}</div><h3>Itens da solicitação</h3>${itensHtml}
     ${canEdit?`<hr><button class="danger-btn" onclick="delSol('${s.id}')">Excluir solicitação completa</button>`:''}
     <h4>Histórico</h4><ul>${(s.historico||[]).map(h=>`<li>${fmtDateTime(h.data)} - ${esc(h.usuario)}: ${esc(h.acao)}</li>`).join('')}</ul>`;
   $('#detailDialog').showModal();
 }
 function itemEditor(sid,i,idx){
-  return `<div class="item-editor"><h4>Atualizar este produto</h4><label>Status<select id="itemStatus_${i.id}">${STATUSES.map(x=>`<option ${x===(i.status||'Pendente')?'selected':''}>${x}</option>`).join('')}</select></label><label>Compradora responsável<input id="itemComprador_${i.id}" value="${escAttr(i.comprador||'')}"></label><label>Data finalizada pela compradora<input id="itemFinalizado_${i.id}" type="date" value="${i.dataFinalizada?String(i.dataFinalizada).slice(0,10):''}"></label><label>Comentário<textarea id="itemComentario_${i.id}" rows="2">${esc(i.comentario||'')}</textarea></label><button class="primary" onclick="saveItemStatus('${sid}','${i.id}')">Salvar status deste produto</button></div>`;
+  return `<div class="item-editor"><h4>Atualizar este produto</h4><div class="editor-grid"><label>Status<select id="itemStatus_${i.id}">${STATUSES.map(x=>`<option ${x===(i.status||'Pendente')?'selected':''}>${x}</option>`).join('')}</select></label><label>Compradora responsável<input id="itemComprador_${i.id}" value="${escAttr(i.comprador||'')}"></label><label>Data finalizada pela compradora<input id="itemFinalizado_${i.id}" type="date" value="${i.dataFinalizada?String(i.dataFinalizada).slice(0,10):''}"></label><label>Valor efetivamente comprado (R$)<input id="itemValorComprado_${i.id}" type="number" step="0.01" min="0" value="${Number(i.valorComprado||0)}"></label></div><div class="family-budget">${saldoFamiliaHtml(i.familia,i.id)}</div><div class="supplier-doc-box"><h5>Adicionar orçamento de fornecedor</h5><div class="editor-grid"><label>Fornecedor<input id="itemFornecedor_${i.id}" placeholder="Nome do fornecedor"></label><label>Documento do orçamento<input id="itemDocFornecedor_${i.id}" type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,image/*"></label></div>${documentosHtml(i)}</div><label>Comentário<textarea id="itemComentario_${i.id}" rows="2">${esc(i.comentario||'')}</textarea></label><button class="primary" onclick="saveItemStatus('${sid}','${i.id}')">Salvar dados deste produto</button></div>`;
 }
-window.saveItemStatus=function(sid,itemId){
+window.saveItemStatus=async function(sid,itemId){
   const s=state.solicitacoes.find(x=>x.id===sid); if(!s) return; const i=s.itens.find(x=>x.id===itemId); if(!i) return;
-  const status=$(`#itemStatus_${itemId}`).value; const comprador=$(`#itemComprador_${itemId}`).value.trim(); const finalizado=$(`#itemFinalizado_${itemId}`).value; const comentario=$(`#itemComentario_${itemId}`).value.trim();
-  i.status=status; i.comprador=comprador; i.dataFinalizada = finalizado || ((status==='Comprado'||status==='Entregue') ? (i.dataFinalizada||new Date().toISOString().slice(0,10)) : ''); i.comentario=comentario;
+  const status=$(`#itemStatus_${itemId}`).value; const comprador=$(`#itemComprador_${itemId}`).value.trim(); const finalizado=$(`#itemFinalizado_${itemId}`).value; const comentario=$(`#itemComentario_${itemId}`).value.trim(); const valorComprado=Number($(`#itemValorComprado_${itemId}`).value||0);
+  const fornecedor=$(`#itemFornecedor_${itemId}`).value.trim(); const docInput=$(`#itemDocFornecedor_${itemId}`);
+  if(['Comprado','Entregue'].includes(status) && !valorComprado) return toast('Informe o valor efetivamente comprado para finalizar este produto.');
+  if(['Comprado','Entregue'].includes(status) && !finalizado && !i.dataFinalizada) return toast('Informe a data de finalização da compra.');
+  if(['Comprado','Entregue'].includes(status)){ const antes=calcularSaldoFamilia(i.familia,i.id); const proj=antes.limite-antes.usadoAnterior-valorComprado; if(proj<0 && !confirm(`A compra ultrapassa o limite da família em ${money(Math.abs(proj))} dentro dos últimos ${state.config.diasRegra||90} dias. Deseja salvar mesmo assim?`)) return; }
+  i.status=status; i.comprador=comprador; i.dataFinalizada = finalizado || ((status==='Comprado'||status==='Entregue') ? (i.dataFinalizada||new Date().toISOString().slice(0,10)) : ''); i.valorComprado=valorComprado; i.comentario=comentario; i.documentosFornecedores=i.documentosFornecedores||[];
+  const docFile=docInput?.files?.[0]; if(docFile){ if(!fornecedor) return toast('Informe o nome do fornecedor do orçamento.'); i.documentosFornecedores.push({id:crypto.randomUUID(), fornecedor, nomeArquivo:docFile.name, tipo:docFile.type, conteudo:await fileToDataUrl(docFile), enviadoEm:new Date().toISOString()}); }
   s.comprador = unique((s.itens||[]).map(x=>x.comprador).filter(Boolean)).join(', ');
   if(comentario) { i.comentarios = i.comentarios||[]; i.comentarios.push({data:new Date().toISOString(), usuario:state.user.nome, texto:comentario}); }
-  s.historico.push(log(`Item ${i.codigoProduto||itemId} alterado para ${status}${comprador?' | Compradora: '+comprador:''}${i.dataFinalizada?' | Finalizada: '+fmtDate(i.dataFinalizada):''}${comentario?' | '+comentario:''}`));
+  const saldo=calcularSaldoFamilia(i.familia,i.id); i.alertaLimiteFamilia=saldo.restante<0; s.historico.push(log(`Item ${i.codigoProduto||itemId} alterado para ${status}${comprador?' | Compradora: '+comprador:''}${i.dataFinalizada?' | Finalizada: '+fmtDate(i.dataFinalizada):''}${valorComprado?' | Valor comprado: '+money(valorComprado):''}${fornecedor&&docFile?' | Orçamento: '+fornecedor:''}${comentario?' | '+comentario:''}`));
   atualizarStatusPedido(s); saveLocal(); renderAll(); $('#detailDialog').close(); toast('Status do produto atualizado.');
 }
 function atualizarStatusPedido(s){
@@ -246,43 +251,61 @@ function atualizarStatusPedido(s){
   else s.status='Pendente';
 }
 window.delSol=function(id){ if(confirm('Excluir esta solicitação?')){state.solicitacoes=state.solicitacoes.filter(x=>x.id!==id); saveLocal(); renderAll(); $('#detailDialog').close();}}
+function comprasFamiliaNosUltimosDias(familia, ignorarItemId=''){
+  const dias=Number(state.config.diasRegra||90), hoje=new Date();
+  return allItems().filter(i=>i.id!==ignorarItemId && familiaCodigo(i.familia)===familiaCodigo(familia) && ['Comprado','Entregue'].includes(i.status) && i.dataFinalizada && diffDays(hoje,new Date(i.dataFinalizada))>=0 && diffDays(hoje,new Date(i.dataFinalizada))<=dias);
+}
+function calcularSaldoFamilia(familia, incluirItemId=''){
+  const limite=Number(state.config.limiteFamilia||3000); const anteriores=comprasFamiliaNosUltimosDias(familia,incluirItemId); const usadoAnterior=anteriores.reduce((t,i)=>t+Number(i.valorComprado||0),0);
+  const atual=incluirItemId?allItems().find(i=>i.id===incluirItemId):null; const valorAtual=atual&&['Comprado','Entregue'].includes(atual.status)?Number(atual.valorComprado||0):0;
+  return {limite, usado:usadoAnterior+valorAtual, usadoAnterior, valorAtual, restante:limite-usadoAnterior-valorAtual};
+}
+function saldoFamiliaHtml(familia,itemId=''){
+  const x=calcularSaldoFamilia(familia,itemId); const cls=x.restante<0?'budget-over':x.restante<500?'budget-warning':'budget-ok';
+  return `<span class="family-balance ${cls}">Usado: ${money(x.usado)} • Restante: ${money(x.restante)} / ${money(x.limite)}</span>`;
+}
+function documentosHtml(i){
+  const docs=i.documentosFornecedores||[]; if(!docs.length) return '<span class="muted">Nenhum orçamento armazenado.</span>';
+  return `<div class="supplier-doc-list">${docs.map(d=>`<a class="supplier-doc" href="${escAttr(d.conteudo)}" download="${escAttr(d.nomeArquivo)}"><b>${esc(d.fornecedor)}</b><small>${esc(d.nomeArquivo)} • ${fmtDateTime(d.enviadoEm)}</small></a>`).join('')}</div>`;
+}
 function renderCompradora(){
   if(!$('#compradoraTable')) return;
   const items=allItems();
   $('#buyerPendentes').textContent=items.filter(i=>i.status==='Pendente').length;
   $('#buyerCotacao').textContent=items.filter(i=>i.status==='Em cotação').length;
   $('#buyerComprados').textContent=items.filter(i=>['Comprado','Entregue'].includes(i.status)).length;
-  const q=norm($('#buscaCompradora')?.value||''), st=$('#statusCompradora')?.value||'', fam=$('#familiaCompradora')?.value||'';
-  const rows=items.filter(i=>(!st||i.status===st)&&(!fam||familiaCodigo(i.familia)===fam)&&(!q||norm([i.solicitante,i.codigoProduto,i.descricao,familiaLabel(i.familia),i.comprador].join(' ')).includes(q)));
+  const q=norm($('#buscaCompradora')?.value||''), st=$('#statusCompradora')?.value||'', fam=$('#familiaCompradora')?.value||'', situacao=$('#abertosCompradora')?.value||''; const fechados=['Comprado','Entregue','Recusado'];
+  const rows=items.filter(i=>(!st||i.status===st)&&(!fam||familiaCodigo(i.familia)===fam)&&(!situacao||(situacao==='abertos'?!fechados.includes(i.status):fechados.includes(i.status)))&&(!q||norm([i.solicitante,i.codigoProduto,i.descricao,familiaLabel(i.familia),i.comprador].join(' ')).includes(q)));
   $('#compradoraTable tbody').innerHTML = rows.map(i=>`<tr>
-    <td><b>${esc(i.solicitante)}</b><br><small>Pedido: ${fmtDate(i.criadoEm)}${i.dataFinalizada?'<br>Finalizado: '+fmtDate(i.dataFinalizada):''}</small></td>
+    <td><b>${esc(i.solicitante)}</b><br><small>Pedido: ${fmtDate(i.criadoEm)}${i.dataNecessidade?'<br>Necessidade: '+fmtDate(i.dataNecessidade):''}${i.dataFinalizada?'<br>Finalizado: '+fmtDate(i.dataFinalizada):''}</small></td>
     <td><b>${esc(i.codigoProduto||'-')}</b><br>${esc(i.descricao||'-')}</td>
-    <td>${esc(familiaLabel(i.familia))}${i.temAlerta?'<br><span class="alert">⚠ 90 dias</span>':''}</td>
+    <td>${esc(familiaLabel(i.familia))}<br>${saldoFamiliaHtml(i.familia,i.id)}${i.temAlerta?'<br><span class="alert">⚠ 90 dias</span>':''}</td>
     <td>${esc(i.quantidade)} ${esc(i.unMedida||'')}</td>
+    <td><b>${money(i.valorComprado||0)}</b></td>
     <td>${badge(i.status)}</td>
     <td>${esc(i.comprador||'-')}</td>
     <td>${i.dataFinalizada?fmtDate(i.dataFinalizada):'-'}</td>
     <td><button onclick="openDetail('${i.pedidoId}')">Atualizar produto</button></td>
-  </tr>`).join('') || '<tr><td colspan="8">Nenhum item encontrado.</td></tr>';
+  </tr>`).join('') || '<tr><td colspan="9">Nenhum item encontrado.</td></tr>';
 }
 function renderReferencias(){
   const q=norm($('#refBusca').value||''); const list=[];
   FAMILIAS_PRODUTO.forEach(f=>list.push({tipo:'Família de produto', titulo:`${f.codigo} - ${f.descricao}`, txt:'Código oficial para informar no campo Família do produto'}));
   state.refs.finalidades.forEach(f=>list.push({tipo:'Família/finalidade', titulo:`${f.codigo} - ${f.descricao}`, txt:`Conta ${f.conta} - ${f.contaDescricao}`}));
   state.refs.servicosProtheus.forEach(p=>list.push({tipo:'Produto/serviço Protheus', titulo:`${p.codigo} - ${p.descricao}`, txt:`Família/tipo ${p.tipo} | ${p.uso}`}));
-  state.refs.centrosClasseValor.forEach(c=>list.push({tipo:'Centro/Classe', titulo:`${c.entidade} | ${c.centroCusto} - ${c.centroCustoNome}`, txt:`Classe ${c.classeValor} - ${c.classeValorNome}`}));
+  state.refs.centrosClasseValor.forEach(c=>list.push({tipo:'Centro/Classe', titulo:`${c.entidade} | ${c.centroCusto}/${c.classeValor}`, txt:`${c.centroCustoNome} | ${c.classeValorNome}`}));
   $('#refList').innerHTML=list.filter(x=>!q||norm(x.tipo+x.titulo+x.txt).includes(q)).slice(0,350).map(x=>`<div class="ref-item"><small>${x.tipo}</small><br><b>${esc(x.titulo)}</b><p>${esc(x.txt)}</p></div>`).join('');
 }
 function salvarUsuario(){ const u={id:crypto.randomUUID(),nome:$('#uNome').value.trim(),email:$('#uEmail').value.trim(),senha:$('#uSenha').value,perfil:$('#uPerfil').value,setor:$('#uSetor').value.trim()}; if(state.usuarios.some(x=>x.email.toLowerCase()===u.email.toLowerCase())) return toast('E-mail já cadastrado.'); state.usuarios.push(u); saveLocal(); $('#userForm').reset(); $('#uSenha').value='123456'; renderUsuarios(); toast('Usuário cadastrado.'); }
 function renderUsuarios(){ $('#userTable tbody').innerHTML=state.usuarios.map(u=>`<tr><td>${esc(u.nome)}</td><td>${esc(u.email)}</td><td>${esc(u.perfil)}</td><td>${esc(u.setor||'')}</td><td>${u.email==='admin@pmc.local'?'Padrão':`<button onclick="delUser('${u.id}')">Excluir</button>`}</td></tr>`).join(''); }
 window.delUser=id=>{state.usuarios=state.usuarios.filter(u=>u.id!==id); saveLocal(); renderUsuarios();}
 function exportCsv(){
-  const head=['Data Pedido','Solicitante','Setor','Unidade','Entidade','CentroCusto','Finalidade','Familia','Codigo Produto','Descricao Produto','Quantidade','Valor Estimado','Urgencia','Status Item','Compradora','Data Finalizada','Status Geral Pedido','Alerta','Justificativa','Anexo','Link Referencia'];
-  const lines=[head, ...state.solicitacoes.flatMap(s=>(s.itens||[]).map(i=>[fmtDate(s.criadoEm),s.solicitante,s.setor,s.unidade,s.entidade,s.centroCusto,s.finalidade,familiaLabel(i.familia),i.codigoProduto||'',i.descricao||'',i.quantidade||'',i.valorEstimado||'',s.urgencia,i.status||s.status,i.comprador||'',i.dataFinalizada?fmtDate(i.dataFinalizada):'',s.status,s.alertaTexto||'',s.justificativa,s.anexo,i.linkReferencia||'']))];
+  const head=['Data Pedido','Data Necessidade','Solicitante','Setor','Unidade','Entidade','CentroCusto','Finalidade','Familia','Codigo Produto','Descricao Produto','Quantidade','Valor Estimado','Valor Comprado','Urgencia','Status Item','Compradora','Data Finalizada','Status Geral Pedido','Alerta','Justificativa','Anexo','Link Referencia'];
+  const lines=[head, ...state.solicitacoes.flatMap(s=>(s.itens||[]).map(i=>[fmtDate(s.criadoEm),s.dataNecessidade?fmtDate(s.dataNecessidade):'',s.solicitante,s.setor,s.unidade,s.entidade,s.centroCusto,s.finalidade,familiaLabel(i.familia),i.codigoProduto||'',i.descricao||'',i.quantidade||'',i.valorEstimado||'',i.valorComprado||'',s.urgencia,i.status||s.status,i.comprador||'',i.dataFinalizada?fmtDate(i.dataFinalizada):'',s.status,s.alertaTexto||'',s.justificativa,s.anexo,i.linkReferencia||'']))];
   const csv=lines.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(';')).join('\n'); const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'})); a.download='pmc-solicitacoes.csv'; a.click();
 }
-function normalizarSolicitacao(s){ if(s.itens){ s.itens=s.itens.map(i=>({id:i.id||crypto.randomUUID(), ...i, familia:familiaCodigo(i.familia), status:i.status||s.status||'Pendente', comprador:i.comprador||s.comprador||'', dataFinalizada:i.dataFinalizada||'', comentarios:i.comentarios||[]})); atualizarStatusPedido(s); return s; } s.itens=[{id:crypto.randomUUID(), familia:familiaCodigo(s.familia)||'', codigoProduto:s.codigoProduto||'', descricao:s.descricao||'', unMedida:s.unMedida||'', quantidade:s.quantidade||0, valorEstimado:s.valorEstimado||0, linkReferencia:'', imagemProduto:'', status:s.status||'Pendente', comprador:s.comprador||'', dataFinalizada:'', comentarios:[]}]; s.comprador=s.comprador||''; atualizarStatusPedido(s); return s; }
-function allItems(rows=state.solicitacoes){ return rows.flatMap(s=>(s.itens||[]).map(i=>({...i, status:i.status||s.status, solicitante:s.solicitante, solicitanteEmail:s.solicitanteEmail, comprador:i.comprador||s.comprador, criadoEm:s.criadoEm, pedidoId:s.id, temAlerta:s.temAlerta, dataFinalizada:i.dataFinalizada||''}))); }
+function normalizarSolicitacao(s){ if(s.itens){ s.itens=s.itens.map(i=>({id:i.id||crypto.randomUUID(), ...i, familia:familiaCodigo(i.familia), status:i.status||s.status||'Pendente', comprador:i.comprador||s.comprador||'', dataFinalizada:i.dataFinalizada||'', valorComprado:Number(i.valorComprado||0), documentosFornecedores:i.documentosFornecedores||[], comentarios:i.comentarios||[]})); atualizarStatusPedido(s); return s; } s.itens=[{id:crypto.randomUUID(), familia:familiaCodigo(s.familia)||'', codigoProduto:s.codigoProduto||'', descricao:s.descricao||'', unMedida:s.unMedida||'', quantidade:s.quantidade||0, valorEstimado:s.valorEstimado||0, linkReferencia:'', imagemProduto:'', status:s.status||'Pendente', comprador:s.comprador||'', dataFinalizada:'', valorComprado:0, documentosFornecedores:[], comentarios:[]}]; s.comprador=s.comprador||''; atualizarStatusPedido(s); return s; }
+function allItems(rows=state.solicitacoes){ return rows.flatMap(s=>(s.itens||[]).map(i=>({...i, status:i.status||s.status, solicitante:s.solicitante, solicitanteEmail:s.solicitanteEmail, comprador:i.comprador||s.comprador, criadoEm:s.criadoEm, dataNecessidade:s.dataNecessidade||'', pedidoId:s.id, temAlerta:s.temAlerta, dataFinalizada:i.dataFinalizada||''}))); }
 function meusPedidos(){ return state.solicitacoes.filter(s=>s.solicitanteEmail===state.user?.email || norm(s.solicitante)===norm(state.user?.nome)); }
 function searchText(s){ return JSON.stringify({...s, familiasRotulo:(s.itens||[]).map(i=>familiaLabel(i.familia)), itens:s.itens}); }
 function itemResumo(s,t){ const arr=s.itens||[]; if(t==='familias') return unique(arr.map(i=>familiaLabel(i.familia))).join(', '); if(t==='codigos') return unique(arr.map(i=>i.codigoProduto).filter(Boolean)).join(', '); if(t==='produtos') return arr.map(i=>i.descricao).join(' | '); }

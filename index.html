@@ -97,8 +97,9 @@
           <label>Setor<input id="setor" placeholder="Ex.: TI, Secretaria, Pedagogia" required></label>
           <label>Unidade<select id="unidade" required><option>SESI</option><option>SENAI</option><option>SESI/SENAI</option></select></label>
           <label>Entidade<select id="entidade" required><option value="">Selecione</option><option>SESI</option><option>SENAI</option></select></label>
-          <label>Centro de custo / Classe<select id="centroCusto" required></select></label>
+          <label>Centro de custo / Classe de valor<select id="centroCusto" required></select><small class="field-help">Exibição: centro de custo/classe de valor, por exemplo 2201/0100100.</small></label>
           <label>Finalidade da compra<select id="finalidade" required></select></label>
+          <label>Data da necessidade dos produtos<input id="dataNecessidade" type="date" required></label>
           <div class="wide info-box">Consulte o produto no link <a href="https://consultaproduto.fiemg.com.br/ConsultaProdutos.php" target="_blank" rel="noopener">Consulta Produto FIEMG</a> e adicione o código Protheus e a descrição.</div>
           <div class="wide itens-header"><h3 class="section-title">2. Itens da solicitação</h3><button type="button" id="addItemBtn">+ Adicionar item</button></div>
           <div id="itensContainer" class="wide itens-container"></div>
@@ -144,7 +145,7 @@
           <div>
             <p class="eyebrow">Área exclusiva da compradora</p>
             <h3>Controle das PMC solicitadas por produto</h3>
-            <p>Atualize status, compradora responsável, data de finalização e comentários de cada item sem alterar o pedido completo.</p>
+            <p>Atualize status, valor efetivamente comprado, documentos de fornecedores e acompanhe o limite de R$ 3.000,00 por família nos últimos 90 dias.</p>
           </div>
           <div class="buyer-kpis">
             <span><b id="buyerPendentes">0</b> pendentes</span>
@@ -156,10 +157,11 @@
           <input id="buscaCompradora" placeholder="Pesquisar por solicitante, código Protheus, família, descrição ou comprador...">
           <select id="statusCompradora"><option value="">Todos os status</option></select>
           <select id="familiaCompradora"><option value="">Todas as famílias</option></select>
+          <select id="abertosCompradora"><option value="abertos">Somente pedidos abertos</option><option value="">Todos os pedidos</option><option value="finalizados">Somente finalizados</option></select>
         </div>
         <div class="panel table-wrap">
           <table id="compradoraTable">
-            <thead><tr><th>Solicitante / Data</th><th>Produto</th><th>Família</th><th>Qtd.</th><th>Status do produto</th><th>Compradora</th><th>Finalização</th><th>Ação</th></tr></thead>
+            <thead><tr><th>Solicitante / Datas</th><th>Produto</th><th>Família / Limite 90 dias</th><th>Qtd.</th><th>Valor comprado</th><th>Status do produto</th><th>Compradora</th><th>Finalização</th><th>Ação</th></tr></thead>
             <tbody></tbody>
           </table>
         </div>
@@ -171,7 +173,7 @@
       </section>
 
       <section id="config" class="page">
-        <div class="panel"><h3>Configurações da regra</h3><label>Dias mínimos por família<input id="diasRegra" type="number" value="90"></label><button id="salvarConfig" class="primary">Salvar</button><hr><button id="limparDemo" class="danger-btn">Apagar solicitações de demonstração</button></div>
+        <div class="panel"><h3>Configurações da regra</h3><div class="config-grid"><label>Dias corridos considerados por família<input id="diasRegra" type="number" value="90"></label><label>Limite de compra por família (R$)<input id="limiteFamilia" type="number" step="0.01" min="0" value="3000"></label></div><button id="salvarConfig" class="primary">Salvar</button><hr><button id="limparDemo" class="danger-btn">Apagar solicitações de demonstração</button></div>
       </section>
       <footer class="app-footer">Alan Camilo Rodrigues / Desenvolvedor</footer>
     </section>
