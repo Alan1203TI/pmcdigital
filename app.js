@@ -261,7 +261,7 @@ function renderSolicitacoes(){
 window.openDetail=function(id){
   const s=state.solicitacoes.find(x=>x.id===id); if(!s) return; const canEdit = ['admin','compras','gestor'].includes(state.user.perfil);
   const itensHtml=s.itens.map((i,idx)=>`<div class="detail-item"><h4>Item ${idx+1}</h4><div class="detail-grid">${item('Status do item',badge(i.status||s.status))}${item('Compradora',i.comprador||'-')}${item('Data finalizada',i.dataFinalizada?fmtDate(i.dataFinalizada):'-')}${item('Família/código',familiaLabel(i.familia))}${item('Código Protheus',i.codigoProduto||'-')}${item('Quantidade',i.quantidade+' '+(i.unMedida||''))}${item('Valor estimado',money(i.valorEstimado))}${item('Valor efetivamente comprado',money(i.valorComprado||0))}${item('Saldo da família nos 90 dias',saldoFamiliaHtml(i.familia,i.id))}${item('Descrição',i.descricao,'wide')}${item('Estudo dos orçamentos',quoteAnalysisHtml(i),'wide')}${item('Orçamentos por fornecedor',documentosHtml(i),'wide')}${item('Link referência',i.linkReferencia?`<a href="${escAttr(i.linkReferencia)}" target="_blank">Abrir referência</a>`:'-','wide')}${item('Imagem',i.imagemProduto?`<img class="produto-img" src="${escAttr(i.imagemProduto)}" alt="Imagem do produto">`:'-','wide')}</div>${canEdit?itemEditor(s.id,i,idx):''}</div>`).join('');
-  $('#detailContent').innerHTML=`<div class="detail-document-actions"><button class="primary pdf-order-btn" type="button" onclick="downloadPedidoPdf('${s.id}')">Baixar PDF para cotação</button><span>Documento completo para envio aos fornecedores.</span></div><h3>Solicitação PMC</h3><div class="detail-grid">${item('Data do pedido',fmtDate(s.criadoEm))}${item('Data da necessidade',s.dataNecessidade?fmtDate(s.dataNecessidade):'-')}${item('Solicitante',s.solicitante)}${item('Setor',s.setor)}${item('Unidade',s.unidade)}${item('Entidade',s.entidade)}${item('Centro/Classe',s.centroCusto)}${item('Finalidade',s.finalidade)}${item('Status geral calculado',badge(s.status))}${item('Urgência',s.urgencia)}${item('Justificativa',s.justificativa,'wide')}${item('Anexo/orçamento',s.anexo?`<a href="${escAttr(s.anexo)}" target="_blank">Abrir orçamento/anexo</a>`:'-','wide')}${item('Alerta',s.alertaTexto||'Sem alerta','wide')}</div><h3>Itens da solicitação</h3>${itensHtml}
+  $('#detailContent').innerHTML=`<div class="detail-document-actions"><button class="primary pdf-order-btn" type="button" onclick="downloadPedidoPdf('${s.id}')">Baixar PDF para cotação</button><span>Documento simplificado: somente itens e campos de valores para o fornecedor.</span></div><h3>Solicitação PMC</h3><div class="detail-grid">${item('Data do pedido',fmtDate(s.criadoEm))}${item('Data da necessidade',s.dataNecessidade?fmtDate(s.dataNecessidade):'-')}${item('Solicitante',s.solicitante)}${item('Setor',s.setor)}${item('Unidade',s.unidade)}${item('Entidade',s.entidade)}${item('Centro/Classe',s.centroCusto)}${item('Finalidade',s.finalidade)}${item('Status geral calculado',badge(s.status))}${item('Urgência',s.urgencia)}${item('Justificativa',s.justificativa,'wide')}${item('Anexo/orçamento',s.anexo?`<a href="${escAttr(s.anexo)}" target="_blank">Abrir orçamento/anexo</a>`:'-','wide')}${item('Alerta',s.alertaTexto||'Sem alerta','wide')}</div><h3>Itens da solicitação</h3>${itensHtml}
     ${canEdit?`<hr><button class="danger-btn" onclick="delSol('${s.id}')">Excluir solicitação completa</button>`:''}
     <h4>Histórico</h4><ul>${(s.historico||[]).map(h=>`<li>${fmtDateTime(h.data)} - ${esc(h.usuario)}: ${esc(h.acao)}</li>`).join('')}</ul>`;
   const paginaAtual=document.querySelector('.page.active')?.id||'solicitacoes'; if(paginaAtual!=='detalhe') state.previousPage=paginaAtual; $('#detailPageTitle').textContent='Detalhes da Solicitação PMC'; showPage('detalhe');
@@ -506,43 +506,43 @@ window.downloadPedidoPdf=function(id){
   const line=()=>{commands.push(`0.75 w 45 ${y} m 550 ${y} l S`); y-=12;};
   const ensure=(needed=70)=>{if(y<needed) addPage();};
   const wrapped=(value,x=45,size=9,max=96,bold=false)=>{pdfWrap(value,max).forEach(l=>{ensure(55);text(l,x,size,bold);});};
-  const field=(label,value)=>{ensure(52); text(label,45,8,true); wrapped(value||'-',45,10,94,false);};
   const header=()=>{
     commands.push('0.13 0.27 0.58 rg 0 812 595 30 re f');
-    commands.push(`BT /F2 14 Tf 45 821 Td (${pdfWinAnsi('SISTEMA FIEMG - PMC DIGITAL')}) Tj ET`);
-    commands.push(`BT /F1 8 Tf 430 821 Td (${pdfWinAnsi('Página '+pageNo)}) Tj ET`);
+    commands.push(`BT /F2 14 Tf 45 821 Td (${pdfWinAnsi('SOLICITAÇÃO DE COTAÇÃO')}) Tj ET`);
+    commands.push(`BT /F1 8 Tf 460 821 Td (${pdfWinAnsi('Página '+pageNo)}) Tj ET`);
     y=792;
   };
   header();
-  text('SOLICITAÇÃO DE COTAÇÃO',45,16,true);
-  text('SESI Dom Bosco - São João del-Rei',45,10,true);
-  text('Documento gerado em '+new Date().toLocaleString('pt-BR'),45,8,false); line();
-  field('IDENTIFICAÇÃO DA PMC', 'PMC '+String(s.id).slice(0,8).toUpperCase());
-  field('Solicitante', s.solicitante+' | Setor: '+s.setor);
-  field('Data do pedido / Data da necessidade', fmtDate(s.criadoEm)+' / '+(s.dataNecessidade?fmtDate(s.dataNecessidade):'-'));
-  field('Unidade / Entidade', (s.unidade||'-')+' / '+(s.entidade||'-'));
-  field('Centro de custo / Classe de valor', s.centroCusto||'-');
-  field('Finalidade / Urgência', (s.finalidade||'-')+' / '+(s.urgencia||'-'));
-  field('Justificativa técnica', s.justificativa||'-');
-  line(); text('ITENS PARA COTAÇÃO',45,12,true);
+  text('ITENS PARA COTAÇÃO',45,16,true);
+  wrapped('Preencha o valor unitário e o valor total de cada item. Ao final, informe o valor total geral do orçamento.',45,9,100,false);
+  line();
   (s.itens||[]).forEach((i,idx)=>{
-    ensure(180); commands.push(`0.92 0.95 0.99 rg 42 ${y-105} 511 112 re f`); commands.push(`0.13 0.27 0.58 RG 0.8 w 42 ${y-105} 511 112 re S`);
+    ensure(170);
+    commands.push(`0.96 0.97 0.99 rg 42 ${y-112} 511 120 re f`);
+    commands.push(`0.13 0.27 0.58 RG 0.8 w 42 ${y-112} 511 120 re S`);
     text(`ITEM ${idx+1}`,50,11,true);
-    wrapped(`Código Protheus: ${i.codigoProduto||'-'} | Família: ${familiaLabel(i.familia)}`,50,9,88,true);
+    wrapped(`Código: ${i.codigoProduto||'-'}`,50,9,88,true);
     wrapped(`Descrição: ${i.descricao||'-'}`,50,9,88,false);
-    wrapped(`Quantidade solicitada: ${i.quantidade||'-'} ${i.unMedida||''}`,50,9,88,false);
-    if(i.linkReferencia) wrapped(`Referência: ${i.linkReferencia}`,50,8,90,false);
-    text('Preenchimento do fornecedor: Marca/Modelo: ______________________________',50,8,false);
-    text('Valor unitário: R$ ______________  Valor total: R$ ______________',50,8,false);
+    wrapped(`Quantidade: ${i.quantidade||'-'} ${i.unMedida||''}`,50,9,88,false);
+    text('Marca/Modelo: ______________________________________________________',50,8,false);
+    text('Valor unitário: R$ ____________________',50,8,false);
+    text('Valor total do item: R$ _______________',50,8,false);
     y-=12;
   });
-  ensure(230); line(); text('DADOS DO FORNECEDOR',45,12,true);
-  ['Razão social: ________________________________________________________________','CNPJ: ______________________________  Contato: ______________________________','E-mail: _______________________________________  Telefone: ____________________','Prazo de entrega: __________________  Validade da proposta: __________________','Condição de pagamento: ______________________________________________________','Frete e demais condições: ___________________________________________________'].forEach(v=>text(v,45,9,false));
-  y-=8; wrapped('Orientação: informe os valores individualmente para cada produto. Quando possível, utilize o Modelo Padrão de Orçamento FIEMG disponibilizado pela unidade.',45,8,100,false);
-  ensure(100); y-=20; text('Responsável pelo orçamento: _________________________________________________',45,9,false); text('Data: ____/____/________   Assinatura: ______________________________________',45,9,false);
+  ensure(170); line();
+  text('RESUMO DO ORÇAMENTO',45,12,true);
+  y-=8;
+  text('Valor total geral do orçamento: R$ __________________________________________',45,10,true);
+  y-=8;
+  text('Observações do fornecedor:',45,9,true);
+  text('_____________________________________________________________________________',45,9,false);
+  text('_____________________________________________________________________________',45,9,false);
+  text('_____________________________________________________________________________',45,9,false);
+  y-=10;
+  text('Data: ____/____/________',45,9,false);
   pages.push(commands.join('\n'));
-  const blob=createSimplePdf(pages); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`PMC_${String(s.id).slice(0,8).toUpperCase()}_Solicitacao_Cotacao.pdf`; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500);
-  toast('PDF do pedido gerado para envio ao fornecedor.');
+  const blob=createSimplePdf(pages); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`Cotacao_${String(s.id).slice(0,8).toUpperCase()}.pdf`; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500);
+  toast('PDF simplificado para cotação gerado.');
 }
 
 function exportCsv(){
