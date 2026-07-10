@@ -53,6 +53,10 @@
         <div class="header-session">
           <div class="header-session-person"><strong id="mainHeaderUserName">Usuário</strong><span id="mainHeaderUserSetor">Setor</span></div>
           <div class="header-session-role"><strong id="mainHeaderUserPerfil">Perfil</strong><span id="mainHeaderDateTime">--/--/---- --:--</span></div>
+          <div class="header-report-actions" aria-label="Ações de relatório">
+            <button id="exportCsvBtn" type="button">Exportar CSV</button>
+            <button id="printPdfBtn" type="button" onclick="window.print()">Imprimir/PDF</button>
+          </div>
           <button id="logoutBtn" type="button" aria-label="Sair do sistema">Sair</button>
         </div>
       </div>
@@ -68,15 +72,6 @@
     </header>
 
     <section class="content">
-      <header class="topbar">
-        <div>
-          <p class="eyebrow">Sistema FIEMG</p>
-          <h2 id="pageTitle">Dashboard</h2>
-          <p id="pageSubtitle">Acompanhe cada produto solicitado, comprador responsável, status individual e data de finalização.</p>
-        </div>
-        <div class="top-actions"><button id="exportCsvBtn">Exportar CSV</button><button onclick="window.print()">Imprimir/PDF</button></div>
-      </header>
-
       <section id="dashboard" class="page active">
         <div class="dashboard-welcome">
           <div>

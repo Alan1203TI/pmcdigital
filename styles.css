@@ -318,3 +318,13 @@ body.modal-open{overflow:hidden}
 
 /* Regra final de visibilidade por perfil: supera o display:flex do menu horizontal. */
 .horizontal-nav .nav.hidden, .horizontal-nav .nav[hidden], .quick-action.hidden, .quick-action[hidden]{display:none!important;}
+
+/* Ações de relatório integradas ao cabeçalho principal */
+.header-report-actions{display:flex;align-items:center;gap:8px;padding-left:14px;border-left:1px solid var(--line)}
+.header-report-actions button{padding:8px 12px;background:#fff;color:var(--fiemg-blue);border:1px solid #cfd9ea;border-radius:7px;font-size:12px;font-weight:700;white-space:nowrap}
+.header-report-actions button:hover{background:#f3f7ff;border-color:#98afe0}
+/* O título/subtítulo duplicado da página foi removido; o conteúdo começa diretamente no painel */
+.content{padding-top:16px!important}
+@media(max-width:1050px){.header-session{gap:10px}.header-report-actions{padding-left:8px}.header-report-actions button{padding:7px 9px;font-size:11px}.header-session-person,.header-session-role{min-width:105px}}
+@media(max-width:760px){.header-report-actions{order:3;width:100%;border-left:0;padding-left:0;justify-content:flex-end}.header-session{flex-wrap:wrap;justify-content:flex-end}.header-report-actions button{flex:0 0 auto}}
+@media(max-width:520px){.header-report-actions button{font-size:0;padding:8px 10px}.header-report-actions #exportCsvBtn:after{content:'CSV';font-size:11px}.header-report-actions #printPdfBtn:after{content:'PDF';font-size:11px}}
