@@ -78,27 +78,30 @@
       </header>
 
       <section id="dashboard" class="page active">
-        <div class="hero-panel">
+        <div class="dashboard-welcome">
           <div>
-            <p class="eyebrow">Solicitação Digital de Compras</p>
-            <h3>Controle PMC com regra de 90 dias por família</h3>
-            <p>Consulte compras já realizadas, acompanhe seus pedidos e registre solicitações com múltiplos itens.</p>
+            <p class="eyebrow">Sistema FIEMG • SESI Dom Bosco</p>
+            <h3>Gestão simples e transparente das solicitações de compra</h3>
+            <p>Acompanhe pedidos, consulte o budget por família e registre uma nova PMC em poucos passos.</p>
           </div>
-          <button class="primary quick-action" data-page="nova">+ Nova PMC</button>
+          <button class="dashboard-new-pmc quick-action" data-page="nova" type="button">
+            <span class="dashboard-new-pmc-icon">＋</span>
+            <span><b>Nova PMC</b><small>Criar solicitação de compra</small></span>
+          </button>
         </div>
 
-        <div class="quick-grid">
-          <button class="action-card quick-action" data-page="solicitacoes"><span>📝</span><b>Meus Pedidos</b><small>Acompanhar minhas solicitações</small></button>
-          <button class="action-card quick-action" data-page="solicitacoes"><span>🌎</span><b>Pedidos Gerais</b><small>Pesquisar compras da unidade</small></button>
-          <button class="action-card quick-action" data-page="nova"><span>🛒</span><b>Nova Solicitação</b><small>Adicionar um ou mais itens</small></button>
-          <button class="action-card quick-action" data-page="referencias"><span>💰</span><b>Budget de Valor</b><small>Saldo disponível por família</small></button>
+        <div class="dashboard-shortcuts">
+          <button class="dashboard-shortcut quick-action" data-page="solicitacoes" type="button"><span class="shortcut-icon">📋</span><span><b>Meus pedidos</b><small>Acompanhar solicitações</small></span><span class="shortcut-arrow">›</span></button>
+          <button class="dashboard-shortcut quick-action" data-page="solicitacoes" type="button"><span class="shortcut-icon">📦</span><span><b>Pedidos gerais</b><small>Consultar compras da unidade</small></span><span class="shortcut-arrow">›</span></button>
+          <button class="dashboard-shortcut quick-action" data-page="referencias" type="button"><span class="shortcut-icon">💰</span><span><b>Budget</b><small>Saldo disponível por família</small></span><span class="shortcut-arrow">›</span></button>
+          <button class="dashboard-shortcut quick-action compras-only" data-page="compradora" type="button"><span class="shortcut-icon">🛒</span><span><b>Área da compradora</b><small>Atualizar itens e entregas</small></span><span class="shortcut-arrow">›</span></button>
         </div>
 
-        <div class="cards">
-          <div class="card kpi"><span>Meus pedidos</span><b id="kpiMeus">0</b></div>
-          <div class="card kpi"><span>Pedidos geral</span><b id="kpiTotal">0</b></div>
-          <div class="card kpi"><span>Pendentes</span><b id="kpiPendentes">0</b></div>
-          <div class="card kpi danger"><span>Alertas 90 dias</span><b id="kpiAlertas">0</b></div>
+        <div class="cards dashboard-kpis">
+          <div class="card kpi dashboard-kpi"><span>Meus pedidos</span><b id="kpiMeus">0</b><small>Solicitações registradas por você</small></div>
+          <div class="card kpi dashboard-kpi"><span>Pedidos gerais</span><b id="kpiTotal">0</b><small>Total de PMCs cadastradas</small></div>
+          <div class="card kpi dashboard-kpi warning"><span>Pendentes</span><b id="kpiPendentes">0</b><small>Itens aguardando andamento</small></div>
+          <div class="card kpi dashboard-kpi danger"><span>Alertas 90 dias</span><b id="kpiAlertas">0</b><small>Famílias que exigem atenção</small></div>
         </div>
         <div class="panel filters dashboard-search">
           <input id="buscaDashboard" placeholder="Pesquisar por código Protheus, produto, família, comprador ou solicitante...">
@@ -225,6 +228,7 @@
   </main>
 
   <dialog id="fragmentDialog" class="fragment-dialog"><div id="fragmentContent"></div><div class="dialog-actions"><button id="cancelFragment" type="button">Voltar e revisar</button><button id="confirmFragment" class="primary" type="button">Salvar mesmo assim</button></div></dialog>
+  <dialog id="historyDialog" class="history-dialog"><div class="history-dialog-head"><div><p class="eyebrow">Rastreabilidade da solicitação</p><h3 id="historyDialogTitle">Histórico da PMC</h3></div><button id="historyDialogClose" type="button" aria-label="Fechar">×</button></div><div id="historyDialogContent" class="history-timeline"></div><div class="dialog-actions"><button id="historyDialogOk" class="primary" type="button">Fechar</button></div></dialog>
   <dialog id="messageDialog" class="m365-dialog"><div class="m365-dialog-head"><span class="m365-dialog-icon">i</span><div><h3 id="messageDialogTitle">Aviso</h3><p id="messageDialogText"></p></div></div><div class="dialog-actions"><button id="messageDialogOk" class="primary" type="button">Entendi</button></div></dialog>
   <dialog id="confirmDialog" class="m365-dialog"><div class="m365-dialog-head"><span class="m365-dialog-icon warning">!</span><div><h3 id="confirmDialogTitle">Confirmar ação</h3><p id="confirmDialogText"></p></div></div><div class="dialog-actions"><button id="confirmDialogCancel" type="button">Cancelar</button><button id="confirmDialogOk" class="primary" type="button">Confirmar</button></div></dialog>
   <script type="module" src="app.js"></script>
