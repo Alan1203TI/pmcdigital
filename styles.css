@@ -173,3 +173,64 @@ dialog:not(.fragment-dialog)::backdrop{background:rgba(15,23,42,.48);backdrop-fi
 .detail-document-actions{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 16px;margin-bottom:16px;border:1px solid #cbd9ee;border-left:4px solid var(--senai-blue);border-radius:7px;background:#f7faff}
 .detail-document-actions span{color:var(--muted);font-size:13px}.pdf-order-btn{width:auto!important;min-width:210px}.table-action-stack{display:flex;flex-direction:column;align-items:flex-start;gap:6px}.table-action-stack button{width:100%;white-space:nowrap}.pdf-inline-btn{border-color:#9cb7df!important;background:#f5f9ff!important;color:var(--fiemg-blue)!important}
 @media(max-width:700px){.supplier-doc{grid-template-columns:1fr!important}.supplier-doc-actions{justify-content:flex-start}.detail-document-actions{align-items:flex-start;flex-direction:column}.pdf-order-btn{width:100%!important}.supplier-doc-delete{min-width:72px!important}}
+
+/* Área da compradora compacta — mais itens visíveis sem rolagem excessiva */
+.detail-page-content.buyer-compact{padding:12px!important}
+.buyer-compact>h3{font-size:17px;margin:12px 0 7px;color:var(--fiemg-blue)}
+.buyer-compact .detail-document-actions{padding:8px 10px;margin-bottom:9px;min-height:42px}
+.buyer-compact .detail-document-actions span{font-size:11px}
+.buyer-compact .pdf-order-btn{min-width:185px!important;padding:8px 11px!important;font-size:12px}
+.buyer-compact>.detail-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.buyer-compact>.detail-grid>div{padding:7px 8px;min-height:46px;font-size:12px}
+.buyer-compact>.detail-grid small{font-size:10px;display:block;margin-bottom:2px}
+.buyer-compact>.detail-grid .wide{grid-column:span 2}
+.buyer-compact .detail-item{padding:9px!important;margin:8px 0!important;border-left:4px solid var(--senai-blue);box-shadow:none}
+.buyer-compact .detail-item>h4{margin:0 0 6px;font-size:14px;color:var(--fiemg-blue)}
+.buyer-compact .detail-item>.detail-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
+.buyer-compact .detail-item>.detail-grid>div{padding:6px 7px;min-height:43px;font-size:11px;border-radius:5px}
+.buyer-compact .detail-item>.detail-grid small{font-size:9px;display:block;margin-bottom:2px}
+.buyer-compact .detail-item>.detail-grid .wide{grid-column:span 2}
+.buyer-compact .produto-img{max-width:120px;max-height:80px}
+.buyer-compact .item-editor{margin-top:7px;padding:8px;border-radius:6px}
+.buyer-compact .item-editor>h4{margin:0 0 6px;font-size:13px}
+.buyer-compact .editor-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.buyer-compact .item-editor label{margin:3px 0;font-size:10px}
+.buyer-compact .item-editor input,.buyer-compact .item-editor select,.buyer-compact .item-editor textarea{padding:6px 8px;margin-top:3px;font-size:11px;min-height:31px}
+.buyer-compact .item-editor textarea{min-height:48px}
+.buyer-compact .family-budget{margin:6px 0}
+.buyer-compact .family-balance{padding:5px 7px;font-size:10px}
+.buyer-compact .supplier-doc-box{margin:7px 0;padding:8px}
+.buyer-compact .supplier-title{gap:8px;align-items:center}
+.buyer-compact .supplier-title h5{font-size:13px;margin:0 0 2px}
+.buyer-compact .supplier-title p{font-size:10px;margin:0;line-height:1.25}
+.buyer-compact .template-download{min-height:30px;padding:5px 8px;font-size:10px}
+.buyer-compact .quote-analysis{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin:6px 0}
+.buyer-compact .quote-analysis>div{padding:6px 7px}
+.buyer-compact .quote-analysis small{font-size:9px}
+.buyer-compact .quote-analysis b{font-size:13px;margin-top:1px}
+.buyer-compact .quote-analysis span{font-size:9px}
+.buyer-compact .quote-note{font-size:9px;margin:4px 0}
+.buyer-compact .quote-form{grid-template-columns:repeat(4,minmax(0,1fr))}
+.buyer-compact .quote-form .wide{grid-column:span 2}
+.buyer-compact .quote-actions{margin:6px 0;gap:7px}
+.buyer-compact .quote-actions button{padding:6px 9px;font-size:10px}
+.buyer-compact .ocr-status{font-size:9px;flex:1}
+.buyer-compact .ocr-preview{padding:7px;margin-bottom:6px;font-size:10px}
+.buyer-compact .supplier-doc-list{gap:4px;margin-top:6px}
+.buyer-compact .supplier-doc{padding:6px!important;gap:2px 7px!important;font-size:10px}
+.buyer-compact .supplier-doc strong{font-size:11px}
+.buyer-compact .supplier-doc span,.buyer-compact .supplier-doc small{font-size:9px!important;margin-top:1px}
+.buyer-compact .supplier-doc-download,.buyer-compact .supplier-doc-delete{min-height:26px!important;padding:4px 7px!important;font-size:9px!important}
+.buyer-compact .cheapest-tag{font-size:8px;padding:1px 5px}
+.buyer-compact .item-editor>.primary{padding:7px 11px;font-size:11px;width:auto}
+.buyer-compact>hr{margin:10px 0}
+.buyer-compact>h4{margin:10px 0 5px;font-size:13px}
+.buyer-compact>ul{font-size:10px;line-height:1.35;margin:5px 0;padding-left:20px;max-height:110px;overflow:auto}
+@media(max-width:1200px){
+  .buyer-compact>.detail-grid,.buyer-compact .detail-item>.detail-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .buyer-compact .editor-grid,.buyer-compact .quote-form{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:700px){
+  .buyer-compact>.detail-grid,.buyer-compact .detail-item>.detail-grid,.buyer-compact .editor-grid,.buyer-compact .quote-form,.buyer-compact .quote-analysis{grid-template-columns:1fr}
+  .buyer-compact>.detail-grid .wide,.buyer-compact .detail-item>.detail-grid .wide,.buyer-compact .quote-form .wide{grid-column:1}
+}
