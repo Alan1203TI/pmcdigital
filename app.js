@@ -131,15 +131,30 @@ function showLoggedOut(){
   clearInterval(window.__pmcClock); document.body.classList.remove('app-mode'); document.body.classList.add('auth-mode');
   $('#appView').classList.add('hidden'); $('#loginView').classList.remove('hidden'); toggleAuth('login');
 }
+function paginasPermitidasPorPerfil(perfil){
+  const mapa={
+    solicitante:['dashboard','nova','referencias','detalhe'],
+    compras:['dashboard','nova','referencias','detalhe'],
+    gestor:['dashboard','nova','solicitacoes','referencias','compradora','detalhe'],
+    admin:['dashboard','nova','solicitacoes','referencias','compradora','usuarios','config','detalhe']
+  };
+  return mapa[perfil]||mapa.solicitante;
+}
 function showLoggedIn(){
   const u=state.user; document.body.classList.remove('auth-mode'); document.body.classList.add('app-mode');
   $('#loginView').classList.add('hidden'); $('#appView').classList.remove('hidden'); updateHeaderClock();
   clearInterval(window.__pmcClock); window.__pmcClock=setInterval(updateHeaderClock,30000);
   $('#solicitante').value=u.nome; $('#setor').value=u.setor||'';
-  $$('.admin-only').forEach(el=>el.style.display = u.perfil==='admin'?'block':'none');
-  $$('.compras-only').forEach(el=>el.style.display = ['admin','gestor'].includes(u.perfil)?'block':'none');
-  // Perfil compras: somente Dashboard, Budget e Nova PMC, conforme regra definida.
-  $$('.nav').forEach(el=>{ if(u.perfil==='compras') el.style.display=['dashboard','referencias','nova'].includes(el.dataset.page)?'flex':'none'; else if(!el.classList.contains('admin-only')&&!el.classList.contains('compras-only')) el.style.display='flex'; });
+
+  const permitidas=paginasPermitidasPorPerfil(u.perfil);
+  $$('.nav').forEach(el=>{
+    el.style.display=permitidas.includes(el.dataset.page)?'flex':'none';
+  });
+  $$('.quick-action').forEach(el=>{
+    const pagina=el.dataset.page;
+    el.style.display=(!pagina||permitidas.includes(pagina))?'flex':'none';
+  });
+
   showPage('dashboard'); renderAll();
 }
 function toast(msg, title='PMC Digital'){
@@ -220,9 +235,8 @@ function firebaseErrorMessage(err){
   return m[err.code]||err.message||'Não foi possível concluir a operação.';
 }
 function showPage(id){
-  if(id==='usuarios' && state.user?.perfil!=='admin') id='dashboard';
-  if(id==='compradora' && !['admin','gestor'].includes(state.user?.perfil)) id='dashboard';
-  if(state.user?.perfil==='compras' && !['dashboard','referencias','nova'].includes(id)) id='dashboard';
+  const permitidas=paginasPermitidasPorPerfil(state.user?.perfil||'solicitante');
+  if(!permitidas.includes(id)) id='dashboard';
   $$('.page').forEach(p=>p.classList.toggle('active',p.id===id));
   $$('.nav').forEach(n=>n.classList.toggle('active',n.dataset.page===id));
   const titles={dashboard:['Dashboard','Meus pedidos, pedidos geral, status e consulta de compras realizadas.'],nova:['Nova Solicitação','Adicione um ou mais itens na mesma PMC.'],solicitacoes:['Meus / Pedidos Gerais','Consulte por código Protheus, produto, família, solicitante ou comprador.'],referencias:['Budget de Valor','Saldo disponível por família conforme o limite móvel de 90 dias.'],compradora:['Área da Compradora','Controle exclusivo das PMC solicitadas, com atualização por produto/item.'],usuarios:['Usuários','Gerencie perfis e acessos cadastrados.'],detalhe:['Detalhes da PMC','Visualização e atualização em página completa.'],config:['Configurações','Regras do sistema.']};

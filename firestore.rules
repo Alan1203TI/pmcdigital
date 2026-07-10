@@ -5,12 +5,20 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    function profilePath() {
+      return /databases/$(database)/documents/pmcUsuarios/$(request.auth.uid);
+    }
+
+    function profileExists() {
+      return signedIn() && exists(profilePath());
+    }
+
     function profile() {
-      return get(/databases/$(database)/documents/pmcUsuarios/$(request.auth.uid)).data;
+      return get(profilePath()).data;
     }
 
     function active() {
-      return signedIn() && profile().ativo == true;
+      return profileExists() && profile().ativo == true;
     }
 
     function isAdmin() {
@@ -26,17 +34,22 @@ service cloud.firestore {
     }
 
     match /pmcUsuarios/{uid} {
+      // Cada usuário pode consultar o próprio perfil. O administrador pode consultar todos.
+      allow get: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow list: if isAdmin();
+
+      // Cadastro público sempre cria perfil solicitante e ativo.
+      // O e-mail principal pode criar o primeiro administrador.
       allow create: if signedIn()
         && request.auth.uid == uid
         && request.resource.data.email == request.auth.token.email
+        && request.resource.data.ativo == true
         && (
-          (request.resource.data.perfil == 'solicitante' && request.resource.data.ativo == true)
-          ||
-          (isMainAdminEmail() && request.resource.data.perfil == 'admin')
+          request.resource.data.perfil == 'solicitante'
+          || (isMainAdminEmail() && request.resource.data.perfil == 'admin')
         );
 
-      allow read: if active() && (request.auth.uid == uid || isAdmin());
-
+      // Perfis só podem ser alterados pelo administrador.
       allow update: if isAdmin()
         && request.resource.data.email == resource.data.email;
 
@@ -48,12 +61,8 @@ service cloud.firestore {
         && request.resource.data.solicitanteUid == request.auth.uid
         && request.resource.data.solicitanteEmail == request.auth.token.email;
 
-      // Todos os colaboradores autenticados podem consultar pedidos gerais e o Budget.
       allow read: if active();
-
-      // Somente Compras, Gestor ou Administrador podem alterar status, valores e orçamentos.
       allow update: if isBuyer();
-
       allow delete: if isAdmin();
     }
 
@@ -63,7 +72,6 @@ service cloud.firestore {
       allow delete: if false;
     }
 
-
     match /pmcContadores/{id} {
       allow read: if active();
       allow create: if active() && id == 'pedidos' && request.resource.data.ultimo == 1;
@@ -71,6 +79,7 @@ service cloud.firestore {
         && request.resource.data.ultimo == resource.data.ultimo + 1;
       allow delete: if false;
     }
+
     match /pmcHistorico/{id} {
       allow read: if active();
       allow create: if active();
