@@ -70,7 +70,7 @@ const ADMIN_EMAIL = 'a.camilo@fiemg.com.br';
 const ADMIN_PASSWORD = 'K@ua2510@#$%';
 let state = {user:null, usuarios:[], solicitacoes:[], refs:{finalidades:[], servicosProtheus:[], centrosClasseValor:[]}, config:{diasRegra:90, limiteFamilia:3000}};
 
-async function start(){ await loadRefs(); loadLocal(); seedAdmin(); bind(); renderAll(); }
+async function start(){ document.body.classList.add('auth-mode'); document.body.classList.remove('app-mode'); $('#loginView').classList.remove('hidden'); $('#appView').classList.add('hidden'); await loadRefs(); loadLocal(); seedAdmin(); bind(); renderAll(); }
 async function loadRefs(){
   try{ state.refs = await fetch('./data/referencias.json').then(r=>r.json()); }
   catch(e){ state.refs = {finalidades:[], servicosProtheus:[], centrosClasseValor:[]}; }
@@ -101,9 +101,13 @@ function confirmAction(message, onConfirm, title='Confirmar ação'){
   $('#confirmDialogCancel').onclick=()=>dlg.close(); $('#confirmDialogOk').onclick=()=>{dlg.close(); onConfirm();}; dlg.showModal();
 }
 function updateHeaderClock(){
-  if(!state.user) return; $('#headerUserName').textContent=state.user.nome||'-'; $('#headerUserSetor').textContent=state.user.setor||'Sem setor';
-  $('#headerUserPerfil').textContent=(state.user.perfil||'solicitante').replace(/^./,c=>c.toUpperCase());
-  $('#headerDateTime').textContent=new Intl.DateTimeFormat('pt-BR',{dateStyle:'short',timeStyle:'short'}).format(new Date());
+  if(!state.user) return;
+  const perfil=(state.user.perfil||'solicitante').replace(/^./,c=>c.toUpperCase());
+  const agora=new Intl.DateTimeFormat('pt-BR',{dateStyle:'short',timeStyle:'short'}).format(new Date());
+  $('#mainHeaderUserName').textContent=state.user.nome||'-';
+  $('#mainHeaderUserSetor').textContent=state.user.setor||'Sem setor';
+  $('#mainHeaderUserPerfil').textContent=perfil;
+  $('#mainHeaderDateTime').textContent=agora;
 }
 function bind(){
   $('#loginForm').onsubmit = e => {e.preventDefault(); login();};
@@ -111,7 +115,7 @@ function bind(){
   $('#showLoginBtn').onclick = () => toggleAuth('login');
   $('#showRegisterBtn').onclick = () => toggleAuth('register');
   $('#backDetailBtn').onclick = () => showPage(state.previousPage||'solicitacoes');
-  $('#logoutBtn').onclick = () => {state.user=null; $('#appView').classList.add('hidden'); $('#loginView').classList.remove('hidden');};
+  $('#logoutBtn').onclick = () => {state.user=null; clearInterval(window.__pmcClock); document.body.classList.remove('app-mode'); document.body.classList.add('auth-mode'); $('#appView').classList.add('hidden'); $('#loginView').classList.remove('hidden'); toggleAuth('login');};
   $$('.nav').forEach(b=>b.onclick=()=>showPage(b.dataset.page));
   $$('.quick-action').forEach(b=>b.onclick=()=>showPage(b.dataset.page));
   $('#solicitacaoForm').onsubmit = e => {e.preventDefault(); salvarSolicitacao();};
@@ -145,8 +149,8 @@ function login(){
   const email=$('#loginEmail').value.trim().toLowerCase(); const senha=$('#loginSenha').value;
   const u=state.usuarios.find(x=>x.email.toLowerCase()===email && x.senha===senha);
   if(!u) return toast('Usuário ou senha inválidos.');
-  state.user=u; $('#loginView').classList.add('hidden'); $('#appView').classList.remove('hidden'); updateHeaderClock(); clearInterval(window.__pmcClock); window.__pmcClock=setInterval(updateHeaderClock,30000);
-  $('#solicitante').value=u.nome; $('#setor').value=u.setor||''; $('#userBox').innerHTML=`<b>${u.nome}</b><br>${u.perfil}`;
+  state.user=u; document.body.classList.remove('auth-mode'); document.body.classList.add('app-mode'); $('#loginView').classList.add('hidden'); $('#appView').classList.remove('hidden'); updateHeaderClock(); clearInterval(window.__pmcClock); window.__pmcClock=setInterval(updateHeaderClock,30000);
+  $('#solicitante').value=u.nome; $('#setor').value=u.setor||'';
   $$('.admin-only').forEach(el=>el.style.display = u.perfil==='admin'?'block':'none');
   $$('.compras-only').forEach(el=>el.style.display = ['admin','compras','gestor'].includes(u.perfil)?'block':'none');
   showPage('dashboard'); renderAll();

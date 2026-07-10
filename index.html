@@ -6,7 +6,7 @@
   <title>Sistema FIEMG | PMC Digital</title>
   <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body class="auth-mode">
   <div id="toast" class="toast hidden"></div>
 
   <section id="loginView" class="login-shell">
@@ -17,8 +17,8 @@
         <p class="unit-name">SESI Dom Bosco – São João del-Rei</p><p class="system-name">PMC • Solicitação Digital de Compras</p>
       </div>
       <div class="auth-tabs">
-        <button id="showLoginBtn" class="auth-tab active" type="button">Já tenho cadastro</button>
-        <button id="showRegisterBtn" class="auth-tab" type="button">Criar meu usuário</button>
+        <button id="showLoginBtn" class="auth-tab active" type="button">Entrar</button>
+        <button id="showRegisterBtn" class="auth-tab" type="button">Cadastrar</button>
       </div>
       <form id="loginForm" class="form-grid compact auth-form">
         <label>E-mail<input id="loginEmail" type="email" autocomplete="username" required></label>
@@ -46,16 +46,20 @@
           <img src="assets/logo-fiemg.png" alt="Sistema FIEMG">
           <div><strong>PMC Digital</strong><span>SESI Dom Bosco • São João del-Rei</span></div>
         </div>
-        <div class="header-user-actions"><span id="userBox"></span><button id="logoutBtn" type="button">Sair</button></div>
+        <div class="header-session">
+          <div class="header-session-person"><strong id="mainHeaderUserName">Usuário</strong><span id="mainHeaderUserSetor">Setor</span></div>
+          <div class="header-session-role"><strong id="mainHeaderUserPerfil">Perfil</strong><span id="mainHeaderDateTime">--/--/---- --:--</span></div>
+          <button id="logoutBtn" type="button" aria-label="Sair do sistema">Sair</button>
+        </div>
       </div>
       <nav class="horizontal-nav" aria-label="Menu principal">
-        <button data-page="dashboard" class="nav active"><span class="nav-icon">⌂</span><span>Dashboard</span></button>
-        <button data-page="nova" class="nav"><span class="nav-icon">＋</span><span>Nova PMC</span></button>
-        <button data-page="solicitacoes" class="nav"><span class="nav-icon">▤</span><span>Pedidos</span></button>
-        <button data-page="referencias" class="nav"><span class="nav-icon">$</span><span>Budget</span></button>
-        <button data-page="compradora" class="nav compras-only"><span class="nav-icon">✓</span><span>Compradora</span></button>
-        <button data-page="usuarios" class="nav admin-only"><span class="nav-icon">♙</span><span>Usuários</span></button>
-        <button data-page="config" class="nav admin-only"><span class="nav-icon">⚙</span><span>Configurações</span></button>
+        <button data-page="dashboard" class="nav active"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5M5 10.5V20h5v-6h4v6h5v-9.5"/></svg></span><span>Dashboard</span></button>
+        <button data-page="nova" class="nav"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span><span>Nova PMC</span></button>
+        <button data-page="solicitacoes" class="nav"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12v16H6zM9 8h6M9 12h6M9 16h4"/></svg></span><span>Pedidos</span></button>
+        <button data-page="referencias" class="nav"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M17 7.5c0-1.9-2.2-3-5-3s-5 1.1-5 3 1.7 2.8 5 3.5 5 1.6 5 3.7-2.2 3.3-5 3.3-5-1.2-5-3.3"/></svg></span><span>Budget</span></button>
+        <button data-page="compradora" class="nav compras-only"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5 9 17l11-11M4 5h5M4 9h3M14 19h6"/></svg></span><span>Compradora</span></button>
+        <button data-page="usuarios" class="nav admin-only"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 21c.7-4.3 3.3-6.5 8-6.5s7.3 2.2 8 6.5"/></svg></span><span>Usuários</span></button>
+        <button data-page="config" class="nav admin-only"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7ZM19 12l2-1-2-4-2 .5-1.5-1L15 4h-6l-.5 2.5-1.5 1L5 7l-2 4 2 1v2l-2 1 2 4 2-.5 1.5 1L9 22h6l.5-2.5 1.5-1 2 .5 2-4-2-1z"/></svg></span><span>Configurações</span></button>
       </nav>
     </header>
 
@@ -66,7 +70,7 @@
           <h2 id="pageTitle">Dashboard</h2>
           <p id="pageSubtitle">Acompanhe cada produto solicitado, comprador responsável, status individual e data de finalização.</p>
         </div>
-        <div class="topbar-right"><div class="session-card"><div><b id="headerUserName">Usuário</b><span id="headerUserSetor">Setor</span></div><div><b id="headerUserPerfil">Perfil</b><span id="headerDateTime">--/--/---- --:--</span></div></div><div class="top-actions"><button id="exportCsvBtn">Exportar CSV</button><button onclick="window.print()">Imprimir/PDF</button></div></div>
+        <div class="top-actions"><button id="exportCsvBtn">Exportar CSV</button><button onclick="window.print()">Imprimir/PDF</button></div>
       </header>
 
       <section id="dashboard" class="page active">
