@@ -92,7 +92,19 @@ function seedAdmin(){
   else { admin.nome='Alan Camilo Rodrigues'; admin.senha=ADMIN_PASSWORD; admin.perfil='admin'; }
   saveLocal();
 }
-function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.remove('hidden'); setTimeout(()=>t.classList.add('hidden'),3500); }
+function toast(msg, title='PMC Digital'){
+  const dlg=$('#messageDialog'); $('#messageDialogTitle').textContent=title; $('#messageDialogText').textContent=msg;
+  $('#messageDialogOk').onclick=()=>dlg.close(); if(!dlg.open) dlg.showModal();
+}
+function confirmAction(message, onConfirm, title='Confirmar ação'){
+  const dlg=$('#confirmDialog'); $('#confirmDialogTitle').textContent=title; $('#confirmDialogText').textContent=message;
+  $('#confirmDialogCancel').onclick=()=>dlg.close(); $('#confirmDialogOk').onclick=()=>{dlg.close(); onConfirm();}; dlg.showModal();
+}
+function updateHeaderClock(){
+  if(!state.user) return; $('#headerUserName').textContent=state.user.nome||'-'; $('#headerUserSetor').textContent=state.user.setor||'Sem setor';
+  $('#headerUserPerfil').textContent=(state.user.perfil||'solicitante').replace(/^./,c=>c.toUpperCase());
+  $('#headerDateTime').textContent=new Intl.DateTimeFormat('pt-BR',{dateStyle:'short',timeStyle:'short'}).format(new Date());
+}
 function bind(){
   $('#loginForm').onsubmit = e => {e.preventDefault(); login();};
   $('#registerForm').onsubmit = e => {e.preventDefault(); registerUser();};
@@ -111,7 +123,7 @@ function bind(){
   $('#refBusca').oninput = renderReferencias; $('#budgetSituacao').onchange = renderReferencias;
   $('#exportCsvBtn').onclick = exportCsv;
   $('#salvarConfig').onclick = () => {state.config.diasRegra = Number($('#diasRegra').value||90); state.config.limiteFamilia = Number($('#limiteFamilia').value||3000); saveLocal(); toast('Configuração salva.'); renderAll();};
-  $('#limparDemo').onclick = () => { if(confirm('Apagar todas as solicitações?')){state.solicitacoes=[]; saveLocal(); renderAll(); toast('Solicitações apagadas.');} };
+  $('#limparDemo').onclick = () => confirmAction('Apagar todas as solicitações? Esta ação não poderá ser desfeita.',()=>{state.solicitacoes=[]; saveLocal(); renderAll(); toast('Solicitações apagadas.');},'Apagar solicitações');
   addItem();
 }
 function toggleAuth(mode){
@@ -133,7 +145,7 @@ function login(){
   const email=$('#loginEmail').value.trim().toLowerCase(); const senha=$('#loginSenha').value;
   const u=state.usuarios.find(x=>x.email.toLowerCase()===email && x.senha===senha);
   if(!u) return toast('Usuário ou senha inválidos.');
-  state.user=u; $('#loginView').classList.add('hidden'); $('#appView').classList.remove('hidden');
+  state.user=u; $('#loginView').classList.add('hidden'); $('#appView').classList.remove('hidden'); updateHeaderClock(); clearInterval(window.__pmcClock); window.__pmcClock=setInterval(updateHeaderClock,30000);
   $('#solicitante').value=u.nome; $('#setor').value=u.setor||''; $('#userBox').innerHTML=`<b>${u.nome}</b><br>${u.perfil}`;
   $$('.admin-only').forEach(el=>el.style.display = u.perfil==='admin'?'block':'none');
   $$('.compras-only').forEach(el=>el.style.display = ['admin','compras','gestor'].includes(u.perfil)?'block':'none');
@@ -244,24 +256,35 @@ function renderSolicitacoes(){
 }
 window.openDetail=function(id){
   const s=state.solicitacoes.find(x=>x.id===id); if(!s) return; const canEdit = ['admin','compras','gestor'].includes(state.user.perfil);
-  const itensHtml=s.itens.map((i,idx)=>`<div class="detail-item"><h4>Item ${idx+1}</h4><div class="detail-grid">${item('Status do item',badge(i.status||s.status))}${item('Compradora',i.comprador||'-')}${item('Data finalizada',i.dataFinalizada?fmtDate(i.dataFinalizada):'-')}${item('Família/código',familiaLabel(i.familia))}${item('Código Protheus',i.codigoProduto||'-')}${item('Quantidade',i.quantidade+' '+(i.unMedida||''))}${item('Valor estimado',money(i.valorEstimado))}${item('Valor efetivamente comprado',money(i.valorComprado||0))}${item('Saldo da família nos 90 dias',saldoFamiliaHtml(i.familia,i.id))}${item('Descrição',i.descricao,'wide')}${item('Orçamentos por fornecedor',documentosHtml(i),'wide')}${item('Link referência',i.linkReferencia?`<a href="${escAttr(i.linkReferencia)}" target="_blank">Abrir referência</a>`:'-','wide')}${item('Imagem',i.imagemProduto?`<img class="produto-img" src="${escAttr(i.imagemProduto)}" alt="Imagem do produto">`:'-','wide')}</div>${canEdit?itemEditor(s.id,i,idx):''}</div>`).join('');
+  const itensHtml=s.itens.map((i,idx)=>`<div class="detail-item"><h4>Item ${idx+1}</h4><div class="detail-grid">${item('Status do item',badge(i.status||s.status))}${item('Compradora',i.comprador||'-')}${item('Data finalizada',i.dataFinalizada?fmtDate(i.dataFinalizada):'-')}${item('Família/código',familiaLabel(i.familia))}${item('Código Protheus',i.codigoProduto||'-')}${item('Quantidade',i.quantidade+' '+(i.unMedida||''))}${item('Valor estimado',money(i.valorEstimado))}${item('Valor efetivamente comprado',money(i.valorComprado||0))}${item('Saldo da família nos 90 dias',saldoFamiliaHtml(i.familia,i.id))}${item('Descrição',i.descricao,'wide')}${item('Estudo dos orçamentos',quoteAnalysisHtml(i),'wide')}${item('Orçamentos por fornecedor',documentosHtml(i),'wide')}${item('Link referência',i.linkReferencia?`<a href="${escAttr(i.linkReferencia)}" target="_blank">Abrir referência</a>`:'-','wide')}${item('Imagem',i.imagemProduto?`<img class="produto-img" src="${escAttr(i.imagemProduto)}" alt="Imagem do produto">`:'-','wide')}</div>${canEdit?itemEditor(s.id,i,idx):''}</div>`).join('');
   $('#detailContent').innerHTML=`<h3>Solicitação PMC</h3><div class="detail-grid">${item('Data do pedido',fmtDate(s.criadoEm))}${item('Data da necessidade',s.dataNecessidade?fmtDate(s.dataNecessidade):'-')}${item('Solicitante',s.solicitante)}${item('Setor',s.setor)}${item('Unidade',s.unidade)}${item('Entidade',s.entidade)}${item('Centro/Classe',s.centroCusto)}${item('Finalidade',s.finalidade)}${item('Status geral calculado',badge(s.status))}${item('Urgência',s.urgencia)}${item('Justificativa',s.justificativa,'wide')}${item('Anexo/orçamento',s.anexo?`<a href="${escAttr(s.anexo)}" target="_blank">Abrir orçamento/anexo</a>`:'-','wide')}${item('Alerta',s.alertaTexto||'Sem alerta','wide')}</div><h3>Itens da solicitação</h3>${itensHtml}
     ${canEdit?`<hr><button class="danger-btn" onclick="delSol('${s.id}')">Excluir solicitação completa</button>`:''}
     <h4>Histórico</h4><ul>${(s.historico||[]).map(h=>`<li>${fmtDateTime(h.data)} - ${esc(h.usuario)}: ${esc(h.acao)}</li>`).join('')}</ul>`;
   const paginaAtual=document.querySelector('.page.active')?.id||'solicitacoes'; if(paginaAtual!=='detalhe') state.previousPage=paginaAtual; $('#detailPageTitle').textContent='Detalhes da Solicitação PMC'; showPage('detalhe');
 }
+function quoteStats(i){
+  const docs=(i.documentosFornecedores||[]).filter(d=>Number(d.valorTotal||0)>0);
+  if(!docs.length) return {count:0,media:0,menor:null};
+  const media=docs.reduce((a,d)=>a+Number(d.valorTotal||0),0)/docs.length;
+  const menor=[...docs].sort((a,b)=>Number(a.valorTotal)-Number(b.valorTotal))[0];
+  return {count:docs.length,media,menor};
+}
+function quoteAnalysisHtml(i){
+  const q=quoteStats(i); if(!q.count) return '<div class="quote-empty">Adicione valores aos orçamentos para gerar o estudo comparativo.</div>';
+  return `<div class="quote-analysis"><div><small>Orçamentos válidos</small><b>${q.count}</b></div><div><small>Valor médio do produto</small><b>${money(q.media)}</b></div><div class="best-quote"><small>Menor orçamento</small><b>${money(q.menor.valorTotal)}</b><span>${esc(q.menor.fornecedor)}</span></div></div>`;
+}
 function itemEditor(sid,i,idx){
-  return `<div class="item-editor"><h4>Atualizar este produto</h4><div class="editor-grid"><label>Status<select id="itemStatus_${i.id}">${STATUSES.map(x=>`<option ${x===(i.status||'Pendente')?'selected':''}>${x}</option>`).join('')}</select></label><label>Compradora responsável<input id="itemComprador_${i.id}" value="${escAttr(i.comprador||'')}"></label><label>Data finalizada pela compradora<input id="itemFinalizado_${i.id}" type="date" value="${i.dataFinalizada?String(i.dataFinalizada).slice(0,10):''}"></label><label>Valor efetivamente comprado (R$)<input id="itemValorComprado_${i.id}" type="number" step="0.01" min="0" value="${Number(i.valorComprado||0)}"></label></div><div class="family-budget">${saldoFamiliaHtml(i.familia,i.id)}</div><div class="supplier-doc-box"><h5>Adicionar orçamento de fornecedor</h5><div class="editor-grid"><label>Fornecedor<input id="itemFornecedor_${i.id}" placeholder="Nome do fornecedor"></label><label>Documento do orçamento<input id="itemDocFornecedor_${i.id}" type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,image/*"></label></div>${documentosHtml(i)}</div><label>Comentário<textarea id="itemComentario_${i.id}" rows="2">${esc(i.comentario||'')}</textarea></label><button class="primary" onclick="saveItemStatus('${sid}','${i.id}')">Salvar dados deste produto</button></div>`;
+  return `<div class="item-editor"><h4>Atualizar este produto</h4><div class="editor-grid"><label>Status<select id="itemStatus_${i.id}">${STATUSES.map(x=>`<option ${x===(i.status||'Pendente')?'selected':''}>${x}</option>`).join('')}</select></label><label>Compradora responsável<input id="itemComprador_${i.id}" value="${escAttr(i.comprador||'')}"></label><label>Data finalizada pela compradora<input id="itemFinalizado_${i.id}" type="date" value="${i.dataFinalizada?String(i.dataFinalizada).slice(0,10):''}"></label><label>Valor efetivamente comprado (R$)<input id="itemValorComprado_${i.id}" type="number" step="0.01" min="0" value="${Number(i.valorComprado||0)}"></label></div><div class="family-budget">${saldoFamiliaHtml(i.familia,i.id)}</div><div class="supplier-doc-box"><div class="supplier-title"><div><h5>Orçamentos de fornecedores</h5><p>Cadastre quantos fornecedores forem necessários. O sistema calcula a média e destaca o menor orçamento.</p></div></div>${quoteAnalysisHtml(i)}<div class="editor-grid quote-form"><label>Fornecedor<input id="itemFornecedor_${i.id}" placeholder="Nome do fornecedor"></label><label>Valor total orçado (R$)<input id="itemValorOrcado_${i.id}" type="number" step="0.01" min="0" placeholder="0,00"></label><label>Documento do orçamento<input id="itemDocFornecedor_${i.id}" type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,image/*"></label></div>${documentosHtml(i)}</div><label>Comentário<textarea id="itemComentario_${i.id}" rows="2">${esc(i.comentario||'')}</textarea></label><button class="primary" onclick="saveItemStatus('${sid}','${i.id}')">Salvar dados deste produto</button></div>`;
 }
 window.saveItemStatus=async function(sid,itemId){
   const s=state.solicitacoes.find(x=>x.id===sid); if(!s) return; const i=s.itens.find(x=>x.id===itemId); if(!i) return;
   const status=$(`#itemStatus_${itemId}`).value; const comprador=$(`#itemComprador_${itemId}`).value.trim(); const finalizado=$(`#itemFinalizado_${itemId}`).value; const comentario=$(`#itemComentario_${itemId}`).value.trim(); const valorComprado=Number($(`#itemValorComprado_${itemId}`).value||0);
-  const fornecedor=$(`#itemFornecedor_${itemId}`).value.trim(); const docInput=$(`#itemDocFornecedor_${itemId}`);
+  const fornecedor=$(`#itemFornecedor_${itemId}`).value.trim(); const valorOrcado=Number($(`#itemValorOrcado_${itemId}`).value||0); const docInput=$(`#itemDocFornecedor_${itemId}`);
   if(['Comprado','Entregue'].includes(status) && !valorComprado) return toast('Informe o valor efetivamente comprado para finalizar este produto.');
   if(['Comprado','Entregue'].includes(status) && !finalizado && !i.dataFinalizada) return toast('Informe a data de finalização da compra.');
   if(['Comprado','Entregue'].includes(status)){ const antes=calcularSaldoFamilia(i.familia,i.id); const proj=antes.limite-antes.usadoAnterior-valorComprado; if(proj<0 && !confirm(`A compra ultrapassa o limite da família em ${money(Math.abs(proj))} dentro dos últimos ${state.config.diasRegra||90} dias. Deseja salvar mesmo assim?`)) return; }
   i.status=status; i.comprador=comprador; i.dataFinalizada = finalizado || ((status==='Comprado'||status==='Entregue') ? (i.dataFinalizada||new Date().toISOString().slice(0,10)) : ''); i.valorComprado=valorComprado; i.comentario=comentario; i.documentosFornecedores=i.documentosFornecedores||[];
-  const docFile=docInput?.files?.[0]; if(docFile){ if(!fornecedor) return toast('Informe o nome do fornecedor do orçamento.'); i.documentosFornecedores.push({id:crypto.randomUUID(), fornecedor, nomeArquivo:docFile.name, tipo:docFile.type, conteudo:await fileToDataUrl(docFile), enviadoEm:new Date().toISOString()}); }
+  const docFile=docInput?.files?.[0]; if(docFile || fornecedor || valorOrcado){ if(!fornecedor) return toast('Informe o nome do fornecedor do orçamento.'); if(!valorOrcado) return toast('Informe o valor total do orçamento.'); if(!docFile) return toast('Selecione o documento do orçamento.'); i.documentosFornecedores.push({id:crypto.randomUUID(), fornecedor, valorTotal:valorOrcado, nomeArquivo:docFile.name, tipo:docFile.type, conteudo:await fileToDataUrl(docFile), enviadoEm:new Date().toISOString()}); }
   s.comprador = unique((s.itens||[]).map(x=>x.comprador).filter(Boolean)).join(', ');
   if(comentario) { i.comentarios = i.comentarios||[]; i.comentarios.push({data:new Date().toISOString(), usuario:state.user.nome, texto:comentario}); }
   const saldo=calcularSaldoFamilia(i.familia,i.id); i.alertaLimiteFamilia=saldo.restante<0; s.historico.push(log(`Item ${i.codigoProduto||itemId} alterado para ${status}${comprador?' | Compradora: '+comprador:''}${i.dataFinalizada?' | Finalizada: '+fmtDate(i.dataFinalizada):''}${valorComprado?' | Valor comprado: '+money(valorComprado):''}${fornecedor&&docFile?' | Orçamento: '+fornecedor:''}${comentario?' | '+comentario:''}`));
@@ -278,7 +301,7 @@ function atualizarStatusPedido(s){
   else if(statuses.every(x=>x==='Recusado')) s.status='Recusado';
   else s.status='Pendente';
 }
-window.delSol=function(id){ if(confirm('Excluir esta solicitação?')){state.solicitacoes=state.solicitacoes.filter(x=>x.id!==id); saveLocal(); renderAll(); showPage('solicitacoes');}}
+window.delSol=function(id){confirmAction('Excluir esta solicitação completa?',()=>{state.solicitacoes=state.solicitacoes.filter(x=>x.id!==id); saveLocal(); renderAll(); showPage('solicitacoes'); toast('Solicitação excluída.');},'Excluir solicitação');}
 function comprasFamiliaNosUltimosDias(familia, ignorarItemId=''){
   const dias=Number(state.config.diasRegra||90), hoje=new Date();
   return allItems().filter(i=>i.id!==ignorarItemId && familiaCodigo(i.familia)===familiaCodigo(familia) && ['Comprado','Entregue'].includes(i.status) && i.dataFinalizada && diffDays(hoje,new Date(i.dataFinalizada))>=0 && diffDays(hoje,new Date(i.dataFinalizada))<=dias);
@@ -293,8 +316,9 @@ function saldoFamiliaHtml(familia,itemId=''){
   return `<span class="family-balance ${cls}">Usado: ${money(x.usado)} • Restante: ${money(x.restante)} / ${money(x.limite)}</span>`;
 }
 function documentosHtml(i){
-  const docs=i.documentosFornecedores||[]; if(!docs.length) return '<span class="muted">Nenhum orçamento armazenado.</span>';
-  return `<div class="supplier-doc-list">${docs.map(d=>`<a class="supplier-doc" href="${escAttr(d.conteudo)}" download="${escAttr(d.nomeArquivo)}"><b>${esc(d.fornecedor)}</b><small>${esc(d.nomeArquivo)} • ${fmtDateTime(d.enviadoEm)}</small></a>`).join('')}</div>`;
+  const docs=i.documentosFornecedores||[]; if(!docs.length) return '<span class="muted">Nenhum orçamento anexado.</span>';
+  const menor=quoteStats(i).menor;
+  return `<div class="supplier-doc-list">${docs.map(d=>`<a class="supplier-doc ${menor&&menor.id===d.id?'cheapest':''}" href="${escAttr(d.conteudo)}" download="${escAttr(d.nomeArquivo)}"><div><b>${esc(d.fornecedor)}</b>${menor&&menor.id===d.id?'<span class="cheapest-tag">Menor valor</span>':''}</div><strong>${money(d.valorTotal||0)}</strong><small>${esc(d.nomeArquivo)} • enviado em ${fmtDateTime(d.enviadoEm)}</small></a>`).join('')}</div>`;
 }
 function renderCompradora(){
   if(!$('#compradoraTable')) return;
@@ -355,7 +379,7 @@ function renderUsuarios(){
   $('#userTable tbody').innerHTML=state.usuarios.map(u=>`<tr><td><b>${esc(u.nome)}</b></td><td>${esc(u.email)}</td><td><select id="perfil_${u.id}" ${u.email.toLowerCase()===ADMIN_EMAIL?'disabled':''}>${['solicitante','compras','gestor','admin'].map(p=>`<option ${p===u.perfil?'selected':''}>${p}</option>`).join('')}</select></td><td>${esc(u.setor||'')}</td><td><button class="primary" onclick="saveUserProfile('${u.id}')" ${u.email.toLowerCase()===ADMIN_EMAIL?'disabled':''}>Salvar perfil</button> ${u.email.toLowerCase()===ADMIN_EMAIL?'<small>Administrador principal</small>':`<button class="danger-btn" onclick="delUser('${u.id}')">Excluir</button>`}</td></tr>`).join('');
 }
 window.saveUserProfile=function(id){ const u=state.usuarios.find(x=>x.id===id); if(!u) return; u.perfil=$(`#perfil_${id}`).value; saveLocal(); renderUsuarios(); toast('Perfil atualizado.'); }
-window.delUser=id=>{ const u=state.usuarios.find(x=>x.id===id); if(!u||u.email.toLowerCase()===ADMIN_EMAIL) return; if(confirm(`Excluir o usuário ${u.nome}?`)){state.usuarios=state.usuarios.filter(x=>x.id!==id); saveLocal(); renderUsuarios(); toast('Usuário excluído.');}}
+window.delUser=id=>{ const u=state.usuarios.find(x=>x.id===id); if(!u||u.email.toLowerCase()===ADMIN_EMAIL) return; confirmAction(`Excluir o usuário ${u.nome}?`,()=>{state.usuarios=state.usuarios.filter(x=>x.id!==id); saveLocal(); renderUsuarios(); toast('Usuário excluído.');},'Excluir usuário');}
 function exportCsv(){
   const head=['Data Pedido','Data Necessidade','Solicitante','Setor','Unidade','Entidade','CentroCusto','Finalidade','Familia','Codigo Produto','Descricao Produto','Quantidade','Valor Estimado','Valor Comprado','Urgencia','Status Item','Compradora','Data Finalizada','Status Geral Pedido','Alerta','Justificativa','Anexo','Link Referencia'];
   const lines=[head, ...state.solicitacoes.flatMap(s=>(s.itens||[]).map(i=>[fmtDate(s.criadoEm),s.dataNecessidade?fmtDate(s.dataNecessidade):'',s.solicitante,s.setor,s.unidade,s.entidade,s.centroCusto,s.finalidade,familiaLabel(i.familia),i.codigoProduto||'',i.descricao||'',i.quantidade||'',i.valorEstimado||'',i.valorComprado||'',s.urgencia,i.status||s.status,i.comprador||'',i.dataFinalizada?fmtDate(i.dataFinalizada):'',s.status,s.alertaTexto||'',s.justificativa,s.anexo,i.linkReferencia||'']))];

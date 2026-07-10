@@ -35,7 +35,7 @@
       </form>
       <div class="brand-strip"><div class="brand-logo"><img src="assets/logo-sesi.png" alt="SESI"></div><div class="brand-logo"><img src="assets/logo-senai.png" alt="SENAI"></div></div>
       <small>Novos cadastros recebem automaticamente o perfil <b>solicitante</b>. O administrador pode alterar o perfil posteriormente.</small>
-      <div class="developer-credit">Alan Camilo Rodrigues / Desenvolvedor</div>
+      <div class="developer-credit"><span>Desenvolvido por</span><strong>Alan Camilo Rodrigues</strong><small>Técnico de TI • Desenvolvedor</small></div>
     </div>
   </section>
 
@@ -45,13 +45,13 @@
         <img src="assets/logo-fiemg.png" alt="Sistema FIEMG">
         <span>PMC Digital</span>
       </div>
-      <button data-page="dashboard" class="nav active">🏠 Dashboard</button>
-      <button data-page="nova" class="nav">🛒 Nova Solicitação</button>
-      <button data-page="solicitacoes" class="nav">📋 Meus / Pedidos Gerais</button>
-      <button data-page="referencias" class="nav">💰 Budget de Valor</button>
-      <button data-page="compradora" class="nav compras-only">🧾 Área da Compradora</button>
-      <button data-page="usuarios" class="nav admin-only">👥 Usuários</button>
-      <button data-page="config" class="nav admin-only">⚙ Configurações</button>
+      <button data-page="dashboard" class="nav active"><span class="nav-icon">⌂</span> Dashboard</button>
+      <button data-page="nova" class="nav"><span class="nav-icon">＋</span> Nova Solicitação</button>
+      <button data-page="solicitacoes" class="nav"><span class="nav-icon">▤</span> Meus / Pedidos Gerais</button>
+      <button data-page="referencias" class="nav"><span class="nav-icon">◫</span> Budget de Valor</button>
+      <button data-page="compradora" class="nav compras-only"><span class="nav-icon">✓</span> Área da Compradora</button>
+      <button data-page="usuarios" class="nav admin-only"><span class="nav-icon">♙</span> Usuários</button>
+      <button data-page="config" class="nav admin-only"><span class="nav-icon">⚙</span> Configurações</button>
       <div class="sidebar-footer"><span id="userBox"></span><button id="logoutBtn">Sair</button></div>
     </aside>
 
@@ -62,7 +62,7 @@
           <h2 id="pageTitle">Dashboard</h2>
           <p id="pageSubtitle">Acompanhe cada produto solicitado, comprador responsável, status individual e data de finalização.</p>
         </div>
-        <div class="top-actions"><button id="exportCsvBtn">Exportar CSV</button><button onclick="window.print()">Imprimir/PDF</button></div>
+        <div class="topbar-right"><div class="session-card"><div><b id="headerUserName">Usuário</b><span id="headerUserSetor">Setor</span></div><div><b id="headerUserPerfil">Perfil</b><span id="headerDateTime">--/--/---- --:--</span></div></div><div class="top-actions"><button id="exportCsvBtn">Exportar CSV</button><button onclick="window.print()">Imprimir/PDF</button></div></div>
       </header>
 
       <section id="dashboard" class="page active">
@@ -206,11 +206,13 @@
       <section id="config" class="page">
         <div class="panel"><h3>Configurações da regra</h3><div class="config-grid"><label>Dias corridos considerados por família<input id="diasRegra" type="number" value="90"></label><label>Limite de compra por família (R$)<input id="limiteFamilia" type="number" step="0.01" min="0" value="3000"></label></div><button id="salvarConfig" class="primary">Salvar</button><hr><button id="limparDemo" class="danger-btn">Apagar solicitações de demonstração</button></div>
       </section>
-      <footer class="app-footer">Alan Camilo Rodrigues / Desenvolvedor</footer>
+      <footer class="app-footer"><span>Desenvolvido por</span><strong>Alan Camilo Rodrigues</strong><small>Técnico de TI • Desenvolvedor</small></footer>
     </section>
   </main>
 
   <dialog id="fragmentDialog" class="fragment-dialog"><div id="fragmentContent"></div><div class="dialog-actions"><button id="cancelFragment" type="button">Voltar e revisar</button><button id="confirmFragment" class="primary" type="button">Salvar mesmo assim</button></div></dialog>
+  <dialog id="messageDialog" class="m365-dialog"><div class="m365-dialog-head"><span class="m365-dialog-icon">i</span><div><h3 id="messageDialogTitle">Aviso</h3><p id="messageDialogText"></p></div></div><div class="dialog-actions"><button id="messageDialogOk" class="primary" type="button">Entendi</button></div></dialog>
+  <dialog id="confirmDialog" class="m365-dialog"><div class="m365-dialog-head"><span class="m365-dialog-icon warning">!</span><div><h3 id="confirmDialogTitle">Confirmar ação</h3><p id="confirmDialogText"></p></div></div><div class="dialog-actions"><button id="confirmDialogCancel" type="button">Cancelar</button><button id="confirmDialogOk" class="primary" type="button">Confirmar</button></div></dialog>
   <script type="module" src="app.js"></script>
 </body>
 </html>
