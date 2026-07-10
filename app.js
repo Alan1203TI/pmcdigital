@@ -148,11 +148,17 @@ function showLoggedIn(){
 
   const permitidas=paginasPermitidasPorPerfil(u.perfil);
   $$('.nav').forEach(el=>{
-    el.style.display=permitidas.includes(el.dataset.page)?'flex':'none';
+    const permitido=permitidas.includes(el.dataset.page);
+    el.classList.toggle('hidden', !permitido);
+    el.setAttribute('aria-hidden', permitido ? 'false' : 'true');
+    el.tabIndex = permitido ? 0 : -1;
   });
   $$('.quick-action').forEach(el=>{
     const pagina=el.dataset.page;
-    el.style.display=(!pagina||permitidas.includes(pagina))?'flex':'none';
+    const permitido=!pagina||permitidas.includes(pagina);
+    el.classList.toggle('hidden', !permitido);
+    el.setAttribute('aria-hidden', permitido ? 'false' : 'true');
+    el.tabIndex = permitido ? 0 : -1;
   });
 
   showPage('dashboard'); renderAll();
