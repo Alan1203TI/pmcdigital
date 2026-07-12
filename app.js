@@ -714,7 +714,8 @@ window.downloadPedidoWord=async function(id){
       borders:opts.noBorder?noBorders:borders,
       verticalAlign:VerticalAlign.CENTER,
       shading:opts.fill?{fill:opts.fill,type:ShadingType.CLEAR}:undefined,
-      width:opts.width?{size:opts.width,type:WidthType.PERCENTAGE}:undefined,
+      width:opts.dxa?{size:opts.dxa,type:WidthType.DXA}:(opts.width?{size:opts.width,type:WidthType.PERCENTAGE}:undefined),
+      columnSpan:opts.span||undefined,
       margins:{top:130,bottom:130,left:150,right:150}
     });
     const para=(text,opts={})=>new Paragraph({
@@ -722,50 +723,50 @@ window.downloadPedidoWord=async function(id){
       spacing:{after:opts.after??80,before:opts.before??0},
       children:[new TextRun({text:String(text??''),bold:!!opts.bold,size:opts.size||20,color:opts.color||textColor,font:'Aptos'})]
     });
-    const field=(label,value=' ',opts={})=>cell([para(label.toUpperCase(),{bold:true,size:14,color:opts.accent||'66758D',after:65}),para(value,{size:19,color:textColor,after:0})],{width:opts.width||50,fill:opts.fill||'FFFFFF'});
+    const field=(label,value=' ',opts={})=>cell([para(label.toUpperCase(),{bold:true,size:14,color:opts.accent||'66758D',after:65}),para(value,{size:19,color:textColor,after:0})],{width:opts.width||50,dxa:opts.dxa,span:opts.span,fill:opts.fill||'FFFFFF'});
     const row=(children,height=560)=>new TableRow({height:{value:height,rule:HeightRule.ATLEAST},children});
     const fiemg=await fetchImageBytes('assets/logo-fiemg.png');
     const sesi=await fetchImageBytes('assets/logo-sesi.png');
     const senai=await fetchImageBytes('assets/logo-senai.png');
     const brandRuns=[]; if(sesi) brandRuns.push(new ImageRun({data:sesi,transformation:{width:76,height:30}})); brandRuns.push(new TextRun({text:'   '})); if(senai) brandRuns.push(new ImageRun({data:senai,transformation:{width:82,height:24}}));
-    const headerTable=new Table({width:{size:100,type:WidthType.PERCENTAGE},layout:TableLayoutType.FIXED,rows:[row([
-      cell(new Paragraph({alignment:AlignmentType.LEFT,children:fiemg?[new ImageRun({data:fiemg,transformation:{width:112,height:49}})]:[]}),{width:24,noBorder:true}),
-      cell([para('COTAÇÃO DE PREÇOS',{bold:true,size:31,color:blueDark,align:AlignmentType.CENTER,after:25}),para('PMC DIGITAL',{bold:true,size:16,color:'637188',align:AlignmentType.CENTER,after:0})],{width:46,fill:'FFFFFF',noBorder:true}),
-      cell(new Paragraph({alignment:AlignmentType.RIGHT,children:brandRuns}),{width:30,noBorder:true})
+    const headerTable=new Table({width:{size:10200,type:WidthType.DXA},columnWidths:[2500,4500,3200],layout:TableLayoutType.FIXED,rows:[row([
+      cell(new Paragraph({alignment:AlignmentType.LEFT,children:fiemg?[new ImageRun({data:fiemg,transformation:{width:105,height:46}})]:[]}),{dxa:2500,noBorder:true}),
+      cell([para('COTAÇÃO DE PREÇOS',{bold:true,size:29,color:blueDark,align:AlignmentType.CENTER,after:20}),para('PMC DIGITAL',{bold:true,size:15,color:'637188',align:AlignmentType.CENTER,after:0})],{dxa:4500,fill:'FFFFFF',noBorder:true}),
+      cell(new Paragraph({alignment:AlignmentType.RIGHT,children:brandRuns}),{dxa:3200,noBorder:true})
     ],860)]});
-    const pmcPill=new Table({alignment:AlignmentType.CENTER,width:{size:28,type:WidthType.PERCENTAGE},layout:TableLayoutType.FIXED,rows:[row([cell(para(`PMC ${s.numeroPedido||String(s.id).slice(0,8).toUpperCase()}`,{bold:true,size:18,color:'FFFFFF',align:AlignmentType.CENTER,after:0}),{width:100,fill:green})],400)]});
-    const orientationTable=new Table({width:{size:100,type:WidthType.PERCENTAGE},layout:TableLayoutType.FIXED,rows:[row([cell([para('●  ORIENTAÇÕES PARA PREENCHIMENTO',{bold:true,size:15,color:blue,after:55}),para('Preencha todos os campos comerciais. Mantenha os códigos e as descrições dos itens inalterados.',{size:17,color:'52627A',after:0})],{width:100,fill:light})],700)]});
+    const pmcPill=new Table({alignment:AlignmentType.CENTER,width:{size:2800,type:WidthType.DXA},columnWidths:[2800],layout:TableLayoutType.FIXED,rows:[row([cell(para(`PMC ${s.numeroPedido||String(s.id).slice(0,8).toUpperCase()}`,{bold:true,size:18,color:'FFFFFF',align:AlignmentType.CENTER,after:0}),{dxa:2800,fill:green})],400)]});
+    const orientationTable=new Table({width:{size:10200,type:WidthType.DXA},columnWidths:[10200],layout:TableLayoutType.FIXED,rows:[row([cell([para('ORIENTAÇÕES PARA PREENCHIMENTO',{bold:true,size:15,color:blue,after:55}),para('Preencha todos os campos comerciais. Mantenha os códigos e as descrições dos itens inalterados.',{size:17,color:'52627A',after:0})],{dxa:10200,fill:light})],700)]});
 
-    const supplierTable=new Table({width:{size:100,type:WidthType.PERCENTAGE},layout:TableLayoutType.FIXED,rows:[
-      row([cell(para('01  •  DADOS DO FORNECEDOR',{bold:true,color:'FFFFFF',size:18,after:0}),{fill:blueDark,width:100})],380),
-      row([field('Razão Social',' ',{width:100})],620),
-      row([field('CNPJ'),field('Contato')],620),
-      row([field('Telefone'),field('E-mail')],620),
-      row([field('Data da cotação'),field('Validade da proposta')],620)
+    const supplierTable=new Table({width:{size:10200,type:WidthType.DXA},columnWidths:[5100,5100],layout:TableLayoutType.FIXED,rows:[
+      row([cell(para('01  •  DADOS DO FORNECEDOR',{bold:true,color:'FFFFFF',size:18,after:0}),{fill:blueDark,dxa:10200,span:2})],380),
+      row([field('Razão Social',' ',{dxa:10200,span:2})],620),
+      row([field('CNPJ',' ',{dxa:5100}),field('Contato',' ',{dxa:5100})],620),
+      row([field('Telefone',' ',{dxa:5100}),field('E-mail',' ',{dxa:5100})],620),
+      row([field('Data da cotação',' ',{dxa:5100}),field('Validade da proposta',' ',{dxa:5100})],620)
     ]});
 
-    const widths=[13,33,10,18,13,13];
+    const widths=[1300,3300,1000,1800,1400,1400];
     const headerRow=new TableRow({tableHeader:true,children:[
       ['Código',widths[0]],['Descrição do produto',widths[1]],['Qtd.',widths[2]],['Marca / Modelo',widths[3]],['Valor unitário',widths[4]],['Valor total',widths[5]]
-    ].map(([t,w])=>cell(para(t,{bold:true,color:'FFFFFF',size:17,align:AlignmentType.CENTER}),{fill:blue,width:w}))});
+    ].map(([t,w])=>cell(para(t,{bold:true,color:'FFFFFF',size:16,align:AlignmentType.CENTER}),{fill:blue,dxa:w}))});
     const itemRows=(s.itens||[]).map(i=>row([
-      cell(para(i.codigoProduto||'-',{size:17}),{width:widths[0]}),
-      cell(para(i.descricao||'-',{size:17}),{width:widths[1]}),
-      cell(para(`${i.quantidade||'-'} ${i.unMedida||''}`.trim(),{size:17,align:AlignmentType.CENTER}),{width:widths[2]}),
-      cell(para(' ',{size:17}),{width:widths[3]}),
-      cell(para('R$ ',{size:17}),{width:widths[4]}),
-      cell(para('R$ ',{size:17}),{width:widths[5]})
+      cell(para(i.codigoProduto||'-',{size:16}),{dxa:widths[0]}),
+      cell(para(i.descricao||'-',{size:16}),{dxa:widths[1]}),
+      cell(para(`${i.quantidade||'-'} ${i.unMedida||''}`.trim(),{size:16,align:AlignmentType.CENTER}),{dxa:widths[2]}),
+      cell(para(' ',{size:16}),{dxa:widths[3]}),
+      cell(para('R$ ',{size:16}),{dxa:widths[4]}),
+      cell(para('R$ ',{size:16}),{dxa:widths[5]})
     ],820));
-    const productTable=new Table({width:{size:100,type:WidthType.PERCENTAGE},layout:TableLayoutType.FIXED,rows:[headerRow,...itemRows]});
-    const itemsTitleTable=new Table({width:{size:100,type:WidthType.PERCENTAGE},layout:TableLayoutType.FIXED,rows:[row([cell(para('02  •  ITENS PARA COTAÇÃO',{bold:true,color:'FFFFFF',size:18,after:0}),{fill:blueDark,width:100})],380)]});
+    const productTable=new Table({width:{size:10200,type:WidthType.DXA},columnWidths:widths,layout:TableLayoutType.FIXED,rows:[headerRow,...itemRows]});
+    const itemsTitleTable=new Table({width:{size:10200,type:WidthType.DXA},columnWidths:[10200],layout:TableLayoutType.FIXED,rows:[row([cell(para('02  •  ITENS PARA COTAÇÃO',{bold:true,color:'FFFFFF',size:18,after:0}),{fill:blueDark,dxa:10200})],380)]});
 
-    const commercialTable=new Table({width:{size:100,type:WidthType.PERCENTAGE},layout:TableLayoutType.FIXED,rows:[
-      row([cell(para('03  •  CONDIÇÕES DA PROPOSTA',{bold:true,color:'FFFFFF',size:18,after:0}),{fill:blueDark,width:100})],380),
-      row([field('Valor total geral da proposta','R$ ',{width:100,fill:light,accent:green})],680),
-      row([field('Prazo de entrega'),field('Forma de pagamento')],620),
-      row([field('Frete incluso','☐ Sim     ☐ Não'),field('Garantia')],620),
-      row([field('Observações',' ',{width:100})],1050),
-      row([field('Responsável pela proposta',' ',{width:65}),field('Data',' ',{width:35})],620)
+    const commercialTable=new Table({width:{size:10200,type:WidthType.DXA},columnWidths:[5100,5100],layout:TableLayoutType.FIXED,rows:[
+      row([cell(para('03  •  CONDIÇÕES DA PROPOSTA',{bold:true,color:'FFFFFF',size:18,after:0}),{fill:blueDark,dxa:10200,span:2})],380),
+      row([field('Valor total geral da proposta','R$ ',{dxa:10200,span:2,fill:light,accent:green})],680),
+      row([field('Prazo de entrega',' ',{dxa:5100}),field('Forma de pagamento',' ',{dxa:5100})],620),
+      row([field('Frete incluso','☐ Sim     ☐ Não',{dxa:5100}),field('Garantia',' ',{dxa:5100})],620),
+      row([field('Observações',' ',{dxa:10200,span:2})],1050),
+      row([field('Responsável pela proposta',' ',{dxa:5100}),field('Data',' ',{dxa:5100})],620)
     ]});
 
     const footerRuns=[];
