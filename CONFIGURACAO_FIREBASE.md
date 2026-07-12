@@ -54,6 +54,14 @@ Novos cadastros são sempre gravados como `solicitante`. O perfil só pode ser a
 
 ## 7. Documentos de orçamento
 
+### Anexos sem Firebase Storage
+
+Esta versão não utiliza Firebase Storage e permanece compatível com o plano gratuito. O colaborador envia os documentos ao OneDrive/SharePoint institucional, cria um link restrito à organização e cadastra no pedido o nome, a categoria e o link. O Firestore armazena somente essas informações de referência. Publique apenas o arquivo `firestore.rules` atualizado.
+
+### EmailJS
+
+Na tela **Configurações**, informe a chave pública, Service ID, Template ID e e-mail da compradora. O template deve aceitar `pmc_numero`, `solicitante`, `setor`, `itens`, `link_sistema` e `destinatario`.
+
 Arquivos não são gravados em Base64 no Firestore. O documento é lido localmente para OCR e deve ser armazenado no OneDrive/SharePoint. No Firestore fica somente o link protegido, evitando ultrapassar o limite de tamanho dos documentos e evitando exposição pública do arquivo.
 
 ## 8. Publicação no GitHub Pages

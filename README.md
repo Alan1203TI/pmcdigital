@@ -154,3 +154,13 @@ A comparação por preço unitário evita distorções quando fornecedores cotam
 
 ## Cotação editável em Word
 Na tela de detalhes do pedido, use **Gerar modelo de cotação (.docx)**. O arquivo contém somente os produtos, quantidades e campos comerciais que o fornecedor deve preencher. Dados internos da PMC não são incluídos. A geração utiliza a biblioteca docx carregada pela internet.
+
+O nome do arquivo inclui automaticamente o código da PMC (por exemplo, `Cotacao_PMC_0001.docx`). Os campos comerciais são células livres e editáveis, sem linhas de sublinhado. Os anexos são cadastrados por nome, categoria e link institucional do OneDrive/SharePoint, sem uso do Firebase Storage.
+
+## Fluxo, rascunhos e relatórios
+
+- O solicitante pode salvar um rascunho sem consumir número e enviá-lo posteriormente.
+- O fluxo contempla solicitação, análise, aprovação, cotação, compra, entrega, recusa e cancelamento.
+- O histórico registra envio, notificações, mudanças dos itens, valores, responsáveis e documentos.
+- O CSV inclui PMC, economia entre estimado e comprado e tempo até a compra, permitindo análises por família, setor, solicitante e compradora.
+- A detecção preventiva compara código Protheus e família dentro da janela configurada.

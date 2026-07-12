@@ -1,6 +1,6 @@
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
-const STATUSES = ['Pendente','Aprovado','Em cotação','Em compra','Comprado','Recusado'];
+const STATUSES = ['Rascunho','Solicitada','Em análise','Aguardando aprovação','Aprovado','Em cotação','Em compra','Comprado','Recusado','Cancelado'];
 const DELIVERY_STATUSES = ['Não iniciado','Aguardando entrega','Entregue'];
 
 let FAMILIAS_PRODUTO = [
@@ -197,6 +197,8 @@ function bind(){
   $$('.nav').forEach(b=>b.onclick=()=>showPage(b.dataset.page));
   $$('.quick-action').forEach(b=>b.onclick=()=>showPage(b.dataset.page));
   $('#solicitacaoForm').onsubmit = e => {e.preventDefault(); salvarSolicitacao();};
+  $('#salvarRascunhoBtn').onclick = () => salvarSolicitacao(true);
+  $('#addAnexoLinkBtn').onclick = () => addAnexoLink();
   $('#addItemBtn').onclick = () => addItem();
   $('#entidade').addEventListener('change', fillCentroCusto);
   $('#busca').oninput = renderSolicitacoes; $('#filtroStatus').onchange=renderSolicitacoes; $('#filtroFamilia').onchange=renderSolicitacoes;
@@ -204,10 +206,10 @@ function bind(){
   $('#buscaCompradora').oninput = renderCompradora; $('#statusCompradora').onchange=renderCompradora; $('#familiaCompradora').onchange=renderCompradora; $('#abertosCompradora').onchange=renderCompradora;
   $('#refBusca').oninput = renderReferencias; $('#budgetSituacao').onchange = renderReferencias;
   $('#exportCsvBtn').onclick = exportCsv;
-  $('#salvarConfig').onclick = async () => {state.config.diasRegra = Number($('#diasRegra').value||90); state.config.limiteFamilia = Number($('#limiteFamilia').value||3000); state.config.familiasProduto=FAMILIAS_PRODUTO; await persistConfig(); toast('Configuração salva.'); renderAll();};
+  $('#salvarConfig').onclick = async () => {state.config.diasRegra = Number($('#diasRegra').value||90); state.config.limiteFamilia = Number($('#limiteFamilia').value||3000); state.config.familiasProduto=FAMILIAS_PRODUTO; state.config.emailPublicKey=$('#emailPublicKey').value.trim(); state.config.emailServiceId=$('#emailServiceId').value.trim(); state.config.emailTemplateId=$('#emailTemplateId').value.trim(); state.config.emailCompradora=$('#emailCompradora').value.trim(); await persistConfig(); toast('Configuração salva.'); renderAll();};
   if($('#adicionarFamiliaBtn')) $('#adicionarFamiliaBtn').onclick=adicionarFamiliaAdmin;
   $('#limparDemo').onclick = () => toast('Exclusão em massa foi desativada por segurança. Exclua pedidos individualmente quando necessário.');
-  addItem();
+  addItem(); addAnexoLink();
 }
 function toggleAuth(mode){
   const loginMode=mode==='login';
@@ -255,7 +257,7 @@ function showPage(id){
   if(pageTitleEl) pageTitleEl.textContent=titles[id]?.[0]||'PMC';
   if(pageSubtitleEl) pageSubtitleEl.textContent=titles[id]?.[1]||'';
 }
-function renderAll(){ fillSelects(); renderDashboard(); renderSolicitacoes(); renderCompradora(); renderReferencias(); renderUsuarios(); renderFamiliasAdmin(); $('#diasRegra').value=state.config.diasRegra; if($('#limiteFamilia')) $('#limiteFamilia').value=state.config.limiteFamilia||3000; }
+function renderAll(){ fillSelects(); renderDashboard(); renderSolicitacoes(); renderCompradora(); renderReferencias(); renderUsuarios(); renderFamiliasAdmin(); $('#diasRegra').value=state.config.diasRegra; if($('#limiteFamilia')) $('#limiteFamilia').value=state.config.limiteFamilia||3000; ['emailPublicKey','emailServiceId','emailTemplateId','emailCompradora'].forEach(id=>{if($('#'+id)) $('#'+id).value=state.config[id]||'';}); }
 function fillSelects(){
   $('#finalidade').innerHTML='<option value="">Selecione</option>' + state.refs.finalidades.map(f=>`<option value="${esc(f.codigo+' - '+f.descricao)}" data-conta="${esc(f.conta)}">${esc(f.codigo)} - ${esc(f.descricao)}</option>`).join('');
   fillCentroCusto();
@@ -297,28 +299,55 @@ async function proximoNumeroPedido(){
   });
 }
 
-async function salvarSolicitacao(){
+function addAnexoLink(data={}){
+  const frag=$('#anexoLinkTemplate').content.cloneNode(true), row=frag.querySelector('.attachment-link-row');
+  row.querySelector('.anexo-nome').value=data.nome||''; row.querySelector('.anexo-categoria').value=data.categoria||'Orçamento'; row.querySelector('.anexo-url').value=data.url||'';
+  row.querySelector('.remove-anexo-link').onclick=()=>{row.remove(); if(!$$('.attachment-link-row').length) addAnexoLink();};
+  $('#anexosLinksContainer').appendChild(row);
+}
+function coletarAnexosLinks(){
+  const anexos=[];
+  for(const row of $$('.attachment-link-row')){
+    const nome=row.querySelector('.anexo-nome').value.trim(), categoria=row.querySelector('.anexo-categoria').value, url=row.querySelector('.anexo-url').value.trim();
+    if(!nome&&!url) continue;
+    if(!nome||!url) throw new Error('Informe o nome e o link em todos os anexos preenchidos.');
+    try{const parsed=new URL(url); if(!['http:','https:'].includes(parsed.protocol)) throw new Error();}catch{throw new Error(`O link do anexo “${nome}” não é válido.`);}
+    anexos.push({id:crypto.randomUUID(),nome,categoria,url,enviadoEm:new Date().toISOString(),enviadoPor:state.user.nome});
+  }
+  return anexos;
+}
+async function salvarSolicitacao(comoRascunho=false){
   const itens=[];
   for(const card of $$('.item-card')){
     normalizarFamiliaInput(card.querySelector('.item-familia'));
-    const item={id:crypto.randomUUID(), familia:card.querySelector('.item-familia').value.trim(), codigoProduto:card.querySelector('.item-codigo').value.trim(), descricao:card.querySelector('.item-descricao').value.trim(), unMedida:card.querySelector('.item-unMedida').value.trim(), quantidade:Number(card.querySelector('.item-quantidade').value), valorEstimado:Number(card.querySelector('.item-valorEstimado').value||0), linkReferencia:card.querySelector('.item-linkReferencia').value.trim(), imagemProduto:'', status:'Pendente', comprador:'', dataFinalizada:'', valorComprado:0, documentosFornecedores:[], comentarios:[]};
+    const item={id:crypto.randomUUID(), familia:card.querySelector('.item-familia').value.trim(), codigoProduto:card.querySelector('.item-codigo').value.trim(), descricao:card.querySelector('.item-descricao').value.trim(), unMedida:card.querySelector('.item-unMedida').value.trim(), quantidade:Number(card.querySelector('.item-quantidade').value), valorEstimado:Number(card.querySelector('.item-valorEstimado').value||0), linkReferencia:card.querySelector('.item-linkReferencia').value.trim(), imagemProduto:'', status:comoRascunho?'Rascunho':'Solicitada', comprador:'', dataFinalizada:'', valorComprado:0, documentosFornecedores:[], comentarios:[]};
     const file=card.querySelector('.item-imagem').files[0]; if(file) item.imagemProduto = await fileToDataUrl(file);
     if(!item.familia || !item.descricao || !item.quantidade) return toast('Preencha família, descrição e quantidade em todos os itens.');
     itens.push(item);
   }
-  const numeroPedido=await proximoNumeroPedido();
-  const s={id:crypto.randomUUID(), numeroPedido, criadoEm:new Date().toISOString(), dataNecessidade:$('#dataNecessidade').value, solicitante:$('#solicitante').value.trim(), solicitanteEmail:state.user?.email||'', setor:$('#setor').value.trim(), unidade:$('#unidade').value, entidade:$('#entidade').value, centroCusto:$('#centroCusto').value, finalidade:$('#finalidade').value, itens, urgencia:$('#urgencia').value, justificativa:$('#justificativa').value.trim(), anexo:$('#anexo').value.trim(), comprador:'', status:'Pendente', comentarios:[], historico:[log('Criada')]};
+  const id=crypto.randomUUID(); let anexos=[];
+  try{anexos=coletarAnexosLinks();}catch(e){return toast(e.message);}
+  const numeroPedido=comoRascunho?'':await proximoNumeroPedido();
+  const s={id, numeroPedido, criadoEm:new Date().toISOString(), dataNecessidade:$('#dataNecessidade').value, solicitante:$('#solicitante').value.trim(), solicitanteEmail:state.user?.email||'', setor:$('#setor').value.trim(), unidade:$('#unidade').value, entidade:$('#entidade').value, centroCusto:$('#centroCusto').value, finalidade:$('#finalidade').value, itens, urgencia:$('#urgencia').value, justificativa:$('#justificativa').value.trim(), anexo:$('#anexo').value.trim(), anexos, comprador:'', status:comoRascunho?'Rascunho':'Solicitada', comentarios:[], historico:[log(comoRascunho?'Rascunho criado':'PMC enviada')]};
   const alerta = getAlertas(s);
   if(alerta.length){
     s.temAlerta=true; s.alertaTexto=alerta.join(' | ');
-    return showFragmentDialog(alerta, ()=>finalizarSolicitacao(s));
+    return showFragmentDialog(alerta, ()=>finalizarSolicitacao(s,comoRascunho));
   }
-  finalizarSolicitacao(s);
+  finalizarSolicitacao(s,comoRascunho);
 }
-function finalizarSolicitacao(s){
-  atualizarStatusPedido(s);
-  s.solicitanteUid=state.user.uid; state.solicitacoes.unshift(s); persistSolicitacao(s).catch(e=>toast('Erro ao salvar no Firebase: '+e.message)); $('#solicitacaoForm').reset(); $('#itensContainer').innerHTML=''; addItem(); $('#solicitante').value=state.user.nome; $('#setor').value=state.user.setor||''; renderAll(); showPage('solicitacoes'); toast(`Solicitação nº ${s.numeroPedido||'-'} salva.`);
+async function enviarNotificacaoCompradora(s){
+  const c=state.config; if(!c.emailPublicKey||!c.emailServiceId||!c.emailTemplateId||!c.emailCompradora||!window.emailjs) return;
+  try{emailjs.init({publicKey:c.emailPublicKey}); await emailjs.send(c.emailServiceId,c.emailTemplateId,{destinatario:c.emailCompradora,pmc_numero:s.numeroPedido,solicitante:s.solicitante,setor:s.setor,itens:s.itens.map(i=>`${i.codigoProduto||'-'} - ${i.descricao} (${i.quantidade} ${i.unMedida||''})`).join('\n'),link_sistema:location.href}); s.historico.push(log('Notificação enviada para a compradora')); await persistSolicitacao(s);}catch(e){console.error(e); toast('PMC salva, mas o e-mail não foi enviado: '+(e.text||e.message||e));}
 }
+async function finalizarSolicitacao(s,comoRascunho=false){
+  if(!comoRascunho) atualizarStatusPedido(s);
+  s.solicitanteUid=state.user.uid; state.solicitacoes.unshift(s); try{await persistSolicitacao(s); if(!comoRascunho) await enviarNotificacaoCompradora(s);}catch(e){return toast('Erro ao salvar no Firebase: '+e.message);} $('#solicitacaoForm').reset(); $('#itensContainer').innerHTML=''; addItem(); $('#anexosLinksContainer').innerHTML=''; addAnexoLink(); $('#solicitante').value=state.user.nome; $('#setor').value=state.user.setor||''; renderAll(); showPage('dashboard'); toast(comoRascunho?'Rascunho salvo.':`Solicitação nº ${s.numeroPedido||'-'} enviada.`);
+}
+window.enviarRascunho=async function(id){
+  const s=state.solicitacoes.find(x=>x.id===id); if(!s||s.status!=='Rascunho'||s.solicitanteUid!==state.user.uid) return;
+  try{s.numeroPedido=await proximoNumeroPedido(); s.status='Solicitada'; s.itens.forEach(i=>i.status='Solicitada'); s.historico=s.historico||[]; s.historico.push(log(`Rascunho enviado como PMC ${s.numeroPedido}`)); await persistSolicitacao(s); await enviarNotificacaoCompradora(s); renderAll(); openDetail(id); toast(`PMC ${s.numeroPedido} enviada.`);}catch(e){toast('Não foi possível enviar o rascunho: '+e.message);}
+};
 function showFragmentDialog(alertas, onConfirm){
   $('#fragmentContent').innerHTML=`<div class="fragment-head"><span>⚠</span><div><h3>Atenção à regra de 90 dias</h3><p>Encontramos possível fragmentação ou duplicidade. Você pode revisar o pedido ou salvar mesmo assim com o aviso registrado.</p></div></div><div class="fragment-list">${alertas.map(a=>`<div class="fragment-item">${esc(a)}</div>`).join('')}</div>`;
   const dlg=$('#fragmentDialog');
@@ -328,7 +357,7 @@ function showFragmentDialog(alertas, onConfirm){
 }
 function fileToDataUrl(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(file); }); }
 function getAlertas(s){
-  const dias=Number(state.config.diasRegra||90); const now=new Date(); const relevantes=['Pendente','Aprovado','Em cotação','Em compra','Comprado','Entregue'];
+  const dias=Number(state.config.diasRegra||90); const now=new Date(); const relevantes=['Solicitada','Em análise','Aguardando aprovação','Aprovado','Em cotação','Em compra','Comprado'];
   let alerts=[];
   s.itens.forEach(item=>{
     const dup=state.solicitacoes.find(x=>x.itens?.some(i=>i.codigoProduto && item.codigoProduto && i.codigoProduto===item.codigoProduto && relevantes.includes(i.status||x.status)));
@@ -357,7 +386,7 @@ function renderSolicitacoes(){
   let rows=state.solicitacoes.filter(s=>(!st||s.itens?.some(i=>(i.status||s.status)===st))&&(!fam||s.itens?.some(i=>i.familia===fam))&&(!q||norm(searchText(s)).includes(q)));
   $('#solTable tbody').innerHTML=rows.map(s=>{
     const itens=(s.itens||[]).map(i=>`<div class="item-line"><b>${esc(i.codigoProduto||'-')}</b> • ${esc(i.quantidade)} ${esc(i.unMedida||'')} • ${esc(i.descricao||'-')}<br><small>${badge(i.status||s.status)}${i.comprador?' • Compradora: '+esc(i.comprador):''}${i.dataFinalizada?' • Finalizada: '+fmtDate(i.dataFinalizada):''}</small></div>`).join('');
-    return `<tr><td><b>PMC ${esc(s.numeroPedido||'-')}</b><br>${fmtDate(s.criadoEm)}</td><td>${esc(s.solicitante)}<br><small>${esc(s.setor)}</small></td><td>${esc(itemResumo(s,'familias'))}</td><td colspan="3">${itens}</td><td>${badge(s.status)}</td><td>${s.temAlerta?'<span class="alert">⚠ 90 dias/duplicidade</span>':'<span class="ok">OK</span>'}</td><td><div class="table-action-stack"><button onclick="openDetail('${s.id}')">Ver/Atualizar itens</button><button class="pdf-inline-btn" onclick="downloadPedidoWord('${s.id}')">Gerar Word</button></div></td></tr>`;
+    return `<tr><td><b>${s.numeroPedido?'PMC '+esc(s.numeroPedido):'Rascunho'}</b><br>${fmtDate(s.criadoEm)}</td><td>${esc(s.solicitante)}<br><small>${esc(s.setor)}</small></td><td>${esc(itemResumo(s,'familias'))}</td><td colspan="3">${itens}</td><td>${badge(s.status)}</td><td>${s.temAlerta?'<span class="alert">⚠ 90 dias/duplicidade</span>':'<span class="ok">OK</span>'}</td><td><div class="table-action-stack"><button onclick="openDetail('${s.id}')">Ver/Atualizar itens</button>${s.status==='Rascunho'&&s.solicitanteUid===state.user.uid?`<button class="primary" onclick="enviarRascunho('${s.id}')">Enviar PMC</button>`:''}${s.numeroPedido?`<button class="pdf-inline-btn" onclick="downloadPedidoWord('${s.id}')">Gerar Word</button>`:''}</div></td></tr>`;
   }).join('') || '<tr><td colspan="9">Nenhuma solicitação encontrada.</td></tr>';
 }
 window.openDetail=function(id){
@@ -366,6 +395,11 @@ window.openDetail=function(id){
   $('#detailContent').classList.toggle('buyer-compact', canEdit);
   $('#detailContent').innerHTML=`<div class="detail-actions-row"><div class="detail-document-actions"><button class="primary pdf-order-btn" type="button" onclick="downloadPedidoWord('${s.id}')">Gerar modelo de cotação (.docx)</button><span>Documento Word editável, com somente os itens e campos necessários para o fornecedor.</span></div><button class="history-button" type="button" onclick="openHistory('${s.id}')">Histórico</button></div><h3>Solicitação PMC nº ${esc(s.numeroPedido||'-')}</h3><div class="detail-grid">${item('Data do pedido',fmtDate(s.criadoEm))}${item('Data da necessidade',s.dataNecessidade?fmtDate(s.dataNecessidade):'-')}${item('Solicitante',s.solicitante)}${item('Setor',s.setor)}${item('Unidade',s.unidade)}${item('Entidade',s.entidade)}${item('Centro/Classe',s.centroCusto)}${item('Finalidade',s.finalidade)}${item('Status geral calculado',badge(s.status))}${item('Urgência',s.urgencia)}${item('Justificativa',s.justificativa,'wide')}${item('Anexo/orçamento',s.anexo?`<a href="${escAttr(s.anexo)}" target="_blank">Abrir orçamento/anexo</a>`:'-','wide')}${item('Alerta',s.alertaTexto?`<span class="fragment-alert-red">${esc(s.alertaTexto)}</span>`:'Sem alerta','wide')}</div><h3>Itens da solicitação</h3>${itensHtml}
     ${canEdit?`<hr><button class="danger-btn" onclick="delSol('${s.id}')">Excluir solicitação completa</button>`:''}`;
+  if((s.anexos||[]).length){
+    const box=document.createElement('div'); box.className='panel attached-quote';
+    box.innerHTML=`<small>Anexos informados pelo solicitante</small><div class="attachment-list">${s.anexos.map(a=>`<a href="${escAttr(a.url)}" target="_blank" rel="noopener"><b>${esc(a.nome)}</b> <small>• ${esc(a.categoria||'Anexo')} • OneDrive/SharePoint</small></a>`).join('')}</div>`;
+    $('#detailContent').prepend(box);
+  }
   const paginaAtual=document.querySelector('.page.active')?.id||'solicitacoes'; if(paginaAtual!=='detalhe') state.previousPage=paginaAtual; $('#detailPageTitle').textContent='Detalhes da Solicitação PMC'; showPage('detalhe');
 }
 window.openHistory=function(id){
@@ -502,6 +536,7 @@ window.saveItemStatus=async function(sid,itemId){
   atualizarStatusPedido(s); await persistSolicitacao(s); closeItemUpdate(); renderAll(); openDetail(sid); toast('Dados do produto atualizados.');
 }
 function atualizarStatusPedido(s){
+  if(s.status==='Rascunho' && (s.itens||[]).every(i=>(i.status||'Rascunho')==='Rascunho')) return;
   const statuses=(s.itens||[]).map(i=>i.status||'Pendente');
   if(!statuses.length) {s.status='Pendente'; return;}
   if(statuses.every(x=>x==='Comprado')) s.status='Comprado';
@@ -509,6 +544,10 @@ function atualizarStatusPedido(s){
   else if(statuses.some(x=>x==='Em cotação')) s.status='Em cotação';
   else if(statuses.some(x=>x==='Aprovado')) s.status='Aprovado';
   else if(statuses.every(x=>x==='Recusado')) s.status='Recusado';
+  else if(statuses.some(x=>x==='Aguardando aprovação')) s.status='Aguardando aprovação';
+  else if(statuses.some(x=>x==='Em análise')) s.status='Em análise';
+  else if(statuses.some(x=>x==='Solicitada')) s.status='Solicitada';
+  else if(statuses.every(x=>x==='Cancelado')) s.status='Cancelado';
   else s.status='Pendente';
 }
 window.delSol=function(id){confirmAction('Excluir esta solicitação completa?',async()=>{await db.collection('pmcSolicitacoes').doc(id).delete(); state.solicitacoes=state.solicitacoes.filter(x=>x.id!==id); renderAll(); showPage('solicitacoes'); toast('Solicitação excluída.');},'Excluir solicitação');}
@@ -646,7 +685,7 @@ window.downloadPedidoWord=async function(id){
       Document,Packer,Paragraph,TextRun,Table,TableRow,TableCell,WidthType,
       AlignmentType,BorderStyle,ShadingType,VerticalAlign,ImageRun,Header,Footer
     }=d;
-    const blue='23448F', light='EAF0FA', gray='F3F5F8', border='AAB8D4';
+    const blue='174A8B', light='EAF2FB', gray='F5F7FA', border='C7D2E3';
     const borders={top:{style:BorderStyle.SINGLE,size:4,color:border},bottom:{style:BorderStyle.SINGLE,size:4,color:border},left:{style:BorderStyle.SINGLE,size:4,color:border},right:{style:BorderStyle.SINGLE,size:4,color:border}};
     const cell=(children,opts={})=>new TableCell({
       children:Array.isArray(children)?children:[children],
@@ -671,10 +710,10 @@ window.downloadPedidoWord=async function(id){
 
     const supplierTable=new Table({width:{size:100,type:WidthType.PERCENTAGE},rows:[
       new TableRow({children:[cell(para('DADOS DO FORNECEDOR',{bold:true,color:'FFFFFF'}),{fill:blue,width:100})]}),
-      new TableRow({children:[cell(para('Razão Social: _______________________________________________________________'),{width:100})]}),
-      new TableRow({children:[cell(para('CNPJ: ______________________________  Contato: ______________________________'),{width:100})]}),
-      new TableRow({children:[cell(para('Telefone: ___________________________  E-mail: ______________________________'),{width:100})]}),
-      new TableRow({children:[cell(para('Data da cotação: ____/____/________  Validade da proposta: _________________'),{width:100})]})
+      new TableRow({children:[cell([para('Razão Social',{bold:true,size:16,color:'586783'}),para(' ')],{width:100})]}),
+      new TableRow({children:[cell([para('CNPJ',{bold:true,size:16,color:'586783'}),para(' ')],{width:50}),cell([para('Contato',{bold:true,size:16,color:'586783'}),para(' ')],{width:50})]}),
+      new TableRow({children:[cell([para('Telefone',{bold:true,size:16,color:'586783'}),para(' ')],{width:50}),cell([para('E-mail',{bold:true,size:16,color:'586783'}),para(' ')],{width:50})]}),
+      new TableRow({children:[cell([para('Data da cotação',{bold:true,size:16,color:'586783'}),para(' ')],{width:50}),cell([para('Validade da proposta',{bold:true,size:16,color:'586783'}),para(' ')],{width:50})]})
     ]});
 
     const widths=[12,31,10,17,15,15];
@@ -686,18 +725,18 @@ window.downloadPedidoWord=async function(id){
       cell(para(i.descricao||'-',{size:17}),{width:widths[1]}),
       cell(para(`${i.quantidade||'-'} ${i.unMedida||''}`.trim(),{size:17,align:AlignmentType.CENTER}),{width:widths[2]}),
       cell(para('\n\n',{size:17}),{width:widths[3]}),
-      cell(para('R$ ____________',{size:17}),{width:widths[4]}),
-      cell(para('R$ ____________',{size:17}),{width:widths[5]})
+      cell(para('R$ ',{size:17}),{width:widths[4]}),
+      cell(para('R$ ',{size:17}),{width:widths[5]})
     ]}));
     const productTable=new Table({width:{size:100,type:WidthType.PERCENTAGE},rows:[headerRow,...itemRows]});
 
     const commercialTable=new Table({width:{size:100,type:WidthType.PERCENTAGE},rows:[
       new TableRow({children:[cell(para('RESUMO E CONDIÇÕES DA PROPOSTA',{bold:true,color:'FFFFFF'}),{fill:blue,width:100})]}),
-      new TableRow({children:[cell(para('Valor total geral da proposta: R$ __________________________________________'),{fill:light,width:100})]}),
-      new TableRow({children:[cell(para('Prazo de entrega: __________________________  Forma de pagamento: __________________________'),{width:100})]}),
-      new TableRow({children:[cell(para('Frete incluso: (   ) Sim   (   ) Não             Garantia: _________________________________'),{width:100})]}),
-      new TableRow({children:[cell(para('Observações:\n________________________________________________________________________________\n________________________________________________________________________________\n________________________________________________________________________________'),{width:100})]}),
-      new TableRow({children:[cell(para('Responsável pela proposta: __________________________________  Data: ____/____/________'),{width:100})]})
+      new TableRow({children:[cell([para('Valor total geral da proposta',{bold:true,size:16,color:'586783'}),para('R$ ')],{fill:light,width:100})]}),
+      new TableRow({children:[cell([para('Prazo de entrega',{bold:true,size:16,color:'586783'}),para(' ')],{width:50}),cell([para('Forma de pagamento',{bold:true,size:16,color:'586783'}),para(' ')],{width:50})]}),
+      new TableRow({children:[cell([para('Frete incluso',{bold:true,size:16,color:'586783'}),para('☐ Sim    ☐ Não')],{width:50}),cell([para('Garantia',{bold:true,size:16,color:'586783'}),para(' ')],{width:50})]}),
+      new TableRow({children:[cell([para('Observações',{bold:true,size:16,color:'586783'}),para('\n\n\n')],{width:100})]}),
+      new TableRow({children:[cell([para('Responsável pela proposta',{bold:true,size:16,color:'586783'}),para(' ')],{width:70}),cell([para('Data',{bold:true,size:16,color:'586783'}),para(' ')],{width:30})]})
     ]});
 
     const footerRuns=[];
@@ -706,7 +745,7 @@ window.downloadPedidoWord=async function(id){
     if(senai) footerRuns.push(new ImageRun({data:senai,transformation:{width:78,height:31}}));
     const doc=new Document({
       creator:'PMC Digital - Alan Camilo Rodrigues',
-      title:`Cotação ${String(s.id).slice(0,8).toUpperCase()}`,
+      title:`Cotação PMC ${s.numeroPedido||String(s.id).slice(0,8).toUpperCase()}`,
       description:'Modelo editável para cotação de produtos',
       sections:[{
         properties:{page:{margin:{top:650,right:650,bottom:650,left:650}}},
@@ -725,7 +764,8 @@ window.downloadPedidoWord=async function(id){
     const blob=await Packer.toBlob(doc);
     const a=document.createElement('a');
     a.href=URL.createObjectURL(blob);
-    a.download=`Cotacao_PMC_${s.numeroPedido||String(s.id).slice(0,8).toUpperCase()}.docx`;
+    const codigoPmc=String(s.numeroPedido||String(s.id).slice(0,8)).trim().replace(/[^a-zA-Z0-9_-]/g,'-').toUpperCase();
+    a.download=`Cotacao_PMC_${codigoPmc}.docx`;
     document.body.appendChild(a);a.click();
     setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500);
     toast('Modelo de cotação em Word gerado.');
@@ -738,8 +778,8 @@ window.downloadPedidoWord=async function(id){
 }
 
 function exportCsv(){
-  const head=['Data Pedido','Data Necessidade','Solicitante','Setor','Unidade','Entidade','CentroCusto','Finalidade','Familia','Codigo Produto','Descricao Produto','Quantidade','Valor Estimado','Valor Comprado','Urgencia','Status Item','Compradora','Data Finalizada','Status Geral Pedido','Alerta','Justificativa','Anexo','Link Referencia'];
-  const lines=[head, ...state.solicitacoes.flatMap(s=>(s.itens||[]).map(i=>[fmtDate(s.criadoEm),s.dataNecessidade?fmtDate(s.dataNecessidade):'',s.solicitante,s.setor,s.unidade,s.entidade,s.centroCusto,s.finalidade,familiaLabel(i.familia),i.codigoProduto||'',i.descricao||'',i.quantidade||'',i.valorEstimado||'',i.valorComprado||'',s.urgencia,i.status||s.status,i.comprador||'',i.dataFinalizada?fmtDate(i.dataFinalizada):'',s.status,s.alertaTexto||'',s.justificativa,s.anexo,i.linkReferencia||'']))];
+  const head=['PMC','Data Pedido','Data Necessidade','Solicitante','Setor','Unidade','Entidade','CentroCusto','Finalidade','Familia','Codigo Produto','Descricao Produto','Quantidade','Valor Estimado','Valor Comprado','Economia','Tempo ate compra (dias)','Urgencia','Status Item','Compradora','Data Finalizada','Status Geral Pedido','Alerta','Justificativa','Anexos','Link Referencia'];
+  const lines=[head, ...state.solicitacoes.flatMap(s=>(s.itens||[]).map(i=>[s.numeroPedido||'Rascunho',fmtDate(s.criadoEm),s.dataNecessidade?fmtDate(s.dataNecessidade):'',s.solicitante,s.setor,s.unidade,s.entidade,s.centroCusto,s.finalidade,familiaLabel(i.familia),i.codigoProduto||'',i.descricao||'',i.quantidade||'',i.valorEstimado||'',i.valorComprado||'',Number(i.valorEstimado||0)-Number(i.valorComprado||0),i.dataFinalizada?diffDays(new Date(i.dataFinalizada),new Date(s.criadoEm)):'',s.urgencia,i.status||s.status,i.comprador||'',i.dataFinalizada?fmtDate(i.dataFinalizada):'',s.status,s.alertaTexto||'',s.justificativa,(s.anexos||[]).map(a=>a.url).join(' | ')||s.anexo,i.linkReferencia||'']))];
   const csv=lines.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(';')).join('\n'); const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'})); a.download='pmc-solicitacoes.csv'; a.click();
 }
 function normalizarSolicitacao(s){ if(s.itens){ s.itens=s.itens.map(i=>({id:i.id||crypto.randomUUID(), ...i, familia:familiaCodigo(i.familia), status:['Aguardando entrega','Entregue'].includes(i.status)?'Comprado':(i.status||s.status||'Pendente'), statusEntrega:i.statusEntrega||(['Aguardando entrega','Entregue'].includes(i.status)?i.status:'Não iniciado'), comprador:i.comprador||s.comprador||'', dataFinalizada:i.dataFinalizada||'', valorComprado:Number(i.valorComprado||0), documentosFornecedores:i.documentosFornecedores||[], comentarios:i.comentarios||[], dataEntrega:i.dataEntrega||'', nfeUrl:i.nfeUrl||'', nfeNome:i.nfeNome||''})); atualizarStatusPedido(s); return s; } s.itens=[{id:crypto.randomUUID(), familia:familiaCodigo(s.familia)||'', codigoProduto:s.codigoProduto||'', descricao:s.descricao||'', unMedida:s.unMedida||'', quantidade:s.quantidade||0, valorEstimado:s.valorEstimado||0, linkReferencia:'', imagemProduto:'', status:s.status||'Pendente', statusEntrega:'Não iniciado', comprador:s.comprador||'', dataFinalizada:'', valorComprado:0, documentosFornecedores:[], comentarios:[]}]; s.comprador=s.comprador||''; atualizarStatusPedido(s); return s; }

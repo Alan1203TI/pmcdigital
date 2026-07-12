@@ -62,7 +62,12 @@ service cloud.firestore {
         && request.resource.data.solicitanteEmail == request.auth.token.email;
 
       allow read: if active();
-      allow update: if isBuyer();
+      // Compras/gestão atualizam o fluxo. O solicitante só pode editar ou enviar o próprio rascunho.
+      allow update: if isBuyer() || (active()
+        && resource.data.solicitanteUid == request.auth.uid
+        && resource.data.status == 'Rascunho'
+        && request.resource.data.solicitanteUid == resource.data.solicitanteUid
+        && request.resource.data.solicitanteEmail == resource.data.solicitanteEmail);
       allow delete: if isAdmin();
     }
 
