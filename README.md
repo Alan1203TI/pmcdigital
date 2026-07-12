@@ -160,6 +160,10 @@ O nome do arquivo inclui automaticamente o código da PMC (por exemplo, `Cotacao
 ## Fluxo, rascunhos e relatórios
 
 - O solicitante pode salvar um rascunho sem consumir número e enviá-lo posteriormente.
+- A página **Rascunhos** permite visualizar, editar, enviar e excluir os próprios rascunhos.
+- A numeração começa em `0001` quando não há PMCs e continua a partir do maior número já salvo.
+- O modelo Word de cotação aparece somente para os perfis `admin` e `compras`.
+- Após salvar uma PMC, o sistema aguarda o retorno do EmailJS e informa se o e-mail foi enviado, falhou ou ainda não foi configurado.
 - O fluxo contempla solicitação, análise, aprovação, cotação, compra, entrega, recusa e cancelamento.
 - O histórico registra envio, notificações, mudanças dos itens, valores, responsáveis e documentos.
 - O CSV inclui PMC, economia entre estimado e comprado e tempo até a compra, permitindo análises por família, setor, solicitante e compradora.

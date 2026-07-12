@@ -69,6 +69,7 @@ let FAMILIAS_PRODUTO = [
 const ADMIN_EMAIL = 'a.camilo@fiemg.com.br';
 let state = {user:null, usuarios:[], solicitacoes:[], refs:{finalidades:[], servicosProtheus:[], centrosClasseValor:[]}, config:{diasRegra:90, limiteFamilia:3000}};
 let db=null, auth=null, authReady=false, registrationInProgress=false;
+let editingDraftId=null;
 
 async function start(){
   document.body.classList.add('auth-mode'); document.body.classList.remove('app-mode');
@@ -291,12 +292,8 @@ function preencherProduto(card){
   if(p){ input.value=p.codigo; card.querySelector('.item-descricao').value=p.descricao+'\n'+(p.uso||''); card.querySelector('.item-familia').value=familiaCodigo(p.tipo||card.querySelector('.item-familia').value); card.querySelector('.item-unMedida').value='SERV'; }
 }
 async function proximoNumeroPedido(){
-  const ref=db.collection('pmcContadores').doc('pedidos');
-  try{return await db.runTransaction(async tx=>{
-    const snap=await tx.get(ref); const atual=snap.exists?Number(snap.data().ultimo||0):0; const maiorLocal=Math.max(0,...state.solicitacoes.map(s=>Number(s.numeroPedido||0)).filter(Number.isFinite)); const proximo=Math.max(atual,maiorLocal)+1;
-    tx.set(ref,{ultimo:proximo,atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
-    return String(proximo).padStart(4,'0');
-  });}catch(e){console.warn('Contador central indisponível; usando sequência calculada.',e); const proximo=Math.max(0,...state.solicitacoes.map(s=>Number(s.numeroPedido||0)).filter(Number.isFinite))+1; return String(proximo).padStart(4,'0');}
+  const usados=state.solicitacoes.map(s=>Number(s.numeroPedido||0)).filter(n=>Number.isInteger(n)&&n>0);
+  return String((usados.length?Math.max(...usados):0)+1).padStart(4,'0');
 }
 
 function addAnexoLink(data={}){
@@ -325,7 +322,8 @@ async function salvarSolicitacao(comoRascunho=false){
     if(!comoRascunho&&(!item.familia || !item.descricao || !item.quantidade)) return toast('Preencha família, descrição e quantidade em todos os itens.');
     itens.push(item);
   }
-  const id=crypto.randomUUID(); let anexos=[];
+  const draftExistente=editingDraftId?state.solicitacoes.find(x=>x.id===editingDraftId&&x.status==='Rascunho'):null;
+  const id=draftExistente?.id||crypto.randomUUID(); let anexos=[];
   try{anexos=coletarAnexosLinks();}catch(e){return toast(e.message);}
   const numeroPedido=comoRascunho?'':await proximoNumeroPedido();
   const s={id, numeroPedido, criadoEm:new Date().toISOString(), dataNecessidade:$('#dataNecessidade')?.value||'', solicitante:$('#solicitante')?.value.trim()||state.user.nome, solicitanteEmail:state.user?.email||'', setor:$('#setor')?.value.trim()||state.user.setor||'', unidade:$('#unidade')?.value||'', entidade:$('#entidade')?.value||'', centroCusto:$('#centroCusto')?.value||'', finalidade:$('#finalidade')?.value||'', itens, urgencia:$('#urgencia')?.value||'Normal', justificativa:$('#justificativa')?.value.trim()||'', anexos, comprador:'', status:comoRascunho?'Rascunho':'Solicitada', comentarios:[], historico:[log(comoRascunho?'Rascunho criado':'PMC enviada')]};
@@ -342,11 +340,12 @@ async function enviarNotificacaoCompradora(s){
 }
 async function finalizarSolicitacao(s,comoRascunho=false){
   if(!comoRascunho) atualizarStatusPedido(s);
-  s.solicitanteUid=state.user.uid; state.solicitacoes.unshift(s); let emailEnviado=null; try{await persistSolicitacao(s); if(!comoRascunho) emailEnviado=await enviarNotificacaoCompradora(s);}catch(e){state.solicitacoes=state.solicitacoes.filter(x=>x.id!==s.id); return toast('Erro ao salvar no Firebase: '+e.message);} $('#solicitacaoForm').reset(); $('#itensContainer').innerHTML=''; addItem(); $('#anexosLinksContainer').innerHTML=''; addAnexoLink(); $('#solicitante').value=state.user.nome; $('#setor').value=state.user.setor||''; renderAll(); showPage(comoRascunho?'rascunhos':'dashboard'); toast(comoRascunho?'Rascunho salvo.':emailEnviado===false?`PMC ${s.numeroPedido} salva, mas o e-mail não foi enviado. Confira a configuração do EmailJS.`:emailEnviado===true?`PMC ${s.numeroPedido} salva e e-mail enviado com sucesso.`:`PMC ${s.numeroPedido} salva. O EmailJS ainda não está configurado.`);
+  s.solicitanteUid=state.user.uid; const existenteIndex=state.solicitacoes.findIndex(x=>x.id===s.id); if(existenteIndex>=0) state.solicitacoes[existenteIndex]=s; else state.solicitacoes.unshift(s); let emailEnviado=null; try{await persistSolicitacao(s); if(!comoRascunho) emailEnviado=await enviarNotificacaoCompradora(s);}catch(e){if(existenteIndex<0) state.solicitacoes=state.solicitacoes.filter(x=>x.id!==s.id); return toast('Erro ao salvar no Firebase: '+e.message);} editingDraftId=null; $('#solicitacaoForm').reset(); $('#itensContainer').innerHTML=''; addItem(); $('#anexosLinksContainer').innerHTML=''; addAnexoLink(); $('#salvarRascunhoBtn').textContent='Salvar rascunho'; $('#solicitante').value=state.user.nome; $('#setor').value=state.user.setor||''; renderAll(); showPage(comoRascunho?'rascunhos':'dashboard'); toast(comoRascunho?'Rascunho salvo.':emailEnviado===false?`PMC ${s.numeroPedido} salva, mas o e-mail não foi enviado. Confira a configuração do EmailJS.`:emailEnviado===true?`PMC ${s.numeroPedido} salva e e-mail enviado com sucesso.`:`PMC ${s.numeroPedido} salva. O EmailJS ainda não está configurado.`);
 }
 window.enviarRascunho=async function(id){
   const s=state.solicitacoes.find(x=>x.id===id); if(!s||s.status!=='Rascunho'||s.solicitanteUid!==state.user.uid) return;
-  try{s.numeroPedido=await proximoNumeroPedido(); s.status='Solicitada'; s.itens.forEach(i=>i.status='Solicitada'); s.historico=s.historico||[]; s.historico.push(log(`Rascunho enviado como PMC ${s.numeroPedido}`)); await persistSolicitacao(s); await enviarNotificacaoCompradora(s); renderAll(); openDetail(id); toast(`PMC ${s.numeroPedido} enviada.`);}catch(e){toast('Não foi possível enviar o rascunho: '+e.message);}
+  if(!s.solicitante||!s.setor||!s.entidade||!s.centroCusto||!s.finalidade||!s.dataNecessidade||!s.justificativa||(s.itens||[]).some(i=>!i.familia||!i.descricao||!i.quantidade)) return toast('Este rascunho ainda possui campos obrigatórios vazios. Clique em Editar, complete os dados e tente novamente.');
+  try{s.numeroPedido=await proximoNumeroPedido(); s.status='Solicitada'; s.itens.forEach(i=>i.status='Solicitada'); s.historico=s.historico||[]; s.historico.push(log(`Rascunho enviado como PMC ${s.numeroPedido}`)); await persistSolicitacao(s); const emailEnviado=await enviarNotificacaoCompradora(s); renderAll(); openDetail(id); toast(emailEnviado===true?`PMC ${s.numeroPedido} enviada e e-mail enviado com sucesso.`:emailEnviado===false?`PMC ${s.numeroPedido} enviada, mas o e-mail falhou.`:`PMC ${s.numeroPedido} enviada. O EmailJS não está configurado.`);}catch(e){toast('Não foi possível enviar o rascunho: '+e.message);}
 };
 function showFragmentDialog(alertas, onConfirm){
   $('#fragmentContent').innerHTML=`<div class="fragment-head"><span>⚠</span><div><h3>Atenção à regra de 90 dias</h3><p>Encontramos possível fragmentação ou duplicidade. Você pode revisar o pedido ou salvar mesmo assim com o aviso registrado.</p></div></div><div class="fragment-list">${alertas.map(a=>`<div class="fragment-item">${esc(a)}</div>`).join('')}</div>`;
@@ -377,15 +376,23 @@ function renderDashboard(){
   renderBars('#statusBars', countBy(allItens, 'status'), STATUSES.length);
 }
 function itemMiniCard(i){
-  return `<div class="mini-item"><b>${badge(i.status)}</b> ${i.temAlerta?'<span class="alert">⚠ 90 dias</span>':''}<br><b>${esc(i.codigoProduto||'Sem código')}</b> • Qtd: ${esc(i.quantidade)} ${esc(i.unMedida||'')}<br>${esc(i.descricao||'-').slice(0,160)}<br><small>Pedido por: ${esc(i.solicitante)} • Data do pedido: ${fmtDate(i.criadoEm)}${i.dataFinalizada?' • Finalizada: '+fmtDate(i.dataFinalizada):''}${i.comprador?' • Compradora: '+esc(i.comprador):''}</small></div>`;
+  return `<div class="mini-item"><b>PMC ${esc(i.numeroPedido||'Rascunho')}</b> • <b>${esc(familiaLabel(i.familia)||'Família não informada')}</b><br><b>${badge(i.status)}</b> ${i.temAlerta?'<span class="alert">⚠ 90 dias</span>':''}<br><b>${esc(i.codigoProduto||'Sem código')}</b> • Qtd: ${esc(i.quantidade)} ${esc(i.unMedida||'')}<br>${esc(i.descricao||'-').slice(0,160)}<br><small>Pedido por: ${esc(i.solicitante)} • Data do pedido: ${fmtDate(i.criadoEm)}${i.dataFinalizada?' • Finalizada: '+fmtDate(i.dataFinalizada):''}${i.comprador?' • Compradora: '+esc(i.comprador):''}</small></div>`;
 }
 function filtrarDashboard(rows){ const q=norm($('#buscaDashboard')?.value||''), st=$('#statusDashboard')?.value||''; return rows.filter(s=>(!st||s.itens?.some(i=>(i.status||s.status)===st))&&(!q||norm(searchText(s)).includes(q))); }
 function renderBars(sel, counts, limit){ const vals=Object.entries(counts).filter(([k])=>k).sort((a,b)=>b[1]-a[1]).slice(0,limit); const max=Math.max(1,...vals.map(x=>x[1])); $(sel).innerHTML=vals.map(([f,c])=>`<div class="bar-row"><span>${esc(f).slice(0,28)}</span><div class="bar-bg"><div class="bar-fill" style="width:${c/max*100}%"></div></div><b>${c}</b></div>`).join('') || '<p>Sem dados.</p>'; }
 function renderRascunhos(){
   const el=$('#rascunhosList'); if(!el) return;
   const rows=state.solicitacoes.filter(s=>s.status==='Rascunho'&&s.solicitanteUid===state.user?.uid);
-  el.innerHTML=rows.map(s=>`<article class="panel draft-card"><div><small>Salvo em ${fmtDateTime(s.criadoEm)}</small><h3>${esc((s.itens||[])[0]?.descricao||'PMC em elaboração')}</h3><p>${(s.itens||[]).length} item(ns) • ${esc(s.setor||'Sem setor')}</p></div><div class="draft-actions"><button onclick="openDetail('${s.id}')">Visualizar</button><button class="primary" onclick="enviarRascunho('${s.id}')">Enviar PMC</button><button class="danger-btn" onclick="excluirRascunho('${s.id}')">Excluir</button></div></article>`).join('')||'<div class="panel"><p>Nenhum rascunho salvo.</p></div>';
+  el.innerHTML=rows.map(s=>`<article class="panel draft-card"><div><small>Salvo em ${fmtDateTime(s.criadoEm)}</small><h3>${esc((s.itens||[])[0]?.descricao||'PMC em elaboração')}</h3><p>${(s.itens||[]).length} item(ns) • ${esc(s.setor||'Sem setor')}</p></div><div class="draft-actions"><button onclick="openDetail('${s.id}')">Visualizar</button><button onclick="editarRascunho('${s.id}')">Editar</button><button class="primary" onclick="enviarRascunho('${s.id}')">Enviar PMC</button><button class="danger-btn" onclick="excluirRascunho('${s.id}')">Excluir</button></div></article>`).join('')||'<div class="panel"><p>Nenhum rascunho salvo.</p></div>';
 }
+window.editarRascunho=function(id){
+  const s=state.solicitacoes.find(x=>x.id===id); if(!s||s.status!=='Rascunho'||s.solicitanteUid!==state.user.uid) return;
+  editingDraftId=id; showPage('nova'); fillSelects();
+  $('#solicitante').value=s.solicitante||state.user.nome; $('#setor').value=s.setor||state.user.setor||''; $('#unidade').value=s.unidade||'SESI'; $('#entidade').value=s.entidade||''; fillCentroCusto(); $('#centroCusto').value=s.centroCusto||''; $('#finalidade').value=s.finalidade||''; $('#dataNecessidade').value=s.dataNecessidade||''; $('#urgencia').value=s.urgencia||'Normal'; $('#justificativa').value=s.justificativa||'';
+  $('#itensContainer').innerHTML=''; (s.itens||[]).forEach(i=>addItem(i)); if(!(s.itens||[]).length) addItem();
+  $('#anexosLinksContainer').innerHTML=''; (s.anexos||[]).forEach(a=>addAnexoLink(a)); if(!(s.anexos||[]).length) addAnexoLink();
+  $('#salvarRascunhoBtn').textContent='Atualizar rascunho'; toast('Rascunho aberto para edição.');
+};
 window.excluirRascunho=function(id){
   const s=state.solicitacoes.find(x=>x.id===id); if(!s||s.status!=='Rascunho'||s.solicitanteUid!==state.user.uid) return;
   confirmAction('Excluir este rascunho?',async()=>{try{await db.collection('pmcSolicitacoes').doc(id).delete(); state.solicitacoes=state.solicitacoes.filter(x=>x.id!==id); renderAll(); toast('Rascunho excluído.');}catch(e){toast('Não foi possível excluir: '+e.message);}},'Excluir rascunho');
@@ -397,6 +404,7 @@ function renderSolicitacoes(){
     const itens=(s.itens||[]).map(i=>`<div class="item-line"><b>${esc(i.codigoProduto||'-')}</b> • ${esc(i.quantidade)} ${esc(i.unMedida||'')} • ${esc(i.descricao||'-')}<br><small>${badge(i.status||s.status)}${i.comprador?' • Compradora: '+esc(i.comprador):''}${i.dataFinalizada?' • Finalizada: '+fmtDate(i.dataFinalizada):''}</small></div>`).join('');
     return `<tr><td><b>${s.numeroPedido?'PMC '+esc(s.numeroPedido):'Rascunho'}</b><br>${fmtDate(s.criadoEm)}</td><td>${esc(s.solicitante)}<br><small>${esc(s.setor)}</small></td><td>${esc(itemResumo(s,'familias'))}</td><td colspan="3">${itens}</td><td>${badge(s.status)}</td><td>${s.temAlerta?'<span class="alert">⚠ 90 dias/duplicidade</span>':'<span class="ok">OK</span>'}</td><td><div class="table-action-stack"><button onclick="openDetail('${s.id}')">Ver/Atualizar itens</button>${s.status==='Rascunho'&&s.solicitanteUid===state.user.uid?`<button class="primary" onclick="enviarRascunho('${s.id}')">Enviar PMC</button>`:''}${s.numeroPedido?`<button class="pdf-inline-btn" onclick="downloadPedidoWord('${s.id}')">Gerar Word</button>`:''}</div></td></tr>`;
   }).join('') || '<tr><td colspan="9">Nenhuma solicitação encontrada.</td></tr>';
+  if(!['admin','compras'].includes(state.user?.perfil)) $$('#solTable .pdf-inline-btn').forEach(b=>b.remove());
 }
 window.openDetail=function(id){
   const s=state.solicitacoes.find(x=>x.id===id); if(!s) return; const canEdit = ['admin','compras','gestor'].includes(state.user.perfil);
@@ -404,6 +412,7 @@ window.openDetail=function(id){
   $('#detailContent').classList.toggle('buyer-compact', canEdit);
   $('#detailContent').innerHTML=`<div class="detail-actions-row"><div class="detail-document-actions"><button class="primary pdf-order-btn" type="button" onclick="downloadPedidoWord('${s.id}')">Gerar modelo de cotação (.docx)</button><span>Documento Word editável, com somente os itens e campos necessários para o fornecedor.</span></div><button class="history-button" type="button" onclick="openHistory('${s.id}')">Histórico</button></div><h3>Solicitação PMC nº ${esc(s.numeroPedido||'-')}</h3><div class="detail-grid">${item('Data do pedido',fmtDate(s.criadoEm))}${item('Data da necessidade',s.dataNecessidade?fmtDate(s.dataNecessidade):'-')}${item('Solicitante',s.solicitante)}${item('Setor',s.setor)}${item('Unidade',s.unidade)}${item('Entidade',s.entidade)}${item('Centro/Classe',s.centroCusto)}${item('Finalidade',s.finalidade)}${item('Status geral calculado',badge(s.status))}${item('Urgência',s.urgencia)}${item('Justificativa',s.justificativa,'wide')}${item('Anexo/orçamento',s.anexo?`<a href="${escAttr(s.anexo)}" target="_blank">Abrir orçamento/anexo</a>`:'-','wide')}${item('Alerta',s.alertaTexto?`<span class="fragment-alert-red">${esc(s.alertaTexto)}</span>`:'Sem alerta','wide')}</div><h3>Itens da solicitação</h3>${itensHtml}
     ${canEdit?`<hr><button class="danger-btn" onclick="delSol('${s.id}')">Excluir solicitação completa</button>`:''}`;
+  if(!['admin','compras'].includes(state.user?.perfil)) $('#detailContent .detail-document-actions')?.remove();
   if((s.anexos||[]).length){
     const box=document.createElement('div'); box.className='panel attached-quote';
     box.innerHTML=`<small>Anexos informados pelo solicitante</small><div class="attachment-list">${s.anexos.map(a=>`<a href="${escAttr(a.url)}" target="_blank" rel="noopener"><b>${esc(a.nome)}</b> <small>• ${esc(a.categoria||'Anexo')} • OneDrive/SharePoint</small></a>`).join('')}</div>`;
@@ -448,6 +457,7 @@ window.openItemUpdate=function(sid,itemId){
   modal.innerHTML=`<div class="item-update-dialog" role="dialog" aria-modal="true" aria-labelledby="itemUpdateTitle"><div class="item-update-header"><div><span class="eyebrow">PMC ${esc(pedido.numeroPedido||'-')}</span><h3 id="itemUpdateTitle">Atualizar produto ${esc(produto.codigoProduto||'')}</h3><p>${esc(produto.descricao||'')}</p></div><button class="item-update-close" type="button" onclick="closeItemUpdate()" aria-label="Fechar">×</button></div><div class="item-update-body buyer-compact">${itemEditor(sid,produto,0)}</div></div>`;
   modal.addEventListener('click',e=>{if(e.target===modal) closeItemUpdate();});
   document.body.appendChild(modal);
+  if(!['admin','compras'].includes(state.user?.perfil)) modal.querySelector('.template-download')?.remove();
   document.body.classList.add('modal-open');
 };
 window.closeItemUpdate=function(){
