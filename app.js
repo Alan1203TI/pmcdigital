@@ -706,7 +706,7 @@ window.downloadPedidoWord=async function(id){
       Document,Packer,Paragraph,TextRun,Table,TableRow,TableCell,WidthType,
       AlignmentType,BorderStyle,ShadingType,VerticalAlign,ImageRun,Header,Footer,HeightRule
     }=d;
-    const blue='174A8B', blueDark='123B70', green='45A86B', orange='F26A21', light='F1F6FC', gray='F7F9FC', border='D5DFEC', text='24324A';
+    const blue='174A8B', blueDark='123B70', green='45A86B', orange='F26A21', light='F1F6FC', gray='F7F9FC', border='D5DFEC', textColor='24324A';
     const borders={top:{style:BorderStyle.SINGLE,size:3,color:border},bottom:{style:BorderStyle.SINGLE,size:3,color:border},left:{style:BorderStyle.SINGLE,size:3,color:border},right:{style:BorderStyle.SINGLE,size:3,color:border}};
     const cell=(children,opts={})=>new TableCell({
       children:Array.isArray(children)?children:[children],
@@ -719,9 +719,9 @@ window.downloadPedidoWord=async function(id){
     const para=(text,opts={})=>new Paragraph({
       alignment:opts.align||AlignmentType.LEFT,
       spacing:{after:opts.after??80,before:opts.before??0},
-      children:[new TextRun({text:String(text??''),bold:!!opts.bold,size:opts.size||20,color:opts.color||text,font:'Aptos'})]
+      children:[new TextRun({text:String(text??''),bold:!!opts.bold,size:opts.size||20,color:opts.color||textColor,font:'Aptos'})]
     });
-    const field=(label,value=' ',opts={})=>cell([para(label.toUpperCase(),{bold:true,size:14,color:opts.accent||'66758D',after:65}),para(value,{size:19,color:text,after:0})],{width:opts.width||50,fill:opts.fill||'FFFFFF'});
+    const field=(label,value=' ',opts={})=>cell([para(label.toUpperCase(),{bold:true,size:14,color:opts.accent||'66758D',after:65}),para(value,{size:19,color:textColor,after:0})],{width:opts.width||50,fill:opts.fill||'FFFFFF'});
     const row=(children,height=560)=>new TableRow({height:{value:height,rule:HeightRule.ATLEAST},children});
     const fiemg=await fetchImageBytes('assets/logo-fiemg.png');
     const sesi=await fetchImageBytes('assets/logo-sesi.png');
