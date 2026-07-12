@@ -208,9 +208,19 @@ function bind(){
   $('#refBusca').oninput = renderReferencias; $('#budgetSituacao').onchange = renderReferencias;
   $('#exportCsvBtn').onclick = exportCsv;
   $('#salvarConfig').onclick = async () => {state.config.diasRegra = Number($('#diasRegra').value||90); state.config.limiteFamilia = Number($('#limiteFamilia').value||3000); state.config.familiasProduto=FAMILIAS_PRODUTO; state.config.emailPublicKey=$('#emailPublicKey').value.trim(); state.config.emailServiceId=$('#emailServiceId').value.trim(); state.config.emailTemplateId=$('#emailTemplateId').value.trim(); state.config.emailCompradora=$('#emailCompradora').value.trim(); await persistConfig(); toast('Configuração salva.'); renderAll();};
+  $('#salvarEmailConfig').onclick = salvarConfiguracaoEmail;
   if($('#adicionarFamiliaBtn')) $('#adicionarFamiliaBtn').onclick=adicionarFamiliaAdmin;
   $('#limparDemo').onclick = () => toast('Exclusão em massa foi desativada por segurança. Exclua pedidos individualmente quando necessário.');
   addItem(); addAnexoLink();
+}
+async function salvarConfiguracaoEmail(){
+  const publicKey=$('#emailPublicKey').value.trim(), serviceId=$('#emailServiceId').value.trim(), templateId=$('#emailTemplateId').value.trim(), destinatario=$('#emailCompradora').value.trim().toLowerCase();
+  if(!publicKey||!serviceId||!templateId||!destinatario) return toast('Preencha todos os campos da configuração de e-mail.');
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(destinatario)) return toast('Informe um e-mail válido para a compradora.');
+  const btn=$('#salvarEmailConfig'); btn.disabled=true; btn.textContent='Salvando...';
+  try{state.config.emailPublicKey=publicKey; state.config.emailServiceId=serviceId; state.config.emailTemplateId=templateId; state.config.emailCompradora=destinatario; await persistConfig(); $('#emailConfigStatus').textContent='Configuração salva com sucesso.'; toast('Configurações de e-mail salvas com sucesso.');}
+  catch(e){$('#emailConfigStatus').textContent='Não foi possível salvar.'; toast('Erro ao salvar as configurações de e-mail: '+e.message);}
+  finally{btn.disabled=false; btn.textContent='Salvar configurações de e-mail';}
 }
 function toggleAuth(mode){
   const loginMode=mode==='login';
