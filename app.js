@@ -134,10 +134,10 @@ function showLoggedOut(){
 function paginasPermitidasPorPerfil(perfil){
   perfil=String(perfil||'solicitante').trim().toLowerCase();
   const mapa={
-    solicitante:['dashboard','nova','referencias','detalhe'],
-    compras:['dashboard','nova','referencias','detalhe'],
-    gestor:['dashboard','nova','solicitacoes','referencias','compradora','detalhe'],
-    admin:['dashboard','nova','solicitacoes','referencias','compradora','usuarios','config','detalhe']
+    solicitante:['dashboard','nova','rascunhos','referencias','detalhe'],
+    compras:['dashboard','nova','rascunhos','referencias','detalhe'],
+    gestor:['dashboard','nova','rascunhos','solicitacoes','referencias','compradora','detalhe'],
+    admin:['dashboard','nova','rascunhos','solicitacoes','referencias','compradora','usuarios','config','detalhe']
   };
   return mapa[perfil]||mapa.solicitante;
 }
@@ -252,12 +252,12 @@ function showPage(id){
   if(!permitidas.includes(id)) id='dashboard';
   $$('.page').forEach(p=>p.classList.toggle('active',p.id===id));
   $$('.nav').forEach(n=>n.classList.toggle('active',n.dataset.page===id));
-  const titles={dashboard:['Dashboard','Meus pedidos, pedidos geral, status e consulta de compras realizadas.'],nova:['Nova Solicitação','Adicione um ou mais itens na mesma PMC.'],solicitacoes:['Meus / Pedidos Gerais','Consulte por código Protheus, produto, família, solicitante ou comprador.'],referencias:['Budget de Valor','Saldo disponível por família conforme o limite móvel de 90 dias.'],compradora:['Área da Compradora','Controle exclusivo das PMC solicitadas, com atualização por produto/item.'],usuarios:['Usuários','Gerencie perfis e acessos cadastrados.'],detalhe:['Detalhes da PMC','Visualização e atualização em página completa.'],config:['Configurações','Regras do sistema.']};
+  const titles={dashboard:['Dashboard','Meus pedidos, pedidos geral, status e consulta de compras realizadas.'],nova:['Nova Solicitação','Adicione um ou mais itens na mesma PMC.'],rascunhos:['Rascunhos','Consulte e envie suas solicitações ainda não finalizadas.'],solicitacoes:['Meus / Pedidos Gerais','Consulte por código Protheus, produto, família, solicitante ou comprador.'],referencias:['Budget de Valor','Saldo disponível por família conforme o limite móvel de 90 dias.'],compradora:['Área da Compradora','Controle exclusivo das PMC solicitadas, com atualização por produto/item.'],usuarios:['Usuários','Gerencie perfis e acessos cadastrados.'],detalhe:['Detalhes da PMC','Visualização e atualização em página completa.'],config:['Configurações','Regras do sistema.']};
   const pageTitleEl=$('#pageTitle'); const pageSubtitleEl=$('#pageSubtitle');
   if(pageTitleEl) pageTitleEl.textContent=titles[id]?.[0]||'PMC';
   if(pageSubtitleEl) pageSubtitleEl.textContent=titles[id]?.[1]||'';
 }
-function renderAll(){ fillSelects(); renderDashboard(); renderSolicitacoes(); renderCompradora(); renderReferencias(); renderUsuarios(); renderFamiliasAdmin(); $('#diasRegra').value=state.config.diasRegra; if($('#limiteFamilia')) $('#limiteFamilia').value=state.config.limiteFamilia||3000; ['emailPublicKey','emailServiceId','emailTemplateId','emailCompradora'].forEach(id=>{if($('#'+id)) $('#'+id).value=state.config[id]||'';}); }
+function renderAll(){ fillSelects(); renderDashboard(); renderRascunhos(); renderSolicitacoes(); renderCompradora(); renderReferencias(); renderUsuarios(); renderFamiliasAdmin(); $('#diasRegra').value=state.config.diasRegra; if($('#limiteFamilia')) $('#limiteFamilia').value=state.config.limiteFamilia||3000; ['emailPublicKey','emailServiceId','emailTemplateId','emailCompradora'].forEach(id=>{if($('#'+id)) $('#'+id).value=state.config[id]||'';}); }
 function fillSelects(){
   $('#finalidade').innerHTML='<option value="">Selecione</option>' + state.refs.finalidades.map(f=>`<option value="${esc(f.codigo+' - '+f.descricao)}" data-conta="${esc(f.conta)}">${esc(f.codigo)} - ${esc(f.descricao)}</option>`).join('');
   fillCentroCusto();
@@ -292,11 +292,11 @@ function preencherProduto(card){
 }
 async function proximoNumeroPedido(){
   const ref=db.collection('pmcContadores').doc('pedidos');
-  return db.runTransaction(async tx=>{
-    const snap=await tx.get(ref); const atual=snap.exists?Number(snap.data().ultimo||0):0; const proximo=atual+1;
+  try{return await db.runTransaction(async tx=>{
+    const snap=await tx.get(ref); const atual=snap.exists?Number(snap.data().ultimo||0):0; const maiorLocal=Math.max(0,...state.solicitacoes.map(s=>Number(s.numeroPedido||0)).filter(Number.isFinite)); const proximo=Math.max(atual,maiorLocal)+1;
     tx.set(ref,{ultimo:proximo,atualizadoEm:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
     return String(proximo).padStart(4,'0');
-  });
+  });}catch(e){console.warn('Contador central indisponível; usando sequência calculada.',e); const proximo=Math.max(0,...state.solicitacoes.map(s=>Number(s.numeroPedido||0)).filter(Number.isFinite))+1; return String(proximo).padStart(4,'0');}
 }
 
 function addAnexoLink(data={}){
@@ -322,13 +322,13 @@ async function salvarSolicitacao(comoRascunho=false){
     normalizarFamiliaInput(card.querySelector('.item-familia'));
     const item={id:crypto.randomUUID(), familia:card.querySelector('.item-familia').value.trim(), codigoProduto:card.querySelector('.item-codigo').value.trim(), descricao:card.querySelector('.item-descricao').value.trim(), unMedida:card.querySelector('.item-unMedida').value.trim(), quantidade:Number(card.querySelector('.item-quantidade').value), valorEstimado:Number(card.querySelector('.item-valorEstimado').value||0), linkReferencia:card.querySelector('.item-linkReferencia').value.trim(), imagemProduto:'', status:comoRascunho?'Rascunho':'Solicitada', comprador:'', dataFinalizada:'', valorComprado:0, documentosFornecedores:[], comentarios:[]};
     const file=card.querySelector('.item-imagem').files[0]; if(file) item.imagemProduto = await fileToDataUrl(file);
-    if(!item.familia || !item.descricao || !item.quantidade) return toast('Preencha família, descrição e quantidade em todos os itens.');
+    if(!comoRascunho&&(!item.familia || !item.descricao || !item.quantidade)) return toast('Preencha família, descrição e quantidade em todos os itens.');
     itens.push(item);
   }
   const id=crypto.randomUUID(); let anexos=[];
   try{anexos=coletarAnexosLinks();}catch(e){return toast(e.message);}
   const numeroPedido=comoRascunho?'':await proximoNumeroPedido();
-  const s={id, numeroPedido, criadoEm:new Date().toISOString(), dataNecessidade:$('#dataNecessidade').value, solicitante:$('#solicitante').value.trim(), solicitanteEmail:state.user?.email||'', setor:$('#setor').value.trim(), unidade:$('#unidade').value, entidade:$('#entidade').value, centroCusto:$('#centroCusto').value, finalidade:$('#finalidade').value, itens, urgencia:$('#urgencia').value, justificativa:$('#justificativa').value.trim(), anexo:$('#anexo').value.trim(), anexos, comprador:'', status:comoRascunho?'Rascunho':'Solicitada', comentarios:[], historico:[log(comoRascunho?'Rascunho criado':'PMC enviada')]};
+  const s={id, numeroPedido, criadoEm:new Date().toISOString(), dataNecessidade:$('#dataNecessidade')?.value||'', solicitante:$('#solicitante')?.value.trim()||state.user.nome, solicitanteEmail:state.user?.email||'', setor:$('#setor')?.value.trim()||state.user.setor||'', unidade:$('#unidade')?.value||'', entidade:$('#entidade')?.value||'', centroCusto:$('#centroCusto')?.value||'', finalidade:$('#finalidade')?.value||'', itens, urgencia:$('#urgencia')?.value||'Normal', justificativa:$('#justificativa')?.value.trim()||'', anexos, comprador:'', status:comoRascunho?'Rascunho':'Solicitada', comentarios:[], historico:[log(comoRascunho?'Rascunho criado':'PMC enviada')]};
   const alerta = getAlertas(s);
   if(alerta.length){
     s.temAlerta=true; s.alertaTexto=alerta.join(' | ');
@@ -338,11 +338,11 @@ async function salvarSolicitacao(comoRascunho=false){
 }
 async function enviarNotificacaoCompradora(s){
   const c=state.config; if(!c.emailPublicKey||!c.emailServiceId||!c.emailTemplateId||!c.emailCompradora||!window.emailjs) return;
-  try{emailjs.init({publicKey:c.emailPublicKey}); await emailjs.send(c.emailServiceId,c.emailTemplateId,{destinatario:c.emailCompradora,pmc_numero:s.numeroPedido,solicitante:s.solicitante,setor:s.setor,itens:s.itens.map(i=>`${i.codigoProduto||'-'} - ${i.descricao} (${i.quantidade} ${i.unMedida||''})`).join('\n'),link_sistema:location.href}); s.historico.push(log('Notificação enviada para a compradora')); await persistSolicitacao(s);}catch(e){console.error(e); toast('PMC salva, mas o e-mail não foi enviado: '+(e.text||e.message||e));}
+  try{emailjs.init({publicKey:c.emailPublicKey}); await emailjs.send(c.emailServiceId,c.emailTemplateId,{destinatario:c.emailCompradora,pmc_numero:s.numeroPedido,solicitante:s.solicitante,setor:s.setor,itens:s.itens.map(i=>`${i.codigoProduto||'-'} - ${i.descricao} (${i.quantidade} ${i.unMedida||''})`).join('\n'),link_sistema:location.href}); s.historico.push(log('Notificação enviada para a compradora')); await persistSolicitacao(s); return true;}catch(e){console.error(e); return false;}
 }
 async function finalizarSolicitacao(s,comoRascunho=false){
   if(!comoRascunho) atualizarStatusPedido(s);
-  s.solicitanteUid=state.user.uid; state.solicitacoes.unshift(s); try{await persistSolicitacao(s); if(!comoRascunho) await enviarNotificacaoCompradora(s);}catch(e){return toast('Erro ao salvar no Firebase: '+e.message);} $('#solicitacaoForm').reset(); $('#itensContainer').innerHTML=''; addItem(); $('#anexosLinksContainer').innerHTML=''; addAnexoLink(); $('#solicitante').value=state.user.nome; $('#setor').value=state.user.setor||''; renderAll(); showPage('dashboard'); toast(comoRascunho?'Rascunho salvo.':`Solicitação nº ${s.numeroPedido||'-'} enviada.`);
+  s.solicitanteUid=state.user.uid; state.solicitacoes.unshift(s); let emailEnviado=null; try{await persistSolicitacao(s); if(!comoRascunho) emailEnviado=await enviarNotificacaoCompradora(s);}catch(e){state.solicitacoes=state.solicitacoes.filter(x=>x.id!==s.id); return toast('Erro ao salvar no Firebase: '+e.message);} $('#solicitacaoForm').reset(); $('#itensContainer').innerHTML=''; addItem(); $('#anexosLinksContainer').innerHTML=''; addAnexoLink(); $('#solicitante').value=state.user.nome; $('#setor').value=state.user.setor||''; renderAll(); showPage(comoRascunho?'rascunhos':'dashboard'); toast(comoRascunho?'Rascunho salvo.':emailEnviado===false?`PMC ${s.numeroPedido} salva, mas o e-mail não foi enviado. Confira a configuração do EmailJS.`:emailEnviado===true?`PMC ${s.numeroPedido} salva e e-mail enviado com sucesso.`:`PMC ${s.numeroPedido} salva. O EmailJS ainda não está configurado.`);
 }
 window.enviarRascunho=async function(id){
   const s=state.solicitacoes.find(x=>x.id===id); if(!s||s.status!=='Rascunho'||s.solicitanteUid!==state.user.uid) return;
@@ -381,6 +381,15 @@ function itemMiniCard(i){
 }
 function filtrarDashboard(rows){ const q=norm($('#buscaDashboard')?.value||''), st=$('#statusDashboard')?.value||''; return rows.filter(s=>(!st||s.itens?.some(i=>(i.status||s.status)===st))&&(!q||norm(searchText(s)).includes(q))); }
 function renderBars(sel, counts, limit){ const vals=Object.entries(counts).filter(([k])=>k).sort((a,b)=>b[1]-a[1]).slice(0,limit); const max=Math.max(1,...vals.map(x=>x[1])); $(sel).innerHTML=vals.map(([f,c])=>`<div class="bar-row"><span>${esc(f).slice(0,28)}</span><div class="bar-bg"><div class="bar-fill" style="width:${c/max*100}%"></div></div><b>${c}</b></div>`).join('') || '<p>Sem dados.</p>'; }
+function renderRascunhos(){
+  const el=$('#rascunhosList'); if(!el) return;
+  const rows=state.solicitacoes.filter(s=>s.status==='Rascunho'&&s.solicitanteUid===state.user?.uid);
+  el.innerHTML=rows.map(s=>`<article class="panel draft-card"><div><small>Salvo em ${fmtDateTime(s.criadoEm)}</small><h3>${esc((s.itens||[])[0]?.descricao||'PMC em elaboração')}</h3><p>${(s.itens||[]).length} item(ns) • ${esc(s.setor||'Sem setor')}</p></div><div class="draft-actions"><button onclick="openDetail('${s.id}')">Visualizar</button><button class="primary" onclick="enviarRascunho('${s.id}')">Enviar PMC</button><button class="danger-btn" onclick="excluirRascunho('${s.id}')">Excluir</button></div></article>`).join('')||'<div class="panel"><p>Nenhum rascunho salvo.</p></div>';
+}
+window.excluirRascunho=function(id){
+  const s=state.solicitacoes.find(x=>x.id===id); if(!s||s.status!=='Rascunho'||s.solicitanteUid!==state.user.uid) return;
+  confirmAction('Excluir este rascunho?',async()=>{try{await db.collection('pmcSolicitacoes').doc(id).delete(); state.solicitacoes=state.solicitacoes.filter(x=>x.id!==id); renderAll(); toast('Rascunho excluído.');}catch(e){toast('Não foi possível excluir: '+e.message);}},'Excluir rascunho');
+};
 function renderSolicitacoes(){
   const q=norm($('#busca').value||''), st=$('#filtroStatus').value, fam=$('#filtroFamilia').value;
   let rows=state.solicitacoes.filter(s=>(!st||s.itens?.some(i=>(i.status||s.status)===st))&&(!fam||s.itens?.some(i=>i.familia===fam))&&(!q||norm(searchText(s)).includes(q)));

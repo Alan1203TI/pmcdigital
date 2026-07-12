@@ -68,7 +68,9 @@ service cloud.firestore {
         && resource.data.status == 'Rascunho'
         && request.resource.data.solicitanteUid == resource.data.solicitanteUid
         && request.resource.data.solicitanteEmail == resource.data.solicitanteEmail);
-      allow delete: if isAdmin();
+      allow delete: if isAdmin() || (active()
+        && resource.data.status == 'Rascunho'
+        && resource.data.solicitanteUid == request.auth.uid);
     }
 
     match /pmcConfig/{id} {
@@ -79,9 +81,10 @@ service cloud.firestore {
 
     match /pmcContadores/{id} {
       allow read: if active();
-      allow create: if active() && id == 'pedidos' && request.resource.data.ultimo == 1;
+      allow create: if active() && id == 'pedidos' && request.resource.data.ultimo is int;
       allow update: if active() && id == 'pedidos'
-        && request.resource.data.ultimo == resource.data.ultimo + 1;
+        && request.resource.data.ultimo is int
+        && request.resource.data.ultimo > resource.data.ultimo;
       allow delete: if false;
     }
 
