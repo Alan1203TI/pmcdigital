@@ -704,60 +704,63 @@ window.downloadPedidoWord=async function(id){
     const d=await ensureDocxLibrary();
     const {
       Document,Packer,Paragraph,TextRun,Table,TableRow,TableCell,WidthType,
-      AlignmentType,BorderStyle,ShadingType,VerticalAlign,ImageRun,Header,Footer
+      AlignmentType,BorderStyle,ShadingType,VerticalAlign,ImageRun,Header,Footer,HeightRule
     }=d;
-    const blue='174A8B', light='EAF2FB', gray='F5F7FA', border='C7D2E3';
-    const borders={top:{style:BorderStyle.SINGLE,size:4,color:border},bottom:{style:BorderStyle.SINGLE,size:4,color:border},left:{style:BorderStyle.SINGLE,size:4,color:border},right:{style:BorderStyle.SINGLE,size:4,color:border}};
+    const blue='174A8B', blueDark='123B70', green='45A86B', orange='F26A21', light='F1F6FC', gray='F7F9FC', border='D5DFEC', text='24324A';
+    const borders={top:{style:BorderStyle.SINGLE,size:3,color:border},bottom:{style:BorderStyle.SINGLE,size:3,color:border},left:{style:BorderStyle.SINGLE,size:3,color:border},right:{style:BorderStyle.SINGLE,size:3,color:border}};
     const cell=(children,opts={})=>new TableCell({
       children:Array.isArray(children)?children:[children],
       borders,
       verticalAlign:VerticalAlign.CENTER,
       shading:opts.fill?{fill:opts.fill,type:ShadingType.CLEAR}:undefined,
       width:opts.width?{size:opts.width,type:WidthType.PERCENTAGE}:undefined,
-      margins:{top:90,bottom:90,left:90,right:90}
+      margins:{top:130,bottom:130,left:150,right:150}
     });
     const para=(text,opts={})=>new Paragraph({
       alignment:opts.align||AlignmentType.LEFT,
       spacing:{after:opts.after??80,before:opts.before??0},
-      children:[new TextRun({text:String(text??''),bold:!!opts.bold,size:opts.size||20,color:opts.color||'000000'})]
+      children:[new TextRun({text:String(text??''),bold:!!opts.bold,size:opts.size||20,color:opts.color||text,font:'Aptos'})]
     });
+    const field=(label,value=' ',opts={})=>cell([para(label.toUpperCase(),{bold:true,size:14,color:opts.accent||'66758D',after:65}),para(value,{size:19,color:text,after:0})],{width:opts.width||50,fill:opts.fill||'FFFFFF'});
+    const row=(children,height=560)=>new TableRow({height:{value:height,rule:HeightRule.ATLEAST},children});
     const fiemg=await fetchImageBytes('assets/logo-fiemg.png');
     const sesi=await fetchImageBytes('assets/logo-sesi.png');
     const senai=await fetchImageBytes('assets/logo-senai.png');
     const headerChildren=[];
-    if(fiemg) headerChildren.push(new Paragraph({alignment:AlignmentType.CENTER,children:[new ImageRun({data:fiemg,transformation:{width:130,height:55}})]}));
-    headerChildren.push(para('SOLICITAÇÃO DE COTAÇÃO DE PREÇOS',{bold:true,size:30,color:blue,align:AlignmentType.CENTER,after:40}));
-    headerChildren.push(para(`Referência: PMC ${s.numeroPedido||String(s.id).slice(0,8).toUpperCase()}`,{size:18,color:'586783',align:AlignmentType.CENTER,after:140}));
+    if(fiemg) headerChildren.push(new Paragraph({alignment:AlignmentType.LEFT,children:[new ImageRun({data:fiemg,transformation:{width:96,height:42}})],spacing:{after:70}}));
+    headerChildren.push(para('COTAÇÃO DE PREÇOS',{bold:true,size:34,color:blueDark,align:AlignmentType.LEFT,after:30}));
+    headerChildren.push(para(`PMC ${s.numeroPedido||String(s.id).slice(0,8).toUpperCase()}  •  SESI Dom Bosco — São João del-Rei`,{bold:true,size:17,color:green,align:AlignmentType.LEFT,after:110}));
 
     const supplierTable=new Table({width:{size:100,type:WidthType.PERCENTAGE},rows:[
-      new TableRow({children:[cell(para('DADOS DO FORNECEDOR',{bold:true,color:'FFFFFF'}),{fill:blue,width:100})]}),
-      new TableRow({children:[cell([para('Razão Social',{bold:true,size:16,color:'586783'}),para(' ')],{width:100})]}),
-      new TableRow({children:[cell([para('CNPJ',{bold:true,size:16,color:'586783'}),para(' ')],{width:50}),cell([para('Contato',{bold:true,size:16,color:'586783'}),para(' ')],{width:50})]}),
-      new TableRow({children:[cell([para('Telefone',{bold:true,size:16,color:'586783'}),para(' ')],{width:50}),cell([para('E-mail',{bold:true,size:16,color:'586783'}),para(' ')],{width:50})]}),
-      new TableRow({children:[cell([para('Data da cotação',{bold:true,size:16,color:'586783'}),para(' ')],{width:50}),cell([para('Validade da proposta',{bold:true,size:16,color:'586783'}),para(' ')],{width:50})]})
+      row([cell(para('01  •  DADOS DO FORNECEDOR',{bold:true,color:'FFFFFF',size:18,after:0}),{fill:blueDark,width:100})],380),
+      row([field('Razão Social',' ',{width:100})],620),
+      row([field('CNPJ'),field('Contato')],620),
+      row([field('Telefone'),field('E-mail')],620),
+      row([field('Data da cotação'),field('Validade da proposta')],620)
     ]});
 
-    const widths=[12,31,10,17,15,15];
+    const widths=[13,33,10,18,13,13];
     const headerRow=new TableRow({tableHeader:true,children:[
       ['Código',widths[0]],['Descrição do produto',widths[1]],['Qtd.',widths[2]],['Marca / Modelo',widths[3]],['Valor unitário',widths[4]],['Valor total',widths[5]]
     ].map(([t,w])=>cell(para(t,{bold:true,color:'FFFFFF',size:17,align:AlignmentType.CENTER}),{fill:blue,width:w}))});
-    const itemRows=(s.itens||[]).map(i=>new TableRow({children:[
+    const itemRows=(s.itens||[]).map(i=>row([
       cell(para(i.codigoProduto||'-',{size:17}),{width:widths[0]}),
       cell(para(i.descricao||'-',{size:17}),{width:widths[1]}),
       cell(para(`${i.quantidade||'-'} ${i.unMedida||''}`.trim(),{size:17,align:AlignmentType.CENTER}),{width:widths[2]}),
-      cell(para('\n\n',{size:17}),{width:widths[3]}),
+      cell(para(' ',{size:17}),{width:widths[3]}),
       cell(para('R$ ',{size:17}),{width:widths[4]}),
       cell(para('R$ ',{size:17}),{width:widths[5]})
-    ]}));
+    ],820));
     const productTable=new Table({width:{size:100,type:WidthType.PERCENTAGE},rows:[headerRow,...itemRows]});
+    const itemsTitleTable=new Table({width:{size:100,type:WidthType.PERCENTAGE},rows:[row([cell(para('02  •  ITENS PARA COTAÇÃO',{bold:true,color:'FFFFFF',size:18,after:0}),{fill:blueDark,width:100})],380)]});
 
     const commercialTable=new Table({width:{size:100,type:WidthType.PERCENTAGE},rows:[
-      new TableRow({children:[cell(para('RESUMO E CONDIÇÕES DA PROPOSTA',{bold:true,color:'FFFFFF'}),{fill:blue,width:100})]}),
-      new TableRow({children:[cell([para('Valor total geral da proposta',{bold:true,size:16,color:'586783'}),para('R$ ')],{fill:light,width:100})]}),
-      new TableRow({children:[cell([para('Prazo de entrega',{bold:true,size:16,color:'586783'}),para(' ')],{width:50}),cell([para('Forma de pagamento',{bold:true,size:16,color:'586783'}),para(' ')],{width:50})]}),
-      new TableRow({children:[cell([para('Frete incluso',{bold:true,size:16,color:'586783'}),para('☐ Sim    ☐ Não')],{width:50}),cell([para('Garantia',{bold:true,size:16,color:'586783'}),para(' ')],{width:50})]}),
-      new TableRow({children:[cell([para('Observações',{bold:true,size:16,color:'586783'}),para('\n\n\n')],{width:100})]}),
-      new TableRow({children:[cell([para('Responsável pela proposta',{bold:true,size:16,color:'586783'}),para(' ')],{width:70}),cell([para('Data',{bold:true,size:16,color:'586783'}),para(' ')],{width:30})]})
+      row([cell(para('03  •  CONDIÇÕES DA PROPOSTA',{bold:true,color:'FFFFFF',size:18,after:0}),{fill:blueDark,width:100})],380),
+      row([field('Valor total geral da proposta','R$ ',{width:100,fill:light,accent:green})],680),
+      row([field('Prazo de entrega'),field('Forma de pagamento')],620),
+      row([field('Frete incluso','☐ Sim     ☐ Não'),field('Garantia')],620),
+      row([field('Observações',' ',{width:100})],1050),
+      row([field('Responsável pela proposta',' ',{width:65}),field('Data',' ',{width:35})],620)
     ]});
 
     const footerRuns=[];
@@ -769,15 +772,16 @@ window.downloadPedidoWord=async function(id){
       title:`Cotação PMC ${s.numeroPedido||String(s.id).slice(0,8).toUpperCase()}`,
       description:'Modelo editável para cotação de produtos',
       sections:[{
-        properties:{page:{margin:{top:650,right:650,bottom:650,left:650}}},
+        properties:{page:{margin:{top:520,right:620,bottom:600,left:620}}},
         headers:{default:new Header({children:headerChildren})},
         footers:{default:new Footer({children:[new Paragraph({alignment:AlignmentType.CENTER,children:footerRuns}),para('Documento gerado pelo PMC Digital • SESI Dom Bosco – São João del-Rei',{size:15,color:'69778E',align:AlignmentType.CENTER,after:0})]})},
         children:[
-          para('Preencha os valores individualmente para cada produto. Não altere os códigos ou descrições dos itens.',{size:18,color:'4D5C73',after:150}),
+          para('Preencha os campos comerciais. Os códigos e as descrições devem permanecer inalterados.',{size:18,color:'5F6F86',after:150}),
           supplierTable,
-          para('',{after:80}),
+          para('',{after:90}),
+          itemsTitleTable,
           productTable,
-          para('',{after:80}),
+          para('',{after:100}),
           commercialTable
         ]
       }]
