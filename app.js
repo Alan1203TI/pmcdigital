@@ -426,11 +426,11 @@ function renderSolicitacoes(){
   if(!['admin','compras'].includes(state.user?.perfil)) $$('#solTable .pdf-inline-btn').forEach(b=>b.remove());
 }
 window.openDetail=function(id){
-  const s=state.solicitacoes.find(x=>x.id===id); if(!s) return; const canEdit = ['admin','compras','gestor'].includes(state.user.perfil);
+  const s=state.solicitacoes.find(x=>x.id===id); if(!s) return; const canEdit = ['admin','compras','gestor'].includes(state.user.perfil); const canDelete=['admin','compras'].includes(state.user.perfil);
   const itensHtml=s.itens.map((i,idx)=>`<div class="detail-item"><div class="detail-item-heading"><h4>Item ${idx+1} — ${esc(i.codigoProduto||'Sem código')}</h4>${canEdit?`<button class="primary item-update-button" type="button" onclick="openItemUpdate('${s.id}','${i.id}')">Atualizar produto</button>`:''}</div><div class="detail-grid">${item('Status do item',badge(i.status||s.status))}${item('Compradora',i.comprador||'-')}${item('Data finalizada',i.dataFinalizada?fmtDate(i.dataFinalizada):'-')}${item('Status da entrega',badge(i.statusEntrega||'Não iniciado'))}${item('Data da entrega',i.dataEntrega?fmtDate(i.dataEntrega):'-')}${item('Família/código',familiaLabel(i.familia))}${item('Código Protheus',i.codigoProduto||'-')}${item('Quantidade',i.quantidade+' '+(i.unMedida||''))}${item('Valor estimado',money(i.valorEstimado))}${item('Valor efetivamente comprado',money(i.valorComprado||0))}${item('Saldo da família nos 90 dias',saldoFamiliaHtml(i.familia,i.id))}${item('Descrição',i.descricao,'wide')}${item('Estudo dos orçamentos',quoteAnalysisHtml(i),'wide')}${item('Orçamentos por fornecedor',documentosHtml(i),'wide')}${item('NFE da compra',i.nfeUrl?`<a href="${escAttr(i.nfeUrl)}" target="_blank">Abrir NFE</a>${i.nfeNome?`<br><small>${esc(i.nfeNome)}</small>`:''}`:(i.nfeNome?esc(i.nfeNome):'-'),'wide')}${item('Link referência',i.linkReferencia?`<a href="${escAttr(i.linkReferencia)}" target="_blank">Abrir referência</a>`:'-','wide')}${item('Imagem',i.imagemProduto?`<img class="produto-img" src="${escAttr(i.imagemProduto)}" alt="Imagem do produto">`:'-','wide')}</div></div>`).join('');
   $('#detailContent').classList.toggle('buyer-compact', canEdit);
   $('#detailContent').innerHTML=`<div class="detail-actions-row"><div class="detail-document-actions"><button class="primary pdf-order-btn" type="button" onclick="downloadPedidoWord('${s.id}')">Gerar modelo de cotação (.docx)</button><span>Documento Word editável, com somente os itens e campos necessários para o fornecedor.</span></div><button class="history-button" type="button" onclick="openHistory('${s.id}')">Histórico</button></div><h3>Solicitação PMC nº ${esc(s.numeroPedido||'-')}</h3><div class="detail-grid">${item('Data do pedido',fmtDate(s.criadoEm))}${item('Data da necessidade',s.dataNecessidade?fmtDate(s.dataNecessidade):'-')}${item('Solicitante',s.solicitante)}${item('Setor',s.setor)}${item('Unidade',s.unidade)}${item('Entidade',s.entidade)}${item('Centro/Classe',s.centroCusto)}${item('Finalidade',s.finalidade)}${item('Status geral calculado',badge(s.status))}${item('Urgência',s.urgencia)}${item('Justificativa',s.justificativa,'wide')}${item('Anexo/orçamento',s.anexo?`<a href="${escAttr(s.anexo)}" target="_blank">Abrir orçamento/anexo</a>`:'-','wide')}${item('Alerta',s.alertaTexto?`<span class="fragment-alert-red">${esc(s.alertaTexto)}</span>`:'Sem alerta','wide')}</div><h3>Itens da solicitação</h3>${itensHtml}
-    ${canEdit?`<hr><button class="danger-btn" onclick="delSol('${s.id}')">Excluir solicitação completa</button>`:''}`;
+    ${canDelete?`<hr><button class="danger-btn" onclick="delSol('${s.id}')">Excluir solicitação completa</button>`:''}`;
   if(!['admin','compras'].includes(state.user?.perfil)) $('#detailContent .detail-document-actions')?.remove();
   if((s.anexos||[]).length){
     const box=document.createElement('div'); box.className='panel attached-quote';
@@ -588,7 +588,14 @@ function atualizarStatusPedido(s){
   else if(statuses.every(x=>x==='Cancelado')) s.status='Cancelado';
   else s.status='Pendente';
 }
-window.delSol=function(id){confirmAction('Excluir esta solicitação completa?',async()=>{await db.collection('pmcSolicitacoes').doc(id).delete(); state.solicitacoes=state.solicitacoes.filter(x=>x.id!==id); renderAll(); showPage('solicitacoes'); toast('Solicitação excluída.');},'Excluir solicitação');}
+window.delSol=function(id){
+  if(!['admin','compras'].includes(state.user?.perfil)) return toast('Seu perfil não possui permissão para excluir solicitações.');
+  const s=state.solicitacoes.find(x=>x.id===id); if(!s) return toast('Solicitação não encontrada.');
+  confirmAction(`Excluir definitivamente a PMC ${s.numeroPedido||'-'}? Esta ação não poderá ser desfeita.`,async()=>{
+    try{await db.collection('pmcSolicitacoes').doc(id).delete(); state.solicitacoes=state.solicitacoes.filter(x=>x.id!==id); renderAll(); showPage(state.user.perfil==='compras'?'compradora':'solicitacoes'); toast(`PMC ${s.numeroPedido||'-'} excluída com sucesso.`);}
+    catch(e){console.error(e); toast('Não foi possível excluir a PMC: '+(e.message||e));}
+  },'Excluir solicitação');
+}
 function comprasFamiliaNosUltimosDias(familia, ignorarItemId=''){
   const dias=Number(state.config.diasRegra||90), hoje=new Date();
   return allItems().filter(i=>i.id!==ignorarItemId && familiaCodigo(i.familia)===familiaCodigo(familia) && i.status==='Comprado' && i.dataFinalizada && diffDays(hoje,new Date(i.dataFinalizada))>=0 && diffDays(hoje,new Date(i.dataFinalizada))<=dias);

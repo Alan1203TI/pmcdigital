@@ -68,7 +68,7 @@ service cloud.firestore {
         && resource.data.status == 'Rascunho'
         && request.resource.data.solicitanteUid == resource.data.solicitanteUid
         && request.resource.data.solicitanteEmail == resource.data.solicitanteEmail);
-      allow delete: if isAdmin() || (active()
+      allow delete: if isAdmin() || (active() && profile().perfil == 'compras') || (active()
         && resource.data.status == 'Rascunho'
         && resource.data.solicitanteUid == request.auth.uid);
     }
