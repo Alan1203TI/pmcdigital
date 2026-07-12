@@ -167,7 +167,7 @@ function showLoggedIn(){
     el.tabIndex = permitido ? 0 : -1;
   });
 
-  showPage('dashboard'); renderAll();
+  showPage('dashboard'); renderAll(); const pmcDireta=new URLSearchParams(location.search).get('pmc'); if(pmcDireta&&state.solicitacoes.some(s=>s.id===pmcDireta)) openDetail(pmcDireta);
 }
 function toast(msg, title='PMC Digital'){
   const dlg=$('#messageDialog'); $('#messageDialogTitle').textContent=title; $('#messageDialogText').textContent=msg;
@@ -272,9 +272,6 @@ function renderAll(){ fillSelects(); renderDashboard(); renderRascunhos(); rende
 function fillSelects(){
   $('#finalidade').innerHTML='<option value="">Selecione</option>' + state.refs.finalidades.map(f=>`<option value="${esc(f.codigo+' - '+f.descricao)}" data-conta="${esc(f.conta)}">${esc(f.codigo)} - ${esc(f.descricao)}</option>`).join('');
   fillCentroCusto();
-  $('#produtosList').innerHTML = state.refs.servicosProtheus.map(p=>`<option value="${esc(p.codigo)} - ${esc(p.descricao)}"></option>`).join('');
-  const fams = FAMILIAS_PRODUTO;
-  $('#familiasList').innerHTML=fams.map(f=>`<option value="${esc(f.codigo)}" label="${esc(f.codigo+' - '+f.descricao)}"></option>`).join('');
   $('#filtroStatus').innerHTML='<option value="">Todos os status</option>'+STATUSES.map(s=>`<option>${s}</option>`).join('');
   $('#statusDashboard').innerHTML='<option value="">Todos os status</option>'+STATUSES.map(s=>`<option>${s}</option>`).join('');
   $('#statusCompradora').innerHTML='<option value="">Todos os status</option>'+STATUSES.map(s=>`<option>${s}</option>`).join('');
@@ -288,19 +285,14 @@ function fillCentroCusto(){
 }
 function addItem(data={}){
   const frag=$('#itemTemplate').content.cloneNode(true); const card=frag.querySelector('.item-card');
-  card.querySelector('.item-familia').value=data.familia||''; card.querySelector('.item-codigo').value=data.codigoProduto||''; card.querySelector('.item-descricao').value=data.descricao||'';
+  const familiaSelect=card.querySelector('.item-familia'); familiaSelect.innerHTML='<option value="">Selecione a família</option>'+FAMILIAS_PRODUTO.map(f=>`<option value="${escAttr(f.codigo)}">${esc(f.codigo)} - ${esc(f.descricao)}</option>`).join(''); familiaSelect.value=familiaCodigo(data.familia)||'';
+  card.querySelector('.item-codigo').value=data.codigoProduto||''; card.querySelector('.item-descricao').value=data.descricao||'';
   card.querySelector('.item-unMedida').value=data.unMedida||''; card.querySelector('.item-quantidade').value=data.quantidade||''; card.querySelector('.item-valorEstimado').value=data.valorEstimado||''; card.querySelector('.item-linkReferencia').value=data.linkReferencia||'';
   card.querySelector('.remove-item').onclick=()=>{ if($$('.item-card').length>1) card.remove(); else toast('A solicitação precisa ter pelo menos um item.'); renumerarItens(); };
-  card.querySelector('.item-codigo').addEventListener('change',()=>preencherProduto(card));
   card.querySelector('.item-familia').addEventListener('change',()=>normalizarFamiliaInput(card.querySelector('.item-familia')));
   $('#itensContainer').appendChild(card); renumerarItens();
 }
 function renumerarItens(){ $$('.item-card').forEach((c,i)=>c.querySelector('.item-title b').textContent=`Item ${i+1}`); }
-function preencherProduto(card){
-  const input=card.querySelector('.item-codigo'); const val=input.value; const code=val.split(' - ')[0].trim();
-  const p=state.refs.servicosProtheus.find(x=>x.codigo===code || val.includes(x.descricao));
-  if(p){ input.value=p.codigo; card.querySelector('.item-descricao').value=p.descricao+'\n'+(p.uso||''); card.querySelector('.item-familia').value=familiaCodigo(p.tipo||card.querySelector('.item-familia').value); card.querySelector('.item-unMedida').value='SERV'; }
-}
 async function proximoNumeroPedido(){
   const usados=state.solicitacoes.map(s=>Number(s.numeroPedido||0)).filter(n=>Number.isInteger(n)&&n>0);
   return String((usados.length?Math.max(...usados):0)+1).padStart(4,'0');
@@ -346,7 +338,7 @@ async function salvarSolicitacao(comoRascunho=false){
 }
 async function enviarNotificacaoCompradora(s){
   const c=state.config; if(!c.emailPublicKey||!c.emailServiceId||!c.emailTemplateId||!c.emailCompradora||!window.emailjs) return;
-  try{emailjs.init({publicKey:c.emailPublicKey}); await emailjs.send(c.emailServiceId,c.emailTemplateId,{destinatario:c.emailCompradora,pmc_numero:s.numeroPedido,solicitante:s.solicitante,setor:s.setor,itens:s.itens.map(i=>`${i.codigoProduto||'-'} - ${i.descricao} (${i.quantidade} ${i.unMedida||''})`).join('\n'),link_sistema:location.href}); s.historico.push(log('Notificação enviada para a compradora')); await persistSolicitacao(s); return true;}catch(e){console.error(e); return false;}
+  try{const linkPmc=`${location.origin}${location.pathname}?pmc=${encodeURIComponent(s.id)}`; const linhas=s.itens.map(i=>`<tr><td style="padding:10px;border:1px solid #d8e0ec;font-weight:600">${esc(i.codigoProduto||'-')}</td><td style="padding:10px;border:1px solid #d8e0ec">${esc(i.descricao||'-')}</td><td style="padding:10px;border:1px solid #d8e0ec;text-align:center">${esc(i.quantidade)} ${esc(i.unMedida||'')}</td></tr>`).join(''); const itensTabela=`<table role="presentation" style="width:100%;border-collapse:collapse;font-family:Arial,sans-serif"><thead><tr style="background:#174a8b;color:#fff"><th style="padding:11px;border:1px solid #174a8b;text-align:left">Código Protheus</th><th style="padding:11px;border:1px solid #174a8b;text-align:left">Descrição</th><th style="padding:11px;border:1px solid #174a8b;text-align:center">Quantidade</th></tr></thead><tbody>${linhas}</tbody></table>`; emailjs.init({publicKey:c.emailPublicKey}); await emailjs.send(c.emailServiceId,c.emailTemplateId,{destinatario:c.emailCompradora,pmc_numero:s.numeroPedido,solicitante:s.solicitante,setor:s.setor,itens:s.itens.map(i=>`${i.codigoProduto||'-'} - ${i.descricao} (${i.quantidade} ${i.unMedida||''})`).join('\n'),itens_tabela:itensTabela,link_pmc:linkPmc,link_sistema:linkPmc}); s.historico.push(log('Notificação enviada para a compradora')); await persistSolicitacao(s); return true;}catch(e){console.error(e); return false;}
 }
 async function finalizarSolicitacao(s,comoRascunho=false){
   if(!comoRascunho) atualizarStatusPedido(s);

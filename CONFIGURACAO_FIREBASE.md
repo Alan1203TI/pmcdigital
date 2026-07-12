@@ -62,6 +62,8 @@ Esta versão não utiliza Firebase Storage e permanece compatível com o plano g
 
 Na tela **Configurações**, informe a chave pública, Service ID, Template ID e e-mail da compradora. O template deve aceitar `pmc_numero`, `solicitante`, `setor`, `itens`, `link_sistema` e `destinatario`.
 
+Para o e-mail moderno, use também `itens_tabela` no modo HTML e `link_pmc` no botão **Abrir PMC**. O link aponta diretamente para a solicitação e, se necessário, o Firebase solicitará primeiro o login da compradora.
+
 Arquivos não são gravados em Base64 no Firestore. O documento é lido localmente para OCR e deve ser armazenado no OneDrive/SharePoint. No Firestore fica somente o link protegido, evitando ultrapassar o limite de tamanho dos documentos e evitando exposição pública do arquivo.
 
 ## 8. Publicação no GitHub Pages

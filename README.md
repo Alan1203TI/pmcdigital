@@ -164,6 +164,8 @@ O nome do arquivo inclui automaticamente o código da PMC (por exemplo, `Cotacao
 - A numeração começa em `0001` quando não há PMCs e continua a partir do maior número já salvo.
 - O modelo Word de cotação aparece somente para os perfis `admin` e `compras`.
 - Após salvar uma PMC, o sistema aguarda o retorno do EmailJS e informa se o e-mail foi enviado, falhou ou ainda não foi configurado.
+- O EmailJS recebe `itens_tabela` com Código Protheus, descrição e quantidade, além de `link_pmc`, que abre diretamente a solicitação após o login.
+- O Código Protheus é digitado manualmente, sem sugestões automáticas. A família utiliza uma lista clara e padronizada com o visual do sistema.
 - O fluxo contempla solicitação, análise, aprovação, cotação, compra, entrega, recusa e cancelamento.
 - O histórico registra envio, notificações, mudanças dos itens, valores, responsáveis e documentos.
 - O CSV inclui PMC, economia entre estimado e comprado e tempo até a compra, permitindo análises por família, setor, solicitante e compradora.
