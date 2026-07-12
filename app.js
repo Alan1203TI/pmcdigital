@@ -704,13 +704,14 @@ window.downloadPedidoWord=async function(id){
     const d=await ensureDocxLibrary();
     const {
       Document,Packer,Paragraph,TextRun,Table,TableRow,TableCell,WidthType,
-      AlignmentType,BorderStyle,ShadingType,VerticalAlign,ImageRun,Header,Footer,HeightRule
+      AlignmentType,BorderStyle,ShadingType,VerticalAlign,ImageRun,Header,Footer,HeightRule,TableLayoutType
     }=d;
     const blue='174A8B', blueDark='123B70', green='45A86B', orange='F26A21', light='F1F6FC', gray='F7F9FC', border='D5DFEC', textColor='24324A';
     const borders={top:{style:BorderStyle.SINGLE,size:3,color:border},bottom:{style:BorderStyle.SINGLE,size:3,color:border},left:{style:BorderStyle.SINGLE,size:3,color:border},right:{style:BorderStyle.SINGLE,size:3,color:border}};
+    const noBorders={top:{style:BorderStyle.NONE,size:0,color:'FFFFFF'},bottom:{style:BorderStyle.NONE,size:0,color:'FFFFFF'},left:{style:BorderStyle.NONE,size:0,color:'FFFFFF'},right:{style:BorderStyle.NONE,size:0,color:'FFFFFF'}};
     const cell=(children,opts={})=>new TableCell({
       children:Array.isArray(children)?children:[children],
-      borders,
+      borders:opts.noBorder?noBorders:borders,
       verticalAlign:VerticalAlign.CENTER,
       shading:opts.fill?{fill:opts.fill,type:ShadingType.CLEAR}:undefined,
       width:opts.width?{size:opts.width,type:WidthType.PERCENTAGE}:undefined,
@@ -726,12 +727,16 @@ window.downloadPedidoWord=async function(id){
     const fiemg=await fetchImageBytes('assets/logo-fiemg.png');
     const sesi=await fetchImageBytes('assets/logo-sesi.png');
     const senai=await fetchImageBytes('assets/logo-senai.png');
-    const headerChildren=[];
-    if(fiemg) headerChildren.push(new Paragraph({alignment:AlignmentType.LEFT,children:[new ImageRun({data:fiemg,transformation:{width:96,height:42}})],spacing:{after:70}}));
-    headerChildren.push(para('COTAÇÃO DE PREÇOS',{bold:true,size:34,color:blueDark,align:AlignmentType.LEFT,after:30}));
-    headerChildren.push(para(`PMC ${s.numeroPedido||String(s.id).slice(0,8).toUpperCase()}  •  SESI Dom Bosco — São João del-Rei`,{bold:true,size:17,color:green,align:AlignmentType.LEFT,after:110}));
+    const brandRuns=[]; if(sesi) brandRuns.push(new ImageRun({data:sesi,transformation:{width:76,height:30}})); brandRuns.push(new TextRun({text:'   '})); if(senai) brandRuns.push(new ImageRun({data:senai,transformation:{width:82,height:24}}));
+    const headerTable=new Table({width:{size:100,type:WidthType.PERCENTAGE},layout:TableLayoutType.FIXED,rows:[row([
+      cell(new Paragraph({alignment:AlignmentType.LEFT,children:fiemg?[new ImageRun({data:fiemg,transformation:{width:112,height:49}})]:[]}),{width:24,noBorder:true}),
+      cell([para('COTAÇÃO DE PREÇOS',{bold:true,size:31,color:blueDark,align:AlignmentType.CENTER,after:25}),para('PMC DIGITAL',{bold:true,size:16,color:'637188',align:AlignmentType.CENTER,after:0})],{width:46,fill:'FFFFFF',noBorder:true}),
+      cell(new Paragraph({alignment:AlignmentType.RIGHT,children:brandRuns}),{width:30,noBorder:true})
+    ],860)]});
+    const pmcPill=new Table({alignment:AlignmentType.CENTER,width:{size:28,type:WidthType.PERCENTAGE},layout:TableLayoutType.FIXED,rows:[row([cell(para(`PMC ${s.numeroPedido||String(s.id).slice(0,8).toUpperCase()}`,{bold:true,size:18,color:'FFFFFF',align:AlignmentType.CENTER,after:0}),{width:100,fill:green})],400)]});
+    const orientationTable=new Table({width:{size:100,type:WidthType.PERCENTAGE},layout:TableLayoutType.FIXED,rows:[row([cell([para('●  ORIENTAÇÕES PARA PREENCHIMENTO',{bold:true,size:15,color:blue,after:55}),para('Preencha todos os campos comerciais. Mantenha os códigos e as descrições dos itens inalterados.',{size:17,color:'52627A',after:0})],{width:100,fill:light})],700)]});
 
-    const supplierTable=new Table({width:{size:100,type:WidthType.PERCENTAGE},rows:[
+    const supplierTable=new Table({width:{size:100,type:WidthType.PERCENTAGE},layout:TableLayoutType.FIXED,rows:[
       row([cell(para('01  •  DADOS DO FORNECEDOR',{bold:true,color:'FFFFFF',size:18,after:0}),{fill:blueDark,width:100})],380),
       row([field('Razão Social',' ',{width:100})],620),
       row([field('CNPJ'),field('Contato')],620),
@@ -751,10 +756,10 @@ window.downloadPedidoWord=async function(id){
       cell(para('R$ ',{size:17}),{width:widths[4]}),
       cell(para('R$ ',{size:17}),{width:widths[5]})
     ],820));
-    const productTable=new Table({width:{size:100,type:WidthType.PERCENTAGE},rows:[headerRow,...itemRows]});
-    const itemsTitleTable=new Table({width:{size:100,type:WidthType.PERCENTAGE},rows:[row([cell(para('02  •  ITENS PARA COTAÇÃO',{bold:true,color:'FFFFFF',size:18,after:0}),{fill:blueDark,width:100})],380)]});
+    const productTable=new Table({width:{size:100,type:WidthType.PERCENTAGE},layout:TableLayoutType.FIXED,rows:[headerRow,...itemRows]});
+    const itemsTitleTable=new Table({width:{size:100,type:WidthType.PERCENTAGE},layout:TableLayoutType.FIXED,rows:[row([cell(para('02  •  ITENS PARA COTAÇÃO',{bold:true,color:'FFFFFF',size:18,after:0}),{fill:blueDark,width:100})],380)]});
 
-    const commercialTable=new Table({width:{size:100,type:WidthType.PERCENTAGE},rows:[
+    const commercialTable=new Table({width:{size:100,type:WidthType.PERCENTAGE},layout:TableLayoutType.FIXED,rows:[
       row([cell(para('03  •  CONDIÇÕES DA PROPOSTA',{bold:true,color:'FFFFFF',size:18,after:0}),{fill:blueDark,width:100})],380),
       row([field('Valor total geral da proposta','R$ ',{width:100,fill:light,accent:green})],680),
       row([field('Prazo de entrega'),field('Forma de pagamento')],620),
@@ -764,19 +769,23 @@ window.downloadPedidoWord=async function(id){
     ]});
 
     const footerRuns=[];
-    if(sesi) footerRuns.push(new ImageRun({data:sesi,transformation:{width:70,height:31}}));
+    if(sesi) footerRuns.push(new ImageRun({data:sesi,transformation:{width:88,height:35}}));
     footerRuns.push(new TextRun({text:'     '}));
-    if(senai) footerRuns.push(new ImageRun({data:senai,transformation:{width:78,height:31}}));
+    if(senai) footerRuns.push(new ImageRun({data:senai,transformation:{width:94,height:27}}));
     const doc=new Document({
       creator:'PMC Digital - Alan Camilo Rodrigues',
       title:`Cotação PMC ${s.numeroPedido||String(s.id).slice(0,8).toUpperCase()}`,
       description:'Modelo editável para cotação de produtos',
       sections:[{
         properties:{page:{margin:{top:520,right:620,bottom:600,left:620}}},
-        headers:{default:new Header({children:headerChildren})},
+        headers:{default:new Header({children:[]})},
         footers:{default:new Footer({children:[new Paragraph({alignment:AlignmentType.CENTER,children:footerRuns}),para('Documento gerado pelo PMC Digital • SESI Dom Bosco – São João del-Rei',{size:15,color:'69778E',align:AlignmentType.CENTER,after:0})]})},
         children:[
-          para('Preencha os campos comerciais. Os códigos e as descrições devem permanecer inalterados.',{size:18,color:'5F6F86',after:150}),
+          headerTable,
+          pmcPill,
+          para('',{after:70}),
+          orientationTable,
+          para('',{after:90}),
           supplierTable,
           para('',{after:90}),
           itemsTitleTable,
