@@ -136,7 +136,7 @@ function paginasPermitidasPorPerfil(perfil){
   perfil=String(perfil||'solicitante').trim().toLowerCase();
   const mapa={
     solicitante:['dashboard','nova','rascunhos','referencias','detalhe'],
-    compras:['dashboard','nova','rascunhos','referencias','detalhe'],
+    compras:['dashboard','nova','rascunhos','referencias','compradora','detalhe'],
     gestor:['dashboard','nova','rascunhos','solicitacoes','referencias','compradora','detalhe'],
     admin:['dashboard','nova','rascunhos','solicitacoes','referencias','compradora','usuarios','config','detalhe']
   };
@@ -209,6 +209,7 @@ function bind(){
   $('#exportCsvBtn').onclick = exportCsv;
   $('#salvarConfig').onclick = async () => {state.config.diasRegra = Number($('#diasRegra').value||90); state.config.limiteFamilia = Number($('#limiteFamilia').value||3000); state.config.familiasProduto=FAMILIAS_PRODUTO; state.config.emailPublicKey=$('#emailPublicKey').value.trim(); state.config.emailServiceId=$('#emailServiceId').value.trim(); state.config.emailTemplateId=$('#emailTemplateId').value.trim(); state.config.emailCompradora=$('#emailCompradora').value.trim(); await persistConfig(); toast('Configuração salva.'); renderAll();};
   $('#salvarEmailConfig').onclick = salvarConfiguracaoEmail;
+  $('#markNotificationsRead').onclick = marcarNotificacoesLidas;
   if($('#adicionarFamiliaBtn')) $('#adicionarFamiliaBtn').onclick=adicionarFamiliaAdmin;
   $('#limparDemo').onclick = () => toast('Exclusão em massa foi desativada por segurança. Exclua pedidos individualmente quando necessário.');
   addItem(); addAnexoLink();
@@ -268,7 +269,7 @@ function showPage(id){
   if(pageTitleEl) pageTitleEl.textContent=titles[id]?.[0]||'PMC';
   if(pageSubtitleEl) pageSubtitleEl.textContent=titles[id]?.[1]||'';
 }
-function renderAll(){ fillSelects(); renderDashboard(); renderRascunhos(); renderSolicitacoes(); renderCompradora(); renderReferencias(); renderUsuarios(); renderFamiliasAdmin(); $('#diasRegra').value=state.config.diasRegra; if($('#limiteFamilia')) $('#limiteFamilia').value=state.config.limiteFamilia||3000; ['emailPublicKey','emailServiceId','emailTemplateId','emailCompradora'].forEach(id=>{if($('#'+id)) $('#'+id).value=state.config[id]||'';}); }
+function renderAll(){ fillSelects(); renderDashboard(); renderNotificacoes(); renderRascunhos(); renderSolicitacoes(); renderCompradora(); renderReferencias(); renderUsuarios(); renderFamiliasAdmin(); $('#diasRegra').value=state.config.diasRegra; if($('#limiteFamilia')) $('#limiteFamilia').value=state.config.limiteFamilia||3000; ['emailPublicKey','emailServiceId','emailTemplateId','emailCompradora'].forEach(id=>{if($('#'+id)) $('#'+id).value=state.config[id]||'';}); }
 function fillSelects(){
   $('#finalidade').innerHTML='<option value="">Selecione</option>' + state.refs.finalidades.map(f=>`<option value="${esc(f.codigo+' - '+f.descricao)}" data-conta="${esc(f.conta)}">${esc(f.codigo)} - ${esc(f.descricao)}</option>`).join('');
   fillCentroCusto();
@@ -377,6 +378,22 @@ function renderDashboard(){
   renderBars('#familiaBars', countBy(fItens.map(i=>({...i, familia:familiaLabel(i.familia)})), 'familia'), 10);
   renderBars('#statusBars', countBy(allItens, 'status'), STATUSES.length);
 }
+function notificationStorageKey(){return `pmc_notificacoes_lidas_${state.user?.uid||'usuario'}`;}
+function notificacoesDoUsuario(){
+  if(!state.user||state.user.perfil!=='solicitante') return [];
+  const lidas=new Set(JSON.parse(localStorage.getItem(notificationStorageKey())||'[]'));
+  return meusPedidos().flatMap(s=>(s.historico||[]).filter(h=>h.usuario!==state.user.nome&&!/criada|rascunho criado/i.test(h.acao||'')).map(h=>({id:`${s.id}|${h.data}|${h.acao}`,pedidoId:s.id,numero:s.numeroPedido||'-',acao:h.acao||'Atualização na PMC',data:h.data,usuario:h.usuario||'Sistema',lida:lidas.has(`${s.id}|${h.data}|${h.acao}`)}))).sort((a,b)=>new Date(b.data)-new Date(a.data));
+}
+function renderNotificacoes(){
+  const box=$('#dashboardNotifications'); if(!box) return; const todas=notificacoesDoUsuario(), novas=todas.filter(n=>!n.lida);
+  box.classList.toggle('hidden',state.user?.perfil!=='solicitante'||!todas.length);
+  if(state.user?.perfil!=='solicitante'||!todas.length) return;
+  $('#notificationSummary').textContent=novas.length?`${novas.length} atualização(ões) ainda não lida(s).`:'Todas as atualizações foram lidas.';
+  $('#markNotificationsRead').disabled=!novas.length;
+  $('#notificationList').innerHTML=todas.slice(0,8).map(n=>`<button class="notification-item ${n.lida?'read':'unread'}" type="button" onclick="abrirNotificacao('${escAttr(n.pedidoId)}','${escAttr(n.id)}')"><span class="notification-dot"></span><span><b>PMC ${esc(n.numero)}</b><strong>${esc(n.acao)}</strong><small>${fmtDateTime(n.data)} • ${esc(n.usuario)}</small></span><span class="notification-arrow">›</span></button>`).join('');
+}
+window.abrirNotificacao=function(pedidoId,id){const lidas=new Set(JSON.parse(localStorage.getItem(notificationStorageKey())||'[]'));lidas.add(id);localStorage.setItem(notificationStorageKey(),JSON.stringify([...lidas]));renderNotificacoes();openDetail(pedidoId);};
+function marcarNotificacoesLidas(){const ids=notificacoesDoUsuario().map(n=>n.id);localStorage.setItem(notificationStorageKey(),JSON.stringify(ids));renderNotificacoes();toast('Notificações marcadas como lidas.');}
 function itemMiniCard(i){
   return `<div class="mini-item"><b>PMC ${esc(i.numeroPedido||'Rascunho')}</b> • <b>${esc(familiaLabel(i.familia)||'Família não informada')}</b><br><b>${badge(i.status)}</b> ${i.temAlerta?'<span class="alert">⚠ 90 dias</span>':''}<br><b>${esc(i.codigoProduto||'Sem código')}</b> • Qtd: ${esc(i.quantidade)} ${esc(i.unMedida||'')}<br>${esc(i.descricao||'-').slice(0,160)}<br><small>Pedido por: ${esc(i.solicitante)} • Data do pedido: ${fmtDate(i.criadoEm)}${i.dataFinalizada?' • Finalizada: '+fmtDate(i.dataFinalizada):''}${i.comprador?' • Compradora: '+esc(i.comprador):''}</small></div>`;
 }
@@ -728,7 +745,7 @@ window.downloadPedidoWord=async function(id){
     const fiemg=await fetchImageBytes('assets/logo-fiemg.png');
     const sesi=await fetchImageBytes('assets/logo-sesi.png');
     const senai=await fetchImageBytes('assets/logo-senai.png');
-    const brandRuns=[]; if(sesi) brandRuns.push(new ImageRun({data:sesi,transformation:{width:76,height:30}})); brandRuns.push(new TextRun({text:'   '})); if(senai) brandRuns.push(new ImageRun({data:senai,transformation:{width:82,height:24}}));
+    const brandRuns=[]; if(sesi) brandRuns.push(new ImageRun({data:sesi,transformation:{width:71,height:28}})); brandRuns.push(new TextRun({text:'   '})); if(senai) brandRuns.push(new ImageRun({data:senai,transformation:{width:98,height:28}}));
     const headerTable=new Table({width:{size:10200,type:WidthType.DXA},columnWidths:[2500,4500,3200],layout:TableLayoutType.FIXED,rows:[row([
       cell(new Paragraph({alignment:AlignmentType.LEFT,children:fiemg?[new ImageRun({data:fiemg,transformation:{width:105,height:46}})]:[]}),{dxa:2500,noBorder:true}),
       cell([para('COTAÇÃO DE PREÇOS',{bold:true,size:29,color:blueDark,align:AlignmentType.CENTER,after:20}),para('PMC DIGITAL',{bold:true,size:15,color:'637188',align:AlignmentType.CENTER,after:0})],{dxa:4500,fill:'FFFFFF',noBorder:true}),
@@ -770,9 +787,9 @@ window.downloadPedidoWord=async function(id){
     ]});
 
     const footerRuns=[];
-    if(sesi) footerRuns.push(new ImageRun({data:sesi,transformation:{width:88,height:35}}));
+    if(sesi) footerRuns.push(new ImageRun({data:sesi,transformation:{width:81,height:32}}));
     footerRuns.push(new TextRun({text:'     '}));
-    if(senai) footerRuns.push(new ImageRun({data:senai,transformation:{width:94,height:27}}));
+    if(senai) footerRuns.push(new ImageRun({data:senai,transformation:{width:112,height:32}}));
     const doc=new Document({
       creator:'PMC Digital - Alan Camilo Rodrigues',
       title:`Cotação PMC ${s.numeroPedido||String(s.id).slice(0,8).toUpperCase()}`,

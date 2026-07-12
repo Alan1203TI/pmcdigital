@@ -4,6 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Sistema FIEMG | PMC Digital</title>
+  <link rel="icon" type="image/png" href="assets/logo-fiemg.png">
+  <link rel="apple-touch-icon" href="assets/logo-fiemg.png">
   <link rel="stylesheet" href="styles.css">
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -85,6 +87,11 @@
             <span class="dashboard-new-pmc-icon">＋</span>
             <span><b>Nova PMC</b><small>Criar solicitação de compra</small></span>
           </button>
+        </div>
+
+        <div id="dashboardNotifications" class="dashboard-notifications hidden">
+          <div class="notification-head"><div><span class="notification-bell">🔔</span><div><h3>Atualizações das suas PMCs</h3><p id="notificationSummary">Você possui novas atualizações.</p></div></div><button id="markNotificationsRead" type="button">Marcar todas como lidas</button></div>
+          <div id="notificationList" class="notification-list"></div>
         </div>
 
         <div class="dashboard-shortcuts">
