@@ -170,3 +170,8 @@ O nome do arquivo inclui automaticamente o código da PMC (por exemplo, `Cotacao
 - O histórico registra envio, notificações, mudanças dos itens, valores, responsáveis e documentos.
 - O CSV inclui PMC, economia entre estimado e comprado e tempo até a compra, permitindo análises por família, setor, solicitante e compradora.
 - A detecção preventiva compara código Protheus e família dentro da janela configurada.
+
+
+## Controle de versão e cache
+
+O sistema utiliza `version.json` para avisar automaticamente quando uma nova versão está disponível. A cada publicação, altere os campos `version` e `build` no arquivo `version.json` e atualize o identificador `?v=` de `styles.css`, `firebase-config.js` e `app.js` no `index.html`. Também atualize `PMC_APP_VERSION` no início de `app.js`.

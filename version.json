@@ -1,0 +1,10 @@
+{
+  "version": "2.2.0",
+  "build": "20260713-01",
+  "updatedAt": "2026-07-13T14:00:00-03:00",
+  "changes": [
+    "Atualização automática do sistema",
+    "Correção de cache do navegador",
+    "Controle GISU no budget"
+  ]
+}

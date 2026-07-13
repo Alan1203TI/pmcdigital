@@ -1,3 +1,57 @@
+const PMC_APP_VERSION = '2.2.0';
+const PMC_VERSION_CHECK_INTERVAL = 5 * 60 * 1000;
+
+function forcePmcUpdate() {
+  const banner = document.getElementById('updateBanner');
+  const button = document.getElementById('updateNowBtn');
+  const text = document.getElementById('updateBannerText');
+  banner?.classList.add('is-updating');
+  if (button) button.textContent = 'Atualizando...';
+  if (text) text.textContent = 'Aguarde enquanto a versão mais recente é carregada.';
+  try {
+    localStorage.setItem('pmc_loaded_version', PMC_APP_VERSION);
+  } catch (_) {}
+  const url = new URL(window.location.href);
+  url.searchParams.set('_pmc_update', Date.now().toString());
+  window.location.replace(url.toString());
+}
+
+async function checkPmcVersion({ silent = false } = {}) {
+  try {
+    const response = await fetch(`version.json?_=${Date.now()}`, {
+      cache: 'no-store',
+      headers: { 'Cache-Control': 'no-cache' }
+    });
+    if (!response.ok) return;
+    const info = await response.json();
+    const latest = String(info.version || '').trim();
+    if (!latest || latest === PMC_APP_VERSION) {
+      try { localStorage.setItem('pmc_loaded_version', PMC_APP_VERSION); } catch (_) {}
+      return;
+    }
+    const banner = document.getElementById('updateBanner');
+    const message = document.getElementById('updateBannerText');
+    const changes = Array.isArray(info.changes) ? info.changes.filter(Boolean).slice(0, 2) : [];
+    if (message) message.textContent = changes.length
+      ? `Versão ${latest}: ${changes.join(' • ')}`
+      : `A versão ${latest} do PMC Digital está disponível.`;
+    if (banner) banner.hidden = false;
+    if (!silent && document.visibilityState === 'hidden') return;
+  } catch (error) {
+    console.debug('Não foi possível verificar a versão do PMC Digital.', error);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('updateNowBtn')?.addEventListener('click', forcePmcUpdate);
+  checkPmcVersion();
+  window.setInterval(() => checkPmcVersion({ silent: true }), PMC_VERSION_CHECK_INTERVAL);
+});
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') checkPmcVersion({ silent: true });
+});
+
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const STATUSES = ['Rascunho','Solicitada','Em análise','Aguardando aprovação','Aprovado','Em cotação','Em compra','Comprado','Recusado','Cancelado'];

@@ -369,3 +369,16 @@ body.modal-open{overflow:hidden}
 
 /* GISU / compras por licitação */
 .gisu-editor{display:grid;grid-template-columns:minmax(240px,1.5fr) minmax(230px,1fr) minmax(230px,1fr) auto;gap:16px;align-items:end;border-left:5px solid #6b46c1;background:#faf8ff}.gisu-editor h3{margin:2px 0 4px}.gisu-editor p{margin:0;color:#596579}.gisu-check{display:flex!important;gap:10px;align-items:center;padding:12px;border:1px solid #d8cff4;border-radius:10px;background:#fff}.gisu-check input{width:18px;height:18px}.gisu-badge{display:inline-flex;padding:3px 9px;border-radius:999px;background:#ede9fe;color:#5b21b6;font-weight:800}.budget-gisu{background:#faf8ff}.budget-gisu b{display:block;color:#5b21b6}.budget-gisu small{display:block;margin-top:4px;color:#6b7280}.gisu-kpi{border-top:4px solid #6b46c1}.gisu-history-title{margin-top:24px}.gisu-history-title:before{content:'GISU';display:inline-flex;margin-right:8px;padding:3px 8px;border-radius:999px;background:#ede9fe;color:#5b21b6;font-size:11px;vertical-align:middle}@media(max-width:900px){.gisu-editor{grid-template-columns:1fr}}
+
+
+/* Atualização automática e controle de versão */
+.app-version{opacity:.72;margin-left:.45rem;white-space:nowrap}
+.update-banner{position:fixed;right:20px;bottom:20px;z-index:99999;max-width:430px;display:flex;align-items:center;gap:18px;padding:16px 18px;border:1px solid #c9d5e8;border-radius:14px;background:#fff;box-shadow:0 16px 48px rgba(16,43,76,.22);color:#17324d}
+.update-banner[hidden]{display:none!important}
+.update-banner div{display:flex;flex-direction:column;gap:3px}
+.update-banner strong{font-size:15px}
+.update-banner span{font-size:13px;color:#52677c;line-height:1.35}
+.update-banner button{border:0;border-radius:9px;padding:10px 14px;background:#0067b1;color:#fff;font-weight:700;cursor:pointer;white-space:nowrap}
+.update-banner button:hover{filter:brightness(.94)}
+.update-banner.is-updating button{pointer-events:none;opacity:.75}
+@media(max-width:640px){.update-banner{left:12px;right:12px;bottom:12px;max-width:none;align-items:flex-start;flex-direction:column}.update-banner button{width:100%}}

@@ -6,12 +6,15 @@
   <title>Sistema FIEMG | PMC Digital</title>
   <link rel="icon" type="image/png" href="assets/logo-fiemg.png">
   <link rel="apple-touch-icon" href="assets/logo-fiemg.png">
-  <link rel="stylesheet" href="styles.css">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <link rel="stylesheet" href="styles.css?v=20260713-01">
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-  <script src="firebase-config.js"></script>
+  <script src="firebase-config.js?v=20260713-01"></script>
 </head>
 <body class="auth-mode">
   <div id="toast" class="toast hidden"></div>
@@ -232,9 +235,17 @@
         <div class="panel"><h3>Notificações por e-mail</h3><div class="config-grid"><label>Chave pública EmailJS<input id="emailPublicKey"></label><label>Service ID<input id="emailServiceId"></label><label>Template ID<input id="emailTemplateId"></label><label>E-mail da compradora<input id="emailCompradora" type="email"></label></div><small class="field-help">O template pode usar: pmc_numero, solicitante, setor, itens, link_sistema e destinatario.</small><div class="email-config-actions"><button id="salvarEmailConfig" class="primary" type="button">Salvar configurações de e-mail</button><span id="emailConfigStatus" class="muted"></span></div></div>
         <div class="panel"><button id="limparDemo" class="danger-btn">Apagar solicitações de demonstração</button></div>
       </section>
-      <footer class="app-footer"><span>Desenvolvido por</span><strong>Alan Camilo Rodrigues</strong><small>Técnico de TI • Desenvolvedor</small></footer>
+      <footer class="app-footer"><span>Desenvolvido por</span><strong>Alan Camilo Rodrigues</strong><small>Técnico de TI • Desenvolvedor</small><small class="app-version">PMC Digital v2.2.0</small></footer>
     </section>
   </main>
+
+  <div id="updateBanner" class="update-banner" hidden role="status" aria-live="polite">
+    <div>
+      <strong>Nova versão disponível</strong>
+      <span id="updateBannerText">Uma atualização do PMC Digital está pronta.</span>
+    </div>
+    <button id="updateNowBtn" type="button">Atualizar agora</button>
+  </div>
 
   <dialog id="fragmentDialog" class="fragment-dialog"><div id="fragmentContent"></div><div class="dialog-actions"><button id="cancelFragment" type="button">Voltar e revisar</button><button id="confirmFragment" class="primary" type="button">Salvar mesmo assim</button></div></dialog>
   <dialog id="historyDialog" class="history-dialog"><div class="history-dialog-head"><div><p class="eyebrow">Rastreabilidade da solicitação</p><h3 id="historyDialogTitle">Histórico da PMC</h3></div><button id="historyDialogClose" type="button" aria-label="Fechar">×</button></div><div id="historyDialogContent" class="history-timeline"></div><div class="dialog-actions"><button id="historyDialogOk" class="primary" type="button">Fechar</button></div></dialog>
@@ -242,6 +253,6 @@
   <dialog id="confirmDialog" class="m365-dialog"><div class="m365-dialog-head"><span class="m365-dialog-icon warning">!</span><div><h3 id="confirmDialogTitle">Confirmar ação</h3><p id="confirmDialogText"></p></div></div><div class="dialog-actions"><button id="confirmDialogCancel" type="button">Cancelar</button><button id="confirmDialogOk" class="primary" type="button">Confirmar</button></div></dialog>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.4/dist/jspdf.plugin.autotable.min.js"></script>
-  <script type="module" src="app.js"></script>
+  <script type="module" src="app.js?v=20260713-01"></script>
 </body>
 </html>
