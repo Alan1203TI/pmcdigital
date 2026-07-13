@@ -249,10 +249,50 @@
 
   <dialog id="fragmentDialog" class="fragment-dialog"><div id="fragmentContent"></div><div class="dialog-actions"><button id="cancelFragment" type="button">Voltar e revisar</button><button id="confirmFragment" class="primary" type="button">Salvar mesmo assim</button></div></dialog>
   <dialog id="historyDialog" class="history-dialog"><div class="history-dialog-head"><div><p class="eyebrow">Rastreabilidade da solicitação</p><h3 id="historyDialogTitle">Histórico da PMC</h3></div><button id="historyDialogClose" type="button" aria-label="Fechar">×</button></div><div id="historyDialogContent" class="history-timeline"></div><div class="dialog-actions"><button id="historyDialogOk" class="primary" type="button">Fechar</button></div></dialog>
+
+  <dialog id="returnPmcDialog" class="return-dialog">
+    <div class="return-dialog-head">
+      <div class="return-dialog-icon">↩</div>
+      <div>
+        <p class="eyebrow">Devolução para ajuste</p>
+        <h3 id="returnPmcTitle">Devolver PMC ao solicitante</h3>
+        <p id="returnPmcSubtitle">Descreva com clareza o que precisa ser corrigido.</p>
+      </div>
+      <button id="returnPmcClose" class="return-dialog-close" type="button" aria-label="Fechar">×</button>
+    </div>
+    <div class="return-dialog-body">
+      <label for="returnPmcReason">Ajuste necessário <span>*</span></label>
+      <textarea id="returnPmcReason" rows="5" maxlength="1000" placeholder="Ex.: Corrigir a quantidade do item 2 e anexar o orçamento atualizado."></textarea>
+      <div class="return-dialog-help"><span>i</span> Este texto ficará visível para o solicitante e será registrado no histórico da PMC.</div>
+      <div id="returnPmcError" class="return-dialog-error" hidden>Informe o ajuste necessário antes de continuar.</div>
+    </div>
+    <div class="dialog-actions">
+      <button id="returnPmcCancel" type="button">Cancelar</button>
+      <button id="returnPmcConfirm" class="primary" type="button">Devolver para ajuste</button>
+    </div>
+  </dialog>
+
+  <dialog id="imageZoomDialog" class="image-zoom-dialog">
+    <div class="image-zoom-head">
+      <div><p class="eyebrow">Imagem do produto</p><h3 id="imageZoomTitle">Visualização ampliada</h3></div>
+      <button id="imageZoomClose" type="button" aria-label="Fechar">×</button>
+    </div>
+    <div class="image-zoom-stage">
+      <img id="imageZoomImg" alt="Imagem ampliada do produto">
+    </div>
+    <div class="image-zoom-footer">Use a roda do mouse ou os botões para ampliar a imagem. Arraste para visualizar outras áreas.</div>
+    <div class="image-zoom-controls">
+      <button id="imageZoomOut" type="button" aria-label="Diminuir zoom">−</button>
+      <span id="imageZoomLevel">100%</span>
+      <button id="imageZoomIn" type="button" aria-label="Aumentar zoom">+</button>
+      <button id="imageZoomReset" type="button">Restaurar</button>
+    </div>
+  </dialog>
+
   <dialog id="messageDialog" class="m365-dialog"><div class="m365-dialog-head"><span class="m365-dialog-icon">i</span><div><h3 id="messageDialogTitle">Aviso</h3><p id="messageDialogText"></p></div></div><div class="dialog-actions"><button id="messageDialogOk" class="primary" type="button">Entendi</button></div></dialog>
   <dialog id="confirmDialog" class="m365-dialog"><div class="m365-dialog-head"><span class="m365-dialog-icon warning">!</span><div><h3 id="confirmDialogTitle">Confirmar ação</h3><p id="confirmDialogText"></p></div></div><div class="dialog-actions"><button id="confirmDialogCancel" type="button">Cancelar</button><button id="confirmDialogOk" class="primary" type="button">Confirmar</button></div></dialog>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.4/dist/jspdf.plugin.autotable.min.js"></script>
-  <script type="module" src="app.js?v=20260713-04"></script>
+  <script type="module" src="app.js?v=20260713-06"></script>
 </body>
 </html>

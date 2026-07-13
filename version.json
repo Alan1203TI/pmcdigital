@@ -1,11 +1,10 @@
 {
-  "version": "2.5.0",
-  "build": "20260713-05",
-  "updatedAt": "2026-07-13T21:00:00-03:00",
+  "version": "2.6.0",
+  "build": "20260713-06",
+  "updatedAt": "2026-07-13T21:40:00-03:00",
   "changes": [
-    "Compradora pode devolver a PMC ao solicitante com motivo obrigatório",
-    "Solicitante só pode editar uma PMC enviada quando ela estiver devolvida para ajuste",
-    "PMC corrigida mantém o mesmo número e é reenviada para a compradora",
-    "Histórico registra devolução, motivo e reenvio da correção"
+    "Nova janela de devolução para ajuste seguindo o padrão visual do PMC Digital",
+    "Compradora pode ampliar e movimentar a imagem anexada de cada produto",
+    "Zoom com botões, roda do mouse e opção de restaurar"
   ]
 }

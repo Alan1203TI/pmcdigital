@@ -1,4 +1,4 @@
-const PMC_APP_VERSION = '2.4.0';
+const PMC_APP_VERSION = '2.6.0';
 const PMC_VERSION_CHECK_INTERVAL = 5 * 60 * 1000;
 let PMC_PENDING_VERSION = '';
 
@@ -86,6 +86,10 @@ async function checkPmcVersion({ silent = false } = {}) {
 
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('updateNowBtn')?.addEventListener('click', forcePmcUpdate);
+  $('#returnPmcClose')?.addEventListener('click',closeReturnPmcDialog); $('#returnPmcCancel')?.addEventListener('click',closeReturnPmcDialog); $('#returnPmcConfirm')?.addEventListener('click',confirmReturnPmc); $('#returnPmcReason')?.addEventListener('input',()=>{$('#returnPmcError').hidden=true;});
+  $('#imageZoomClose')?.addEventListener('click',closeImageZoom); $('#imageZoomIn')?.addEventListener('click',()=>changeImageZoom(.25)); $('#imageZoomOut')?.addEventListener('click',()=>changeImageZoom(-.25)); $('#imageZoomReset')?.addEventListener('click',()=>{imageZoomScale=1;imageZoomX=0;imageZoomY=0;applyImageZoom();});
+  $('#imageZoomDialog')?.addEventListener('wheel',e=>{e.preventDefault();changeImageZoom(e.deltaY<0?.15:-.15);},{passive:false});
+  const zoomStage=$('.image-zoom-stage'); zoomStage?.addEventListener('pointerdown',e=>{imageDragging=true;imageDragStart={x:e.clientX-imageZoomX,y:e.clientY-imageZoomY};zoomStage.setPointerCapture(e.pointerId);}); zoomStage?.addEventListener('pointermove',e=>{if(!imageDragging)return;imageZoomX=e.clientX-imageDragStart.x;imageZoomY=e.clientY-imageDragStart.y;applyImageZoom();}); zoomStage?.addEventListener('pointerup',()=>{imageDragging=false;});
   checkPmcVersion();
   window.setInterval(() => checkPmcVersion({ silent: true }), PMC_VERSION_CHECK_INTERVAL);
 });
@@ -619,7 +623,7 @@ window.reenviarPmcEmail=async function(id){
 };
 window.openDetail=function(id){
   const s=state.solicitacoes.find(x=>x.id===id); if(!s) return; const canEdit = ['admin','compras','gestor'].includes(state.user.perfil); const canDelete=['admin','compras'].includes(state.user.perfil); const podeDevolver=canEdit&&!['Rascunho','Devolvida para ajuste','Comprado','Cancelado','Recusado'].includes(s.status); const podeCorrigir=s.status==='Devolvida para ajuste'&&s.solicitanteUid===state.user?.uid;
-  const itensHtml=s.itens.map((i,idx)=>`<div class="detail-item"><div class="detail-item-heading"><h4>Item ${idx+1} — ${esc(i.codigoProduto||'Sem código')}</h4>${canEdit?`<button class="primary item-update-button" type="button" onclick="openItemUpdate('${s.id}','${i.id}')">Atualizar produto</button>`:''}</div><div class="detail-grid">${item('Status do item',badge(i.status||s.status))}${item('Compradora',i.comprador||'-')}${item('Data finalizada',i.dataFinalizada?fmtDate(i.dataFinalizada):'-')}${item('Status da entrega',badge(i.statusEntrega||'Não iniciado'))}${item('Data da entrega',i.dataEntrega?fmtDate(i.dataEntrega):'-')}${item('Família/código',familiaLabel(i.familia))}${item('Código Protheus',i.codigoProduto||'-')}${item('Quantidade',i.quantidade+' '+(i.unMedida||''))}${item('Valor estimado',money(i.valorEstimado))}${item('Valor efetivamente comprado',money(i.valorComprado||0))}${item('Saldo da família nos 90 dias',saldoFamiliaHtml(i.familia,i.id))}${item('Descrição',i.descricao,'wide')}${item('Estudo dos orçamentos',quoteAnalysisHtml(i),'wide')}${item('Orçamentos por fornecedor',documentosHtml(i),'wide')}${item('Pedido(s) de compra / NFE',i.nfeUrl?`<a href="${escAttr(i.nfeUrl)}" target="_blank">Abrir documento</a>${(i.nfeNomes||[]).length?`<br><small>${(i.nfeNomes||[]).map(esc).join('<br>')}</small>`:(i.nfeNome?`<br><small>${esc(i.nfeNome)}</small>`:'')}`:((i.nfeNomes||[]).length?(i.nfeNomes||[]).map(esc).join('<br>'):(i.nfeNome?esc(i.nfeNome):'-')),'wide')}${item('Link referência',i.linkReferencia?`<a href="${escAttr(i.linkReferencia)}" target="_blank">Abrir referência</a>`:'-','wide')}${item('Imagem',i.imagemProduto?`<img class="produto-img" src="${escAttr(i.imagemProduto)}" alt="Imagem do produto">`:'-','wide')}</div></div>`).join('');
+  const itensHtml=s.itens.map((i,idx)=>`<div class="detail-item"><div class="detail-item-heading"><h4>Item ${idx+1} — ${esc(i.codigoProduto||'Sem código')}</h4>${canEdit?`<button class="primary item-update-button" type="button" onclick="openItemUpdate('${s.id}','${i.id}')">Atualizar produto</button>`:''}</div><div class="detail-grid">${item('Status do item',badge(i.status||s.status))}${item('Compradora',i.comprador||'-')}${item('Data finalizada',i.dataFinalizada?fmtDate(i.dataFinalizada):'-')}${item('Status da entrega',badge(i.statusEntrega||'Não iniciado'))}${item('Data da entrega',i.dataEntrega?fmtDate(i.dataEntrega):'-')}${item('Família/código',familiaLabel(i.familia))}${item('Código Protheus',i.codigoProduto||'-')}${item('Quantidade',i.quantidade+' '+(i.unMedida||''))}${item('Valor estimado',money(i.valorEstimado))}${item('Valor efetivamente comprado',money(i.valorComprado||0))}${item('Saldo da família nos 90 dias',saldoFamiliaHtml(i.familia,i.id))}${item('Descrição',i.descricao,'wide')}${item('Estudo dos orçamentos',quoteAnalysisHtml(i),'wide')}${item('Orçamentos por fornecedor',documentosHtml(i),'wide')}${item('Pedido(s) de compra / NFE',i.nfeUrl?`<a href="${escAttr(i.nfeUrl)}" target="_blank">Abrir documento</a>${(i.nfeNomes||[]).length?`<br><small>${(i.nfeNomes||[]).map(esc).join('<br>')}</small>`:(i.nfeNome?`<br><small>${esc(i.nfeNome)}</small>`:'')}`:((i.nfeNomes||[]).length?(i.nfeNomes||[]).map(esc).join('<br>'):(i.nfeNome?esc(i.nfeNome):'-')),'wide')}${item('Link referência',i.linkReferencia?`<a href="${escAttr(i.linkReferencia)}" target="_blank">Abrir referência</a>`:'-','wide')}${item('Imagem',i.imagemProduto?`<button class="produto-img-button" type="button" onclick="openImageZoom('${s.id}','${i.id}')" aria-label="Ampliar imagem do produto"><img class="produto-img" src="${escAttr(i.imagemProduto)}" alt="Imagem do produto"><span>🔍 Clique para ampliar</span></button>`:'-','wide')}</div></div>`).join('');
   $('#detailContent').classList.toggle('buyer-compact', canEdit);
   $('#detailContent').innerHTML=`<div class="detail-actions-row"><div class="detail-document-actions"><button class="primary pdf-order-btn" type="button" onclick="downloadPedidoWord('${s.id}')">Gerar modelo de cotação (.docx)</button><button class="pdf-pmc-btn" type="button" onclick="downloadPmcPdf('${s.id}')">Baixar PDF da PMC</button><span>O PDF reúne todos os dados preenchidos da PMC em formato próprio para impressão.</span></div>${state.user?.perfil==='admin'&&s.status!=='Rascunho'?`<button class="admin-resend-btn" type="button" onclick="reenviarPmcEmail('${s.id}')">Reenviar PMC por e-mail</button>`:''}${podeDevolver?`<button class="return-pmc-btn" type="button" onclick="devolverPmc('${s.id}')">Devolver para ajuste</button>`:''}${podeCorrigir?`<button class="primary" type="button" onclick="editarRascunho('${s.id}')">Editar PMC e reenviar</button>`:''}<button class="history-button" type="button" onclick="openHistory('${s.id}')">Histórico</button></div><h3>Solicitação PMC nº ${esc(s.numeroPedido||'-')}</h3><div class="detail-grid">${item('Data do pedido',fmtDate(s.criadoEm))}${item('Data da necessidade',s.dataNecessidade?fmtDate(s.dataNecessidade):'-')}${item('Solicitante',s.solicitante)}${item('Setor',s.setor)}${item('Unidade',s.unidade)}${item('Entidade',s.entidade)}${item('Centro/Classe',s.centroCusto)}${item('Finalidade',s.finalidade)}${item('Status geral calculado',badge(s.status))}${s.status==='Devolvida para ajuste'?item('Motivo da devolução',s.motivoDevolucao||'Ajustes solicitados pela compradora.','wide'):''}${item('Urgência',s.urgencia)}${item('Justificativa',s.justificativa,'wide')}${item('Comentário geral da PMC',s.comentarioGeral||'Nenhum comentário informado.','wide')}${item('GISU / Licitação',s.gisu?`<span class="gisu-badge">Sim</span> • Valor realizado: <b>${money(s.gisuValor||0)}</b>${s.gisuData?' • Registrado em '+fmtDate(s.gisuData):''}`:'Não','wide')}${item('Anexo/orçamento',s.anexo?`<a href="${escAttr(s.anexo)}" target="_blank">Abrir orçamento/anexo</a>`:'-','wide')}${item('Alerta',s.alertaTexto?`<span class="fragment-alert-red">${esc(s.alertaTexto)}</span>`:'Sem alerta','wide')}</div>${canEdit?`<div class="panel gisu-editor"><div><span class="eyebrow">Compra por licitação</span><h3>GISU</h3><p>Marque quando esta PMC for comprada por licitação e não utilizar o limite de R$ 3.000,00 da unidade.</p></div><label class="gisu-check"><input id="pmcGisu" type="checkbox" ${s.gisu?'checked':''} onchange="toggleGisuValue(this.checked)"><span>Esta PMC foi encaminhada para GISU</span></label><label>Valor total da compra realizada via GISU (R$)<input id="pmcGisuValor" type="number" min="0" step="0.01" value="${Number(s.gisuValor||0)}" ${s.gisu?'':'disabled'}></label><button class="primary" type="button" onclick="savePmcGisu('${s.id}')">Salvar GISU</button></div><div class="panel pmc-comment-editor"><label><b>Comentário geral da PMC</b><textarea id="pmcComentarioGeral" rows="3" placeholder="Registre aqui observações válidas para toda a PMC.">${esc(s.comentarioGeral||'')}</textarea></label><button class="primary" type="button" onclick="savePmcComment('${s.id}')">Salvar comentário geral</button></div>`:''}<h3>Itens da solicitação</h3>${itensHtml}
     ${canDelete?`<hr><button class="danger-btn" onclick="delSol('${s.id}')">Excluir solicitação completa</button>`:''}`;
@@ -632,20 +636,44 @@ window.openDetail=function(id){
   const paginaAtual=document.querySelector('.page.active')?.id||'solicitacoes'; if(paginaAtual!=='detalhe') state.previousPage=paginaAtual; $('#detailPageTitle').textContent='Detalhes da Solicitação PMC'; showPage('detalhe');
 }
 
-window.devolverPmc=async function(id){
+let returnPmcPendingId='';
+window.devolverPmc=function(id){
   if(!['admin','compras','gestor'].includes(state.user?.perfil)) return toast('Apenas a compradora ou administradores podem devolver a PMC.');
   const s=state.solicitacoes.find(x=>x.id===id); if(!s) return toast('PMC não encontrada.');
   if(['Rascunho','Devolvida para ajuste','Comprado','Cancelado','Recusado'].includes(s.status)) return toast('Esta PMC não pode ser devolvida nesta etapa.');
-  const motivo=prompt(`Informe o ajuste necessário para devolver a PMC ${s.numeroPedido||''} ao solicitante:`,'');
-  if(motivo===null) return;
-  if(!motivo.trim()) return toast('Informe o motivo da devolução para orientar o solicitante.');
-  confirmAction(`Devolver a PMC ${s.numeroPedido||''} para ${s.solicitante||'o solicitante'} realizar os ajustes?`,async()=>{
-    s.status='Devolvida para ajuste'; s.motivoDevolucao=motivo.trim(); s.devolvidaEm=new Date().toISOString(); s.devolvidaPor=state.user?.nome||'';
-    (s.itens||[]).forEach(i=>{i.status='Devolvida para ajuste';});
-    s.historico=s.historico||[]; s.historico.push(log(`PMC devolvida ao solicitante para ajuste. Motivo: ${motivo.trim()}`));
-    await persistSolicitacao(s); renderAll(); openDetail(id); toast('PMC devolvida. O solicitante agora poderá editar e reenviar.');
-  },'Devolver PMC');
+  returnPmcPendingId=id;
+  $('#returnPmcTitle').textContent=`Devolver PMC ${s.numeroPedido||''}`;
+  $('#returnPmcSubtitle').textContent=`Informe ao solicitante ${s.solicitante||''} o que precisa ser corrigido antes do reenvio.`;
+  $('#returnPmcReason').value='';
+  $('#returnPmcError').hidden=true;
+  $('#returnPmcDialog').showModal();
+  setTimeout(()=>$('#returnPmcReason')?.focus(),80);
 };
+function closeReturnPmcDialog(){ $('#returnPmcDialog')?.close(); returnPmcPendingId=''; }
+async function confirmReturnPmc(){
+  const s=state.solicitacoes.find(x=>x.id===returnPmcPendingId); if(!s) return closeReturnPmcDialog();
+  const motivo=$('#returnPmcReason')?.value.trim()||'';
+  if(!motivo){ $('#returnPmcError').hidden=false; $('#returnPmcReason')?.focus(); return; }
+  const btn=$('#returnPmcConfirm'); if(btn){btn.disabled=true;btn.textContent='Devolvendo...';}
+  try{
+    s.status='Devolvida para ajuste'; s.motivoDevolucao=motivo; s.devolvidaEm=new Date().toISOString(); s.devolvidaPor=state.user?.nome||'';
+    (s.itens||[]).forEach(i=>{i.status='Devolvida para ajuste';});
+    s.historico=s.historico||[]; s.historico.push(log(`PMC devolvida ao solicitante para ajuste. Motivo: ${motivo}`));
+    await persistSolicitacao(s); closeReturnPmcDialog(); renderAll(); openDetail(s.id); toast('PMC devolvida. O solicitante agora poderá editar e reenviar.');
+  }catch(e){ toast(e.message||'Não foi possível devolver a PMC.'); }
+  finally{ if(btn){btn.disabled=false;btn.textContent='Devolver para ajuste';} }
+}
+
+let imageZoomScale=1, imageZoomX=0, imageZoomY=0, imageDragging=false, imageDragStart={x:0,y:0};
+function applyImageZoom(){ const img=$('#imageZoomImg'); if(!img)return; img.style.transform=`translate(${imageZoomX}px,${imageZoomY}px) scale(${imageZoomScale})`; $('#imageZoomLevel').textContent=`${Math.round(imageZoomScale*100)}%`; }
+window.openImageZoom=function(pmcId,itemId){
+  const s=state.solicitacoes.find(x=>x.id===pmcId), i=s?.itens?.find(x=>x.id===itemId); if(!i?.imagemProduto) return;
+  imageZoomScale=1; imageZoomX=0; imageZoomY=0;
+  $('#imageZoomImg').src=i.imagemProduto; $('#imageZoomTitle').textContent=`${i.codigoProduto||'Produto'} — ${i.descricao||'Imagem anexada'}`;
+  applyImageZoom(); $('#imageZoomDialog').showModal();
+};
+function closeImageZoom(){ $('#imageZoomDialog')?.close(); }
+function changeImageZoom(delta){ imageZoomScale=Math.min(4,Math.max(.5,imageZoomScale+delta)); applyImageZoom(); }
 
 window.toggleGisuValue=function(checked){ const el=$('#pmcGisuValor'); if(!el) return; el.disabled=!checked; if(!checked) el.value='0'; };
 window.savePmcGisu=async function(id){
