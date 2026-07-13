@@ -344,3 +344,6 @@ body.modal-open{overflow:hidden}
 .purchase-files-field{grid-column:auto!important;max-width:430px}
 .purchase-files-field input[type=file]{min-height:34px!important;padding:4px 6px!important;cursor:pointer}
 .purchase-files-field small{display:block;margin-top:3px;color:var(--muted)}
+
+.purchase-flow-title{margin:18px 0 10px;padding-top:14px;border-top:1px solid var(--border,#d8e0ee)}
+.pmc-comment-editor{margin:18px 0}.pmc-comment-editor label{display:block}.pmc-comment-editor textarea{width:100%;margin-top:8px}.pmc-comment-editor button{margin-top:10px}

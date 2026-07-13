@@ -130,7 +130,7 @@
           <label>Entidade<select id="entidade" required><option value="">Selecione</option><option>SESI</option><option>SENAI</option></select></label>
           <label>Centro de custo / Classe de valor<select id="centroCusto" required></select><small class="field-help">Exibição: centro de custo/classe de valor, por exemplo 2201/0100100.</small></label>
           <label>Finalidade da compra<select id="finalidade" required></select></label>
-          <label>Data da necessidade dos produtos<input id="dataNecessidade" type="date" required></label>
+          <label>Data da necessidade dos produtos<input id="dataNecessidade" type="date"><small class="field-help">Preencha somente caso exista uma data prevista para a necessidade do pedido.</small></label>
           <div class="wide info-box">Consulte o produto no link <a href="https://consultaproduto.fiemg.com.br/ConsultaProdutos.php" target="_blank" rel="noopener">Consulta Produto FIEMG</a> e adicione o código Protheus e a descrição.</div>
           <div class="wide itens-header"><h3 class="section-title">2. Itens da solicitação</h3><button type="button" id="addItemBtn">+ Adicionar item</button></div>
           <div id="itensContainer" class="wide itens-container"></div>
@@ -140,7 +140,7 @@
               <label>Família do produto / código da família<select class="item-familia" required><option value="">Selecione a família</option></select></label>
               <label>Código Protheus<input class="item-codigo" placeholder="Digite o código Protheus" autocomplete="off"></label>
               <label>Descrição do produto<textarea class="item-descricao" rows="3" required></textarea></label>
-              <label>Unidade de medida<input class="item-unMedida" placeholder="UN, CX, M, SERV"></label>
+              <label>Unidade de medida<select class="item-unMedida"><option value="">Selecione</option><option>UN</option><option>CX</option><option>PC</option><option>PAR</option><option>PCT</option><option>KG</option><option>G</option><option>MG</option><option>L</option><option>ML</option><option>M</option><option>M²</option><option>M³</option><option>CM</option><option>MM</option><option>RL</option><option>FD</option><option>JG</option><option>KIT</option><option>DZ</option><option>SERV</option><option>H</option><option>DIA</option><option>MÊS</option><option>OUTRO</option></select></label>
               <label>Quantidade<input class="item-quantidade" type="number" step="0.01" min="0.01" required></label>
               <label>Valor estimado total<input class="item-valorEstimado" type="number" step="0.01" min="0"></label>
               <label>Imagem do produto<input class="item-imagem" type="file" accept="image/*"></label>
@@ -150,7 +150,7 @@
           <h3 class="wide section-title">3. Justificativa e anexos</h3>
           <label>Urgência<select id="urgencia"><option>Normal</option><option>Alta</option><option>Baixa</option></select></label>
           <label class="wide">Justificativa técnica<textarea id="justificativa" rows="4" required></textarea></label>
-          <div class="wide attachments-editor"><div class="itens-header"><div><h4>Anexos pelo OneDrive/SharePoint</h4><small class="field-help">Envie o arquivo para o OneDrive/SharePoint, crie um link restrito à organização e cadastre-o abaixo.</small></div><button id="addAnexoLinkBtn" type="button">+ Adicionar anexo</button></div><div id="anexosLinksContainer"></div></div>
+          <div class="wide attachments-editor"><div class="itens-header"><div><h4>Anexos pelo OneDrive/SharePoint (opcional)</h4><small class="field-help">Caso você já tenha algum orçamento, envie-o ao OneDrive/SharePoint e informe o link abaixo. Este preenchimento não é obrigatório.</small></div><button id="addAnexoLinkBtn" type="button">+ Adicionar anexo</button></div><div id="anexosLinksContainer"></div></div>
           <template id="anexoLinkTemplate"><div class="attachment-link-row"><label>Nome do documento<input class="anexo-nome" placeholder="Ex.: Orçamento fornecedor A"></label><label>Categoria<select class="anexo-categoria"><option>Orçamento</option><option>Especificação técnica</option><option>Imagem</option><option>Justificativa</option><option>Outro</option></select></label><label class="attachment-url">Link OneDrive/SharePoint<input class="anexo-url" type="url" placeholder="https://..."></label><button class="remove-anexo-link danger-btn" type="button">Remover</button></div></template>
           <div class="wide actions"><button id="salvarRascunhoBtn" type="button">Salvar rascunho</button><button class="primary" type="submit">Enviar PMC</button><button type="reset">Limpar</button></div>
         </form>
