@@ -193,8 +193,8 @@
         <div class="panel buyer-hero">
           <div>
             <p class="eyebrow">Área exclusiva da compradora</p>
-            <h3>Controle das PMC solicitadas por produto</h3>
-            <p>Atualize status, valor efetivamente comprado, documentos de fornecedores e acompanhe o limite de R$ 3.000,00 por família nos últimos 90 dias.</p>
+            <h3>Controle das PMC solicitadas</h3>
+            <p>Visualize cada PMC em uma única linha. Abra a solicitação para consultar e atualizar seus produtos, documentos e entregas.</p>
           </div>
           <div class="buyer-kpis">
             <span><b id="buyerPendentes">0</b> pendentes</span>
@@ -203,14 +203,14 @@
           </div>
         </div>
         <div class="panel filters erp-filters">
-          <input id="buscaCompradora" placeholder="Pesquisar por solicitante, código Protheus, família, descrição ou comprador...">
+          <input id="buscaCompradora" placeholder="Pesquisar por número da PMC, solicitante, produto, família ou compradora...">
           <select id="statusCompradora"><option value="">Todos os status</option></select>
           <select id="familiaCompradora"><option value="">Todas as famílias</option></select>
           <select id="abertosCompradora"><option value="abertos">Somente pedidos abertos</option><option value="">Todos os pedidos</option><option value="finalizados">Somente finalizados</option></select>
         </div>
         <div class="panel table-wrap">
           <table id="compradoraTable">
-            <thead><tr><th>Solicitante / Datas</th><th>Produto</th><th>Família / Limite 90 dias</th><th>Qtd.</th><th>Valor comprado</th><th>Status do produto</th><th>Compradora</th><th>Finalização</th><th>Ação</th></tr></thead>
+            <thead><tr><th>PMC</th><th>Solicitante</th><th>Datas</th><th>Status geral</th><th>Famílias</th><th>Compradora</th><th>Ação</th></tr></thead>
             <tbody></tbody>
           </table>
         </div>
