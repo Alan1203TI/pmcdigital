@@ -669,7 +669,7 @@ function applyImageZoom(){ const img=$('#imageZoomImg'); if(!img)return; img.sty
 window.openImageZoom=function(pmcId,itemId){
   const s=state.solicitacoes.find(x=>x.id===pmcId), i=s?.itens?.find(x=>x.id===itemId); if(!i?.imagemProduto) return;
   imageZoomScale=1; imageZoomX=0; imageZoomY=0;
-  $('#imageZoomImg').src=i.imagemProduto; $('#imageZoomTitle').textContent=`${i.codigoProduto||'Produto'} — ${i.descricao||'Imagem anexada'}`;
+  $('#imageZoomImg').src=i.imagemProduto; $('#imageZoomTitle').textContent=`Código: ${i.codigoProduto||'Não informado'}`;
   applyImageZoom(); $('#imageZoomDialog').showModal();
 };
 function closeImageZoom(){ $('#imageZoomDialog')?.close(); }
