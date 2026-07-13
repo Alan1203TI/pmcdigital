@@ -802,6 +802,43 @@ window.downloadPedidoWord=async function(id){
       cell(new Paragraph({alignment:AlignmentType.RIGHT,children:brandRuns}),{dxa:3200,noBorder:true})
     ],860)]});
     const pmcPill=new Table({alignment:AlignmentType.CENTER,width:{size:2800,type:WidthType.DXA},columnWidths:[2800],layout:TableLayoutType.FIXED,rows:[row([cell(para(`PMC ${s.numeroPedido||String(s.id).slice(0,8).toUpperCase()}`,{bold:true,size:18,color:'FFFFFF',align:AlignmentType.CENTER,after:0}),{dxa:2800,fill:green})],400)]});
+    const institutionalTable=new Table({width:{size:10200,type:WidthType.DXA},columnWidths:[10200],layout:TableLayoutType.FIXED,rows:[
+      row([cell([
+        para('SOLICITAÇÃO DE COTAÇÃO',{bold:true,size:16,color:blueDark,after:70}),
+        new Paragraph({spacing:{after:70},children:[
+          new TextRun({text:'Este departamento, representando neste ato o ',size:15,color:textColor,font:'Aptos'}),
+          new TextRun({text:'SESI - Unidade São João del-Rei',bold:true,size:15,color:textColor,font:'Aptos'}),
+          new TextRun({text:', solicita a cotação e demais condições de venda para os itens anexos. A resposta deverá ser encaminhada com a maior brevidade possível aos cuidados de ',size:15,color:textColor,font:'Aptos'}),
+          new TextRun({text:'BCASSIA@FIEMG.COM.BR',bold:true,size:15,color:blue,font:'Aptos'}),
+          new TextRun({text:'.',size:15,color:textColor,font:'Aptos'})
+        ]}),
+        para('A empresa proponente deverá fornecer integralmente os materiais, de acordo com os detalhes e especificações constantes nesta cotação, exatamente conforme a tabela anexa.',{size:15,after:70}),
+        new Paragraph({spacing:{after:55},children:[
+          new TextRun({text:'1. Condições de pagamento: ',bold:true,size:15,color:textColor,font:'Aptos'}),
+          new TextRun({text:'o pagamento será efetuado com prazo mínimo de ',size:15,color:textColor,font:'Aptos'}),
+          new TextRun({text:'28 (vinte e oito) dias corridos',bold:true,size:15,color:textColor,font:'Aptos'}),
+          new TextRun({text:', após a emissão da nota fiscal. Caso a data recaia em feriado ou final de semana, o pagamento será realizado no primeiro dia útil posterior.',size:15,color:textColor,font:'Aptos'})
+        ]}),
+        new Paragraph({spacing:{after:55},children:[
+          new TextRun({text:'2. Apresentação da proposta: ',bold:true,size:15,color:textColor,font:'Aptos'}),
+          new TextRun({text:'a cotação deverá seguir a ordem e a numeração dos produtos, conter os dados completos do proponente, a descrição completa do material ou serviço, o ',size:15,color:textColor,font:'Aptos'}),
+          new TextRun({text:'prazo de entrega',bold:true,size:15,color:textColor,font:'Aptos'}),
+          new TextRun({text:', as condições de pagamento e o nome legível da pessoa responsável pela elaboração da proposta.',size:15,color:textColor,font:'Aptos'})
+        ]}),
+        new Paragraph({spacing:{after:55},children:[
+          new TextRun({text:'3. Cadastro de fornecedores: ',bold:true,size:15,color:textColor,font:'Aptos'}),
+          new TextRun({text:'a geração do ',size:15,color:textColor,font:'Aptos'}),
+          new TextRun({text:'Pedido de Compra',bold:true,size:15,color:textColor,font:'Aptos'}),
+          new TextRun({text:' está vinculada ao cadastro do fornecedor. Utilize o ',size:15,color:textColor,font:'Aptos'}),
+          new TextRun({text:'Cadastro Simplificado',bold:true,size:15,color:textColor,font:'Aptos'}),
+          new TextRun({text:', anexando o Cartão CNPJ, o Contrato Social ou a Última Alteração Contratual e o documento do responsável legal.',size:15,color:textColor,font:'Aptos'})
+        ]}),
+        new Paragraph({spacing:{after:0},children:[
+          new TextRun({text:'Portal de Cadastro de Fornecedores: ',bold:true,size:15,color:textColor,font:'Aptos'}),
+          new TextRun({text:'https://compras.fiemg.com.br/Default.aspx',bold:true,size:15,color:blue,font:'Aptos'})
+        ]})
+      ],{dxa:10200,fill:'F7F9FC'})],1950)
+    ]});
     const orientationTable=new Table({width:{size:10200,type:WidthType.DXA},columnWidths:[10200],layout:TableLayoutType.FIXED,rows:[row([cell([para('ORIENTAÇÕES PARA PREENCHIMENTO',{bold:true,size:15,color:blue,after:55}),para('Preencha todos os campos comerciais. Mantenha os códigos e as descrições dos itens inalterados.',{size:17,color:'52627A',after:0})],{dxa:10200,fill:light})],700)]});
 
     const supplierTable=new Table({width:{size:10200,type:WidthType.DXA},columnWidths:[5100,5100],layout:TableLayoutType.FIXED,rows:[
@@ -852,6 +889,8 @@ window.downloadPedidoWord=async function(id){
           headerTable,
           pmcPill,
           para('',{after:70}),
+          institutionalTable,
+          para('',{after:65}),
           orientationTable,
           para('',{after:90}),
           supplierTable,
