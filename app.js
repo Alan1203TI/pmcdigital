@@ -1,16 +1,35 @@
-const PMC_APP_VERSION = '2.2.0';
+const PMC_APP_VERSION = '2.3.1';
 const PMC_VERSION_CHECK_INTERVAL = 5 * 60 * 1000;
+let PMC_PENDING_VERSION = '';
+
+function hidePmcUpdateBanner() {
+  const banner = document.getElementById('updateBanner');
+  if (banner) {
+    banner.hidden = true;
+    banner.classList.remove('is-updating');
+  }
+}
 
 function forcePmcUpdate() {
   const banner = document.getElementById('updateBanner');
   const button = document.getElementById('updateNowBtn');
   const text = document.getElementById('updateBannerText');
+  const targetVersion = PMC_PENDING_VERSION || PMC_APP_VERSION;
+
+  // O aviso desaparece imediatamente após o clique e não reaparece durante a atualização.
+  if (banner) banner.hidden = true;
   banner?.classList.add('is-updating');
-  if (button) button.textContent = 'Atualizando...';
+  if (button) {
+    button.disabled = true;
+    button.textContent = 'Atualizando...';
+  }
   if (text) text.textContent = 'Aguarde enquanto a versão mais recente é carregada.';
+
   try {
-    localStorage.setItem('pmc_loaded_version', PMC_APP_VERSION);
+    sessionStorage.setItem('pmc_update_in_progress', targetVersion);
+    localStorage.setItem('pmc_requested_version', targetVersion);
   } catch (_) {}
+
   const url = new URL(window.location.href);
   url.searchParams.set('_pmc_update', Date.now().toString());
   window.location.replace(url.toString());
@@ -23,18 +42,41 @@ async function checkPmcVersion({ silent = false } = {}) {
       headers: { 'Cache-Control': 'no-cache' }
     });
     if (!response.ok) return;
+
     const info = await response.json();
     const latest = String(info.version || '').trim();
+    PMC_PENDING_VERSION = latest;
+
     if (!latest || latest === PMC_APP_VERSION) {
-      try { localStorage.setItem('pmc_loaded_version', PMC_APP_VERSION); } catch (_) {}
+      hidePmcUpdateBanner();
+      try {
+        localStorage.setItem('pmc_loaded_version', PMC_APP_VERSION);
+        localStorage.removeItem('pmc_requested_version');
+        sessionStorage.removeItem('pmc_update_in_progress');
+      } catch (_) {}
       return;
     }
+
+    // Se o usuário acabou de clicar em atualizar, não reexibe o aviso enquanto a página nova carrega.
+    let updatingTo = '';
+    try { updatingTo = sessionStorage.getItem('pmc_update_in_progress') || ''; } catch (_) {}
+    if (updatingTo === latest) {
+      hidePmcUpdateBanner();
+      return;
+    }
+
     const banner = document.getElementById('updateBanner');
     const message = document.getElementById('updateBannerText');
+    const button = document.getElementById('updateNowBtn');
     const changes = Array.isArray(info.changes) ? info.changes.filter(Boolean).slice(0, 2) : [];
+
     if (message) message.textContent = changes.length
       ? `Versão ${latest}: ${changes.join(' • ')}`
       : `A versão ${latest} do PMC Digital está disponível.`;
+    if (button) {
+      button.disabled = false;
+      button.textContent = 'Atualizar agora';
+    }
     if (banner) banner.hidden = false;
     if (!silent && document.visibilityState === 'hidden') return;
   } catch (error) {

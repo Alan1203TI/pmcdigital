@@ -1,11 +1,11 @@
 {
-  "version": "2.3.0",
-  "build": "20260713-02",
-  "updatedAt": "2026-07-13T18:30:00-03:00",
+  "version": "2.3.1",
+  "build": "20260713-03",
+  "updatedAt": "2026-07-13T19:00:00-03:00",
   "changes": [
+    "Botão de atualização desaparece após o clique",
+    "Correção da verificação de versão",
     "Imagens dos produtos armazenadas separadamente",
-    "Compressão automática de imagens",
-    "Correção do limite de tamanho das PMC no Firestore",
     "Controle GISU no budget"
   ]
 }
