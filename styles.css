@@ -366,3 +366,6 @@ body.modal-open{overflow:hidden}
 .detail-document-actions{display:flex!important;align-items:center;gap:8px;flex-wrap:wrap}
 .detail-document-actions span{flex-basis:100%}
 .item-familia:disabled{background:#edf2f7!important;color:#38506d!important;cursor:not-allowed;opacity:1!important}
+
+/* GISU / compras por licitação */
+.gisu-editor{display:grid;grid-template-columns:minmax(240px,1.5fr) minmax(230px,1fr) minmax(230px,1fr) auto;gap:16px;align-items:end;border-left:5px solid #6b46c1;background:#faf8ff}.gisu-editor h3{margin:2px 0 4px}.gisu-editor p{margin:0;color:#596579}.gisu-check{display:flex!important;gap:10px;align-items:center;padding:12px;border:1px solid #d8cff4;border-radius:10px;background:#fff}.gisu-check input{width:18px;height:18px}.gisu-badge{display:inline-flex;padding:3px 9px;border-radius:999px;background:#ede9fe;color:#5b21b6;font-weight:800}.budget-gisu{background:#faf8ff}.budget-gisu b{display:block;color:#5b21b6}.budget-gisu small{display:block;margin-top:4px;color:#6b7280}.gisu-kpi{border-top:4px solid #6b46c1}.gisu-history-title{margin-top:24px}.gisu-history-title:before{content:'GISU';display:inline-flex;margin-right:8px;padding:3px 8px;border-radius:999px;background:#ede9fe;color:#5b21b6;font-size:11px;vertical-align:middle}@media(max-width:900px){.gisu-editor{grid-template-columns:1fr}}
