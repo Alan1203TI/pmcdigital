@@ -175,3 +175,14 @@ O nome do arquivo inclui automaticamente o código da PMC (por exemplo, `Cotacao
 ## Controle de versão e cache
 
 O sistema utiliza `version.json` para avisar automaticamente quando uma nova versão está disponível. A cada publicação, altere os campos `version` e `build` no arquivo `version.json` e atualize o identificador `?v=` de `styles.css`, `firebase-config.js` e `app.js` no `index.html`. Também atualize `PMC_APP_VERSION` no início de `app.js`.
+
+
+## Imagens dos produtos sem Firebase Storage (versão 2.3.0)
+
+As imagens adicionadas aos produtos são redimensionadas e comprimidas automaticamente no navegador. Cada imagem é gravada separadamente na coleção `pmcImagens`, enquanto a PMC guarda apenas o identificador da imagem. Isso evita ultrapassar o limite de 1 MiB por documento do Firestore e mantém o projeto sem dependência do Firebase Storage.
+
+Antes de publicar esta versão, substitua as regras do Firestore pelo conteúdo atualizado do arquivo `firestore.rules` e clique em **Publicar** no Console do Firebase.
+
+- Imagens antigas em Base64 são migradas automaticamente quando a respectiva PMC for salva novamente.
+- PDFs, Word, NFE e pedidos de compra continuam sendo informados por link/nome, sem upload para o Firestore.
+- O limite configurado é de aproximadamente 420 KB por imagem; normalmente a compressão gera arquivos menores que 320 KB.

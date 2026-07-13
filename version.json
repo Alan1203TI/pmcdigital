@@ -1,10 +1,11 @@
 {
-  "version": "2.2.0",
-  "build": "20260713-01",
-  "updatedAt": "2026-07-13T14:00:00-03:00",
+  "version": "2.3.0",
+  "build": "20260713-02",
+  "updatedAt": "2026-07-13T18:30:00-03:00",
   "changes": [
-    "Atualização automática do sistema",
-    "Correção de cache do navegador",
+    "Imagens dos produtos armazenadas separadamente",
+    "Compressão automática de imagens",
+    "Correção do limite de tamanho das PMC no Firestore",
     "Controle GISU no budget"
   ]
 }

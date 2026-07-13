@@ -170,6 +170,12 @@ async function loadFirestoreData(){
   if(Array.isArray(state.config.familiasProduto) && state.config.familiasProduto.length) FAMILIAS_PRODUTO=state.config.familiasProduto;
   const pedidosSnap=await db.collection('pmcSolicitacoes').get();
   state.solicitacoes=pedidosSnap.docs.map(d=>normalizarSolicitacao({id:d.id,...d.data()})).sort((a,b)=>new Date(b.criadoEm)-new Date(a.criadoEm));
+  // As imagens ficam em documentos separados para que cada PMC permaneça bem abaixo do limite de 1 MiB do Firestore.
+  const imagensSnap=await db.collection('pmcImagens').get();
+  const imagensPorId=new Map(imagensSnap.docs.map(d=>[d.id,d.data()]));
+  state.solicitacoes.forEach(pmc=>(pmc.itens||[]).forEach(item=>{
+    if(item.imagemId && imagensPorId.has(item.imagemId)) item.imagemProduto=imagensPorId.get(item.imagemId).dataUrl||'';
+  }));
   state.usuarios=[];
   if(state.user.perfil==='admin'){
     const us=await db.collection('pmcUsuarios').get();
@@ -177,7 +183,26 @@ async function loadFirestoreData(){
   }
 }
 async function persistSolicitacao(s){
+  // Migra imagens antigas em Base64 e salva imagens novas fora do documento principal da PMC.
+  for(const item of (s.itens||[])){
+    if(item.imagemProduto && item.imagemProduto.startsWith('data:image/')){
+      const imagemId=item.imagemId||crypto.randomUUID();
+      await db.collection('pmcImagens').doc(imagemId).set({
+        pmcId:s.id,
+        itemId:item.id,
+        solicitanteUid:s.solicitanteUid||state.user?.uid||'',
+        nomeArquivo:item.imagemNome||'imagem-produto.jpg',
+        mimeType:(item.imagemProduto.match(/^data:([^;]+);/)||[])[1]||'image/jpeg',
+        tamanhoBytes:estimativaBytesDataUrl(item.imagemProduto),
+        dataUrl:item.imagemProduto,
+        atualizadoEm:new Date().toISOString()
+      },{merge:true});
+      item.imagemId=imagemId;
+    }
+  }
   const clean=JSON.parse(JSON.stringify(s));
+  // O documento da PMC guarda somente a referência. A imagem continua disponível em tela e nos documentos gerados.
+  (clean.itens||[]).forEach(item=>{ delete item.imagemProduto; delete item.imagemNome; });
   await db.collection('pmcSolicitacoes').doc(s.id).set(clean,{merge:true});
 }
 async function persistConfig(){ await db.collection('pmcConfig').doc('geral').set(state.config,{merge:true}); }
@@ -352,9 +377,10 @@ function sincronizarFamiliaItens(){
   });
 }
 function addItem(data={}){
-  const frag=$('#itemTemplate').content.cloneNode(true); const card=frag.querySelector('.item-card');
+  const frag=$('#itemTemplate').content.cloneNode(true); const card=frag.querySelector('.item-card'); card.dataset.itemId=data.id||'';
   const familiaSelect=card.querySelector('.item-familia'); familiaSelect.innerHTML='<option value="">Selecione a família</option>'+FAMILIAS_PRODUTO.map(f=>`<option value="${escAttr(f.codigo)}">${esc(f.codigo)} - ${esc(f.descricao)}</option>`).join('');
   const principal=familiaPrincipalAtual(); familiaSelect.value=principal||familiaCodigo(data.familia)||'';
+  card.dataset.imagemId=data.imagemId||''; card.dataset.imagemProduto=data.imagemProduto||''; card.dataset.imagemNome=data.imagemNome||'';
   card.querySelector('.item-codigo').value=data.codigoProduto||''; card.querySelector('.item-descricao').value=data.descricao||'';
   const unidadeSelect=card.querySelector('.item-unMedida'); if(data.unMedida && ![...unidadeSelect.options].some(o=>o.value===data.unMedida)){const opt=document.createElement('option');opt.value=data.unMedida;opt.textContent=data.unMedida;unidadeSelect.appendChild(opt);} unidadeSelect.value=data.unMedida||''; card.querySelector('.item-quantidade').value=data.quantidade||''; card.querySelector('.item-valorEstimado').value=data.valorEstimado||''; card.querySelector('.item-linkReferencia').value=data.linkReferencia||'';
   card.querySelector('.remove-item').onclick=()=>{ if($$('.item-card').length>1){ card.remove(); sincronizarFamiliaItens(); } else toast('A solicitação precisa ter pelo menos um item.'); renumerarItens(); };
@@ -391,8 +417,15 @@ async function salvarSolicitacao(comoRascunho=false){
   if(!comoRascunho && !familiaPmc) return toast('Selecione a família do primeiro produto. Ela será aplicada automaticamente a toda a PMC.');
   for(const card of $$('.item-card')){
     normalizarFamiliaInput(card.querySelector('.item-familia'));
-    const item={id:crypto.randomUUID(), familia:card.querySelector('.item-familia').value.trim(), codigoProduto:card.querySelector('.item-codigo').value.trim(), descricao:card.querySelector('.item-descricao').value.trim(), unMedida:card.querySelector('.item-unMedida').value.trim(), quantidade:Number(card.querySelector('.item-quantidade').value), valorEstimado:Number(card.querySelector('.item-valorEstimado').value||0), linkReferencia:card.querySelector('.item-linkReferencia').value.trim(), imagemProduto:'', status:comoRascunho?'Rascunho':'Solicitada', comprador:'', dataFinalizada:'', valorComprado:0, documentosFornecedores:[], comentarios:[]};
-    const file=card.querySelector('.item-imagem').files[0]; if(file) item.imagemProduto = await fileToDataUrl(file);
+    const item={id:card.dataset.itemId||crypto.randomUUID(), familia:card.querySelector('.item-familia').value.trim(), codigoProduto:card.querySelector('.item-codigo').value.trim(), descricao:card.querySelector('.item-descricao').value.trim(), unMedida:card.querySelector('.item-unMedida').value.trim(), quantidade:Number(card.querySelector('.item-quantidade').value), valorEstimado:Number(card.querySelector('.item-valorEstimado').value||0), linkReferencia:card.querySelector('.item-linkReferencia').value.trim(), imagemId:card.dataset.imagemId||'', imagemProduto:card.dataset.imagemProduto||'', imagemNome:card.dataset.imagemNome||'', status:comoRascunho?'Rascunho':'Solicitada', comprador:'', dataFinalizada:'', valorComprado:0, documentosFornecedores:[], comentarios:[]};
+    const file=card.querySelector('.item-imagem').files[0];
+    if(file){
+      try{
+        item.imagemProduto=await comprimirImagemProduto(file);
+        item.imagemNome=file.name||'imagem-produto.jpg';
+        item.imagemId=item.imagemId||crypto.randomUUID();
+      }catch(e){ return toast(e.message||'Não foi possível preparar a imagem do produto.'); }
+    }
     if(!comoRascunho&&(!item.familia || !item.descricao || !item.quantidade)) return toast('Preencha família, descrição e quantidade em todos os itens.');
     itens.push(item);
   }
@@ -429,6 +462,30 @@ function showFragmentDialog(alertas, onConfirm){
   dlg.showModal();
 }
 function fileToDataUrl(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(file); }); }
+function estimativaBytesDataUrl(dataUrl){
+  const base64=String(dataUrl||'').split(',')[1]||'';
+  return Math.ceil(base64.length*3/4);
+}
+async function comprimirImagemProduto(file){
+  if(!file?.type?.startsWith('image/')) throw new Error('Selecione um arquivo de imagem válido.');
+  const original=await fileToDataUrl(file);
+  const img=await new Promise((resolve,reject)=>{const el=new Image();el.onload=()=>resolve(el);el.onerror=()=>reject(new Error('Não foi possível ler a imagem selecionada.'));el.src=original;});
+  let limite=1200;
+  let escala=Math.min(1,limite/Math.max(img.naturalWidth||img.width,img.naturalHeight||img.height));
+  let largura=Math.max(1,Math.round((img.naturalWidth||img.width)*escala));
+  let altura=Math.max(1,Math.round((img.naturalHeight||img.height)*escala));
+  const canvas=document.createElement('canvas'); const ctx=canvas.getContext('2d',{alpha:false});
+  let qualidade=.82, resultado='';
+  for(let tentativa=0;tentativa<12;tentativa++){
+    canvas.width=largura; canvas.height=altura;
+    ctx.fillStyle='#fff'; ctx.fillRect(0,0,largura,altura); ctx.drawImage(img,0,0,largura,altura);
+    resultado=canvas.toDataURL('image/jpeg',qualidade);
+    if(estimativaBytesDataUrl(resultado)<=320000) return resultado;
+    if(qualidade>.46) qualidade-=.09; else {largura=Math.max(320,Math.round(largura*.82));altura=Math.max(320,Math.round(altura*.82));qualidade=.72;}
+  }
+  if(estimativaBytesDataUrl(resultado)>420000) throw new Error('A imagem é muito grande. Use uma foto menor ou recorte-a antes de anexar.');
+  return resultado;
+}
 function getAlertas(s){
   const dias=Number(state.config.diasRegra||90); const now=new Date(); const relevantes=['Solicitada','Em análise','Aguardando aprovação','Aprovado','Em cotação','Em compra','Comprado'];
   let alerts=[];
