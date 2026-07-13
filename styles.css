@@ -382,3 +382,14 @@ body.modal-open{overflow:hidden}
 .update-banner button:hover{filter:brightness(.94)}
 .update-banner.is-updating button{pointer-events:none;opacity:.75}
 @media(max-width:640px){.update-banner{left:12px;right:12px;bottom:12px;max-width:none;align-items:flex-start;flex-direction:column}.update-banner button{width:100%}}
+
+/* PMC v2.4.0 — visual consolidado por PMC */
+.pmc-mini-card{padding:14px 16px}.pmc-mini-main{display:flex;align-items:center;justify-content:space-between;gap:16px}.pmc-mini-main>div{min-width:0}.pmc-mini-main button{flex:0 0 auto}.admin-resend-btn{border-color:#174a8b;color:#174a8b;background:#fff}.admin-resend-btn:hover{background:#edf4ff}.admin-resend-btn:disabled{opacity:.55;cursor:not-allowed}
+@media (max-width:700px){.pmc-mini-main{align-items:stretch;flex-direction:column}.pmc-mini-main button{width:100%}}
+
+/* Fluxo de devolução da PMC para correção pelo solicitante */
+.return-pmc-btn{background:#fff7ed!important;color:#9a3412!important;border:1px solid #fdba74!important;font-weight:800}
+.return-pmc-btn:hover{background:#ffedd5!important}
+#compradoraTable tr.pmc-row-devolvida td{background:#f3e8ff!important;border-color:#c4b5fd!important;color:#5b21b6}
+#compradoraTable tr.pmc-row-devolvida .badge{background:#7c3aed!important;color:#fff!important}
+.pmc-row-devolvida{border-color:#c4b5fd!important;background:#faf5ff!important}

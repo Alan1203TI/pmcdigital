@@ -96,7 +96,7 @@ document.addEventListener('visibilitychange', () => {
 
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
-const STATUSES = ['Rascunho','Solicitada','Em análise','Aguardando aprovação','Aprovado','Em cotação','Em compra','Comprado','Recusado','Cancelado'];
+const STATUSES = ['Rascunho','Devolvida para ajuste','Solicitada','Em análise','Aguardando aprovação','Aprovado','Em cotação','Em compra','Comprado','Recusado','Cancelado'];
 const DELIVERY_STATUSES = ['Não iniciado','Aguardando entrega','Entregue'];
 
 let FAMILIAS_PRODUTO = [
@@ -453,34 +453,40 @@ function coletarAnexosLinks(){
   return anexos;
 }
 async function salvarSolicitacao(comoRascunho=false){
+  const existente=editingDraftId?state.solicitacoes.find(x=>x.id===editingDraftId&&['Rascunho','Devolvida para ajuste'].includes(x.status)):null;
+  const devolvida=existente?.status==='Devolvida para ajuste';
+  if(existente && existente.solicitanteUid!==state.user?.uid) return toast('Você não tem permissão para editar esta PMC.');
   const itens=[];
   sincronizarFamiliaItens();
   const familiaPmc=familiaPrincipalAtual();
   if(!comoRascunho && !familiaPmc) return toast('Selecione a família do primeiro produto. Ela será aplicada automaticamente a toda a PMC.');
+  const itensAnteriores=new Map((existente?.itens||[]).map(i=>[i.id,i]));
   for(const card of $$('.item-card')){
     normalizarFamiliaInput(card.querySelector('.item-familia'));
-    const item={id:card.dataset.itemId||crypto.randomUUID(), familia:card.querySelector('.item-familia').value.trim(), codigoProduto:card.querySelector('.item-codigo').value.trim(), descricao:card.querySelector('.item-descricao').value.trim(), unMedida:card.querySelector('.item-unMedida').value.trim(), quantidade:Number(card.querySelector('.item-quantidade').value), valorEstimado:Number(card.querySelector('.item-valorEstimado').value||0), linkReferencia:card.querySelector('.item-linkReferencia').value.trim(), imagemId:card.dataset.imagemId||'', imagemProduto:card.dataset.imagemProduto||'', imagemNome:card.dataset.imagemNome||'', status:comoRascunho?'Rascunho':'Solicitada', comprador:'', dataFinalizada:'', valorComprado:0, documentosFornecedores:[], comentarios:[]};
+    const itemId=card.dataset.itemId||crypto.randomUUID();
+    const anterior=itensAnteriores.get(itemId)||{};
+    const item={...anterior,id:itemId, familia:card.querySelector('.item-familia').value.trim(), codigoProduto:card.querySelector('.item-codigo').value.trim(), descricao:card.querySelector('.item-descricao').value.trim(), unMedida:card.querySelector('.item-unMedida').value.trim(), quantidade:Number(card.querySelector('.item-quantidade').value), valorEstimado:Number(card.querySelector('.item-valorEstimado').value||0), linkReferencia:card.querySelector('.item-linkReferencia').value.trim(), imagemId:card.dataset.imagemId||anterior.imagemId||'', imagemProduto:card.dataset.imagemProduto||anterior.imagemProduto||'', imagemNome:card.dataset.imagemNome||anterior.imagemNome||''};
+    if(!existente || devolvida){
+      item.status=comoRascunho?'Rascunho':'Solicitada'; item.comprador=''; item.dataFinalizada=''; item.valorComprado=0; item.statusEntrega='Não iniciado'; item.dataEntrega='';
+      if(!Array.isArray(item.documentosFornecedores)) item.documentosFornecedores=[];
+      if(!Array.isArray(item.comentarios)) item.comentarios=[];
+    }
     const file=card.querySelector('.item-imagem').files[0];
     if(file){
-      try{
-        item.imagemProduto=await comprimirImagemProduto(file);
-        item.imagemNome=file.name||'imagem-produto.jpg';
-        item.imagemId=item.imagemId||crypto.randomUUID();
-      }catch(e){ return toast(e.message||'Não foi possível preparar a imagem do produto.'); }
+      try{ item.imagemProduto=await comprimirImagemProduto(file); item.imagemNome=file.name||'imagem-produto.jpg'; item.imagemId=item.imagemId||crypto.randomUUID(); }
+      catch(e){ return toast(e.message||'Não foi possível preparar a imagem do produto.'); }
     }
     if(!comoRascunho&&(!item.familia || !item.descricao || !item.quantidade)) return toast('Preencha família, descrição e quantidade em todos os itens.');
     itens.push(item);
   }
-  const draftExistente=editingDraftId?state.solicitacoes.find(x=>x.id===editingDraftId&&x.status==='Rascunho'):null;
-  const id=draftExistente?.id||crypto.randomUUID(); let anexos=[];
+  const id=existente?.id||crypto.randomUUID(); let anexos=[];
   try{anexos=coletarAnexosLinks();}catch(e){return toast(e.message);}
-  const numeroPedido=comoRascunho?'':await proximoNumeroPedido();
-  const s={id, numeroPedido, criadoEm:new Date().toISOString(), dataNecessidade:$('#dataNecessidade')?.value||'', solicitante:$('#solicitante')?.value.trim()||state.user.nome, solicitanteEmail:state.user?.email||'', setor:$('#setor')?.value.trim()||state.user.setor||'', unidade:$('#unidade')?.value||'', entidade:$('#entidade')?.value||'', centroCusto:$('#centroCusto')?.value||'', finalidade:$('#finalidade')?.value||'', itens, urgencia:$('#urgencia')?.value||'Normal', justificativa:$('#justificativa')?.value.trim()||'', anexos, comprador:'', status:comoRascunho?'Rascunho':'Solicitada', comentarioGeral:draftExistente?.comentarioGeral||'', comentarios:[], historico:[log(comoRascunho?'Rascunho criado':'PMC enviada')]};
+  const numeroPedido=existente?.numeroPedido||(comoRascunho?'':await proximoNumeroPedido());
+  const statusNovo=comoRascunho?'Rascunho':'Solicitada';
+  const s={...(existente||{}),id, numeroPedido, criadoEm:existente?.criadoEm||new Date().toISOString(), dataNecessidade:$('#dataNecessidade')?.value||'', solicitante:existente?.solicitante||$('#solicitante')?.value.trim()||state.user.nome, solicitanteEmail:existente?.solicitanteEmail||state.user?.email||'', solicitanteUid:existente?.solicitanteUid||state.user?.uid||'', setor:$('#setor')?.value.trim()||state.user.setor||'', unidade:$('#unidade')?.value||'', entidade:$('#entidade')?.value||'', centroCusto:$('#centroCusto')?.value||'', finalidade:$('#finalidade')?.value||'', itens, urgencia:$('#urgencia')?.value||'Normal', justificativa:$('#justificativa')?.value.trim()||'', anexos, comprador:devolvida?'':(existente?.comprador||''), status:statusNovo, comentarioGeral:existente?.comentarioGeral||'', comentarios:existente?.comentarios||[], historico:[...(existente?.historico||[]),log(devolvida?'PMC corrigida e reenviada pelo solicitante':(comoRascunho?(existente?'Rascunho atualizado':'Rascunho criado'):'PMC enviada'))]};
+  if(devolvida){ s.motivoDevolucao=''; s.devolvidaEm=''; s.devolvidaPor=''; s.reenviadaEm=new Date().toISOString(); }
   const alerta = getAlertas(s);
-  if(alerta.length){
-    s.temAlerta=true; s.alertaTexto=alerta.join(' | ');
-    return showFragmentDialog(alerta, ()=>finalizarSolicitacao(s,comoRascunho));
-  }
+  if(alerta.length){ s.temAlerta=true; s.alertaTexto=alerta.join(' | '); return showFragmentDialog(alerta, ()=>finalizarSolicitacao(s,comoRascunho)); }
   finalizarSolicitacao(s,comoRascunho);
 }
 async function enviarNotificacaoCompradora(s){
@@ -579,12 +585,12 @@ function renderRascunhos(){
   el.innerHTML=rows.map(s=>`<article class="panel draft-card"><div><small>Salvo em ${fmtDateTime(s.criadoEm)}</small><h3>${esc((s.itens||[])[0]?.descricao||'PMC em elaboração')}</h3><p>${(s.itens||[]).length} item(ns) • ${esc(s.setor||'Sem setor')}</p></div><div class="draft-actions"><button onclick="openDetail('${s.id}')">Visualizar</button><button onclick="editarRascunho('${s.id}')">Editar</button><button class="primary" onclick="enviarRascunho('${s.id}')">Enviar PMC</button><button class="danger-btn" onclick="excluirRascunho('${s.id}')">Excluir</button></div></article>`).join('')||'<div class="panel"><p>Nenhum rascunho salvo.</p></div>';
 }
 window.editarRascunho=function(id){
-  const s=state.solicitacoes.find(x=>x.id===id); if(!s||s.status!=='Rascunho'||s.solicitanteUid!==state.user.uid) return;
+  const s=state.solicitacoes.find(x=>x.id===id); if(!s||!['Rascunho','Devolvida para ajuste'].includes(s.status)||s.solicitanteUid!==state.user.uid) return;
   editingDraftId=id; showPage('nova'); fillSelects();
   $('#solicitante').value=s.solicitante||state.user.nome; $('#setor').value=s.setor||state.user.setor||''; $('#unidade').value=s.unidade||'SESI'; $('#entidade').value=s.entidade||''; fillCentroCusto(); $('#centroCusto').value=s.centroCusto||''; $('#finalidade').value=s.finalidade||''; $('#dataNecessidade').value=s.dataNecessidade||''; $('#urgencia').value=s.urgencia||'Normal'; $('#justificativa').value=s.justificativa||'';
   $('#itensContainer').innerHTML=''; (s.itens||[]).forEach(i=>addItem(i)); if(!(s.itens||[]).length) addItem();
   $('#anexosLinksContainer').innerHTML=''; (s.anexos||[]).forEach(a=>addAnexoLink(a)); if(!(s.anexos||[]).length) addAnexoLink();
-  $('#salvarRascunhoBtn').textContent='Atualizar rascunho'; toast('Rascunho aberto para edição.');
+  $('#salvarRascunhoBtn').textContent=s.status==='Devolvida para ajuste'?'Reenviar PMC corrigida':'Atualizar rascunho'; toast(s.status==='Devolvida para ajuste'?'PMC devolvida aberta para correção. Faça os ajustes e clique em Reenviar PMC corrigida.':'Rascunho aberto para edição.');
 };
 window.excluirRascunho=function(id){
   const s=state.solicitacoes.find(x=>x.id===id); if(!s||s.status!=='Rascunho'||s.solicitanteUid!==state.user.uid) return;
@@ -599,7 +605,7 @@ function renderSolicitacoes(){
     const compradores=unique(itens.map(i=>i.comprador).filter(Boolean));
     const corStatus=classeCorPainel(s);
     const adminResend=state.user?.perfil==='admin'&&s.status!=='Rascunho'?`<button class="admin-resend-btn" onclick="reenviarPmcEmail('${s.id}')">Reenviar PMC por e-mail</button>`:'';
-    return `<tr class="pmc-status-row ${corStatus}"><td><b>PMC ${esc(s.numeroPedido||'Rascunho')}</b><br><small>${fmtDate(s.criadoEm)}</small></td><td><b>${esc(s.solicitante||'-')}</b><br><small>${esc(s.setor||'-')}</small></td><td>${esc(familias.join(', ')||'-')}</td><td>${itens.length} produto${itens.length===1?'':'s'}</td><td>${badge(s.status||'Pendente')}</td><td>${esc(compradores.join(', ')||s.comprador||'-')}</td><td>${s.temAlerta?'<span class="alert">⚠ 90 dias/duplicidade</span>':'<span class="ok">OK</span>'}</td><td><div class="table-action-stack"><button class="primary" onclick="openDetail('${s.id}')">Abrir PMC</button>${s.status==='Rascunho'&&s.solicitanteUid===state.user.uid?`<button onclick="enviarRascunho('${s.id}')">Enviar PMC</button>`:''}${s.numeroPedido&&['admin','compras'].includes(state.user?.perfil)?`<button class="pdf-inline-btn" onclick="downloadPedidoWord('${s.id}')">Gerar Word</button>`:''}${adminResend}</div></td></tr>`;
+    return `<tr class="pmc-status-row ${corStatus}"><td><b>PMC ${esc(s.numeroPedido||'Rascunho')}</b><br><small>${fmtDate(s.criadoEm)}</small></td><td><b>${esc(s.solicitante||'-')}</b><br><small>${esc(s.setor||'-')}</small></td><td>${esc(familias.join(', ')||'-')}</td><td>${itens.length} produto${itens.length===1?'':'s'}</td><td>${badge(s.status||'Pendente')}</td><td>${esc(compradores.join(', ')||s.comprador||'-')}</td><td>${s.temAlerta?'<span class="alert">⚠ 90 dias/duplicidade</span>':'<span class="ok">OK</span>'}</td><td><div class="table-action-stack"><button class="primary" onclick="openDetail('${s.id}')">Abrir PMC</button>${s.status==='Rascunho'&&s.solicitanteUid===state.user.uid?`<button onclick="enviarRascunho('${s.id}')">Enviar PMC</button>`:''}${s.status==='Devolvida para ajuste'&&s.solicitanteUid===state.user.uid?`<button class="primary" onclick="editarRascunho('${s.id}')">Editar e reenviar</button>`:''}${s.numeroPedido&&['admin','compras'].includes(state.user?.perfil)?`<button class="pdf-inline-btn" onclick="downloadPedidoWord('${s.id}')">Gerar Word</button>`:''}${adminResend}</div></td></tr>`;
   }).join('') || '<tr><td colspan="8">Nenhuma PMC encontrada.</td></tr>';
 }
 window.reenviarPmcEmail=async function(id){
@@ -612,10 +618,10 @@ window.reenviarPmcEmail=async function(id){
   },'Reenviar PMC');
 };
 window.openDetail=function(id){
-  const s=state.solicitacoes.find(x=>x.id===id); if(!s) return; const canEdit = ['admin','compras','gestor'].includes(state.user.perfil); const canDelete=['admin','compras'].includes(state.user.perfil);
+  const s=state.solicitacoes.find(x=>x.id===id); if(!s) return; const canEdit = ['admin','compras','gestor'].includes(state.user.perfil); const canDelete=['admin','compras'].includes(state.user.perfil); const podeDevolver=canEdit&&!['Rascunho','Devolvida para ajuste','Comprado','Cancelado','Recusado'].includes(s.status); const podeCorrigir=s.status==='Devolvida para ajuste'&&s.solicitanteUid===state.user?.uid;
   const itensHtml=s.itens.map((i,idx)=>`<div class="detail-item"><div class="detail-item-heading"><h4>Item ${idx+1} — ${esc(i.codigoProduto||'Sem código')}</h4>${canEdit?`<button class="primary item-update-button" type="button" onclick="openItemUpdate('${s.id}','${i.id}')">Atualizar produto</button>`:''}</div><div class="detail-grid">${item('Status do item',badge(i.status||s.status))}${item('Compradora',i.comprador||'-')}${item('Data finalizada',i.dataFinalizada?fmtDate(i.dataFinalizada):'-')}${item('Status da entrega',badge(i.statusEntrega||'Não iniciado'))}${item('Data da entrega',i.dataEntrega?fmtDate(i.dataEntrega):'-')}${item('Família/código',familiaLabel(i.familia))}${item('Código Protheus',i.codigoProduto||'-')}${item('Quantidade',i.quantidade+' '+(i.unMedida||''))}${item('Valor estimado',money(i.valorEstimado))}${item('Valor efetivamente comprado',money(i.valorComprado||0))}${item('Saldo da família nos 90 dias',saldoFamiliaHtml(i.familia,i.id))}${item('Descrição',i.descricao,'wide')}${item('Estudo dos orçamentos',quoteAnalysisHtml(i),'wide')}${item('Orçamentos por fornecedor',documentosHtml(i),'wide')}${item('Pedido(s) de compra / NFE',i.nfeUrl?`<a href="${escAttr(i.nfeUrl)}" target="_blank">Abrir documento</a>${(i.nfeNomes||[]).length?`<br><small>${(i.nfeNomes||[]).map(esc).join('<br>')}</small>`:(i.nfeNome?`<br><small>${esc(i.nfeNome)}</small>`:'')}`:((i.nfeNomes||[]).length?(i.nfeNomes||[]).map(esc).join('<br>'):(i.nfeNome?esc(i.nfeNome):'-')),'wide')}${item('Link referência',i.linkReferencia?`<a href="${escAttr(i.linkReferencia)}" target="_blank">Abrir referência</a>`:'-','wide')}${item('Imagem',i.imagemProduto?`<img class="produto-img" src="${escAttr(i.imagemProduto)}" alt="Imagem do produto">`:'-','wide')}</div></div>`).join('');
   $('#detailContent').classList.toggle('buyer-compact', canEdit);
-  $('#detailContent').innerHTML=`<div class="detail-actions-row"><div class="detail-document-actions"><button class="primary pdf-order-btn" type="button" onclick="downloadPedidoWord('${s.id}')">Gerar modelo de cotação (.docx)</button><button class="pdf-pmc-btn" type="button" onclick="downloadPmcPdf('${s.id}')">Baixar PDF da PMC</button><span>O PDF reúne todos os dados preenchidos da PMC em formato próprio para impressão.</span></div>${state.user?.perfil==='admin'&&s.status!=='Rascunho'?`<button class="admin-resend-btn" type="button" onclick="reenviarPmcEmail('${s.id}')">Reenviar PMC por e-mail</button>`:''}<button class="history-button" type="button" onclick="openHistory('${s.id}')">Histórico</button></div><h3>Solicitação PMC nº ${esc(s.numeroPedido||'-')}</h3><div class="detail-grid">${item('Data do pedido',fmtDate(s.criadoEm))}${item('Data da necessidade',s.dataNecessidade?fmtDate(s.dataNecessidade):'-')}${item('Solicitante',s.solicitante)}${item('Setor',s.setor)}${item('Unidade',s.unidade)}${item('Entidade',s.entidade)}${item('Centro/Classe',s.centroCusto)}${item('Finalidade',s.finalidade)}${item('Status geral calculado',badge(s.status))}${item('Urgência',s.urgencia)}${item('Justificativa',s.justificativa,'wide')}${item('Comentário geral da PMC',s.comentarioGeral||'Nenhum comentário informado.','wide')}${item('GISU / Licitação',s.gisu?`<span class="gisu-badge">Sim</span> • Valor realizado: <b>${money(s.gisuValor||0)}</b>${s.gisuData?' • Registrado em '+fmtDate(s.gisuData):''}`:'Não','wide')}${item('Anexo/orçamento',s.anexo?`<a href="${escAttr(s.anexo)}" target="_blank">Abrir orçamento/anexo</a>`:'-','wide')}${item('Alerta',s.alertaTexto?`<span class="fragment-alert-red">${esc(s.alertaTexto)}</span>`:'Sem alerta','wide')}</div>${canEdit?`<div class="panel gisu-editor"><div><span class="eyebrow">Compra por licitação</span><h3>GISU</h3><p>Marque quando esta PMC for comprada por licitação e não utilizar o limite de R$ 3.000,00 da unidade.</p></div><label class="gisu-check"><input id="pmcGisu" type="checkbox" ${s.gisu?'checked':''} onchange="toggleGisuValue(this.checked)"><span>Esta PMC foi encaminhada para GISU</span></label><label>Valor total da compra realizada via GISU (R$)<input id="pmcGisuValor" type="number" min="0" step="0.01" value="${Number(s.gisuValor||0)}" ${s.gisu?'':'disabled'}></label><button class="primary" type="button" onclick="savePmcGisu('${s.id}')">Salvar GISU</button></div><div class="panel pmc-comment-editor"><label><b>Comentário geral da PMC</b><textarea id="pmcComentarioGeral" rows="3" placeholder="Registre aqui observações válidas para toda a PMC.">${esc(s.comentarioGeral||'')}</textarea></label><button class="primary" type="button" onclick="savePmcComment('${s.id}')">Salvar comentário geral</button></div>`:''}<h3>Itens da solicitação</h3>${itensHtml}
+  $('#detailContent').innerHTML=`<div class="detail-actions-row"><div class="detail-document-actions"><button class="primary pdf-order-btn" type="button" onclick="downloadPedidoWord('${s.id}')">Gerar modelo de cotação (.docx)</button><button class="pdf-pmc-btn" type="button" onclick="downloadPmcPdf('${s.id}')">Baixar PDF da PMC</button><span>O PDF reúne todos os dados preenchidos da PMC em formato próprio para impressão.</span></div>${state.user?.perfil==='admin'&&s.status!=='Rascunho'?`<button class="admin-resend-btn" type="button" onclick="reenviarPmcEmail('${s.id}')">Reenviar PMC por e-mail</button>`:''}${podeDevolver?`<button class="return-pmc-btn" type="button" onclick="devolverPmc('${s.id}')">Devolver para ajuste</button>`:''}${podeCorrigir?`<button class="primary" type="button" onclick="editarRascunho('${s.id}')">Editar PMC e reenviar</button>`:''}<button class="history-button" type="button" onclick="openHistory('${s.id}')">Histórico</button></div><h3>Solicitação PMC nº ${esc(s.numeroPedido||'-')}</h3><div class="detail-grid">${item('Data do pedido',fmtDate(s.criadoEm))}${item('Data da necessidade',s.dataNecessidade?fmtDate(s.dataNecessidade):'-')}${item('Solicitante',s.solicitante)}${item('Setor',s.setor)}${item('Unidade',s.unidade)}${item('Entidade',s.entidade)}${item('Centro/Classe',s.centroCusto)}${item('Finalidade',s.finalidade)}${item('Status geral calculado',badge(s.status))}${s.status==='Devolvida para ajuste'?item('Motivo da devolução',s.motivoDevolucao||'Ajustes solicitados pela compradora.','wide'):''}${item('Urgência',s.urgencia)}${item('Justificativa',s.justificativa,'wide')}${item('Comentário geral da PMC',s.comentarioGeral||'Nenhum comentário informado.','wide')}${item('GISU / Licitação',s.gisu?`<span class="gisu-badge">Sim</span> • Valor realizado: <b>${money(s.gisuValor||0)}</b>${s.gisuData?' • Registrado em '+fmtDate(s.gisuData):''}`:'Não','wide')}${item('Anexo/orçamento',s.anexo?`<a href="${escAttr(s.anexo)}" target="_blank">Abrir orçamento/anexo</a>`:'-','wide')}${item('Alerta',s.alertaTexto?`<span class="fragment-alert-red">${esc(s.alertaTexto)}</span>`:'Sem alerta','wide')}</div>${canEdit?`<div class="panel gisu-editor"><div><span class="eyebrow">Compra por licitação</span><h3>GISU</h3><p>Marque quando esta PMC for comprada por licitação e não utilizar o limite de R$ 3.000,00 da unidade.</p></div><label class="gisu-check"><input id="pmcGisu" type="checkbox" ${s.gisu?'checked':''} onchange="toggleGisuValue(this.checked)"><span>Esta PMC foi encaminhada para GISU</span></label><label>Valor total da compra realizada via GISU (R$)<input id="pmcGisuValor" type="number" min="0" step="0.01" value="${Number(s.gisuValor||0)}" ${s.gisu?'':'disabled'}></label><button class="primary" type="button" onclick="savePmcGisu('${s.id}')">Salvar GISU</button></div><div class="panel pmc-comment-editor"><label><b>Comentário geral da PMC</b><textarea id="pmcComentarioGeral" rows="3" placeholder="Registre aqui observações válidas para toda a PMC.">${esc(s.comentarioGeral||'')}</textarea></label><button class="primary" type="button" onclick="savePmcComment('${s.id}')">Salvar comentário geral</button></div>`:''}<h3>Itens da solicitação</h3>${itensHtml}
     ${canDelete?`<hr><button class="danger-btn" onclick="delSol('${s.id}')">Excluir solicitação completa</button>`:''}`;
   if(!['admin','compras'].includes(state.user?.perfil)) $('#detailContent .detail-document-actions')?.remove();
   if((s.anexos||[]).length){
@@ -625,6 +631,22 @@ window.openDetail=function(id){
   }
   const paginaAtual=document.querySelector('.page.active')?.id||'solicitacoes'; if(paginaAtual!=='detalhe') state.previousPage=paginaAtual; $('#detailPageTitle').textContent='Detalhes da Solicitação PMC'; showPage('detalhe');
 }
+
+window.devolverPmc=async function(id){
+  if(!['admin','compras','gestor'].includes(state.user?.perfil)) return toast('Apenas a compradora ou administradores podem devolver a PMC.');
+  const s=state.solicitacoes.find(x=>x.id===id); if(!s) return toast('PMC não encontrada.');
+  if(['Rascunho','Devolvida para ajuste','Comprado','Cancelado','Recusado'].includes(s.status)) return toast('Esta PMC não pode ser devolvida nesta etapa.');
+  const motivo=prompt(`Informe o ajuste necessário para devolver a PMC ${s.numeroPedido||''} ao solicitante:`,'');
+  if(motivo===null) return;
+  if(!motivo.trim()) return toast('Informe o motivo da devolução para orientar o solicitante.');
+  confirmAction(`Devolver a PMC ${s.numeroPedido||''} para ${s.solicitante||'o solicitante'} realizar os ajustes?`,async()=>{
+    s.status='Devolvida para ajuste'; s.motivoDevolucao=motivo.trim(); s.devolvidaEm=new Date().toISOString(); s.devolvidaPor=state.user?.nome||'';
+    (s.itens||[]).forEach(i=>{i.status='Devolvida para ajuste';});
+    s.historico=s.historico||[]; s.historico.push(log(`PMC devolvida ao solicitante para ajuste. Motivo: ${motivo.trim()}`));
+    await persistSolicitacao(s); renderAll(); openDetail(id); toast('PMC devolvida. O solicitante agora poderá editar e reenviar.');
+  },'Devolver PMC');
+};
+
 window.toggleGisuValue=function(checked){ const el=$('#pmcGisuValor'); if(!el) return; el.disabled=!checked; if(!checked) el.value='0'; };
 window.savePmcGisu=async function(id){
   const s=state.solicitacoes.find(x=>x.id===id); if(!s) return toast('PMC não encontrada.');
@@ -1128,6 +1150,7 @@ function classeCorPainel(s){
   const status=String(s?.status||'Pendente');
   const entregas=(s?.itens||[]).map(i=>i.statusEntrega||'Não iniciado');
   if(status==='Cancelado') return 'pmc-row-cancelado';
+  if(status==='Devolvida para ajuste') return 'pmc-row-devolvida';
   if(status==='Comprado' || (entregas.length&&entregas.every(x=>x==='Entregue'))) return 'pmc-row-finalizado';
   if(status==='Aprovado') return 'pmc-row-realizado';
   if(['Em análise','Aguardando aprovação','Em cotação','Em compra'].includes(status)) return 'pmc-row-andamento';

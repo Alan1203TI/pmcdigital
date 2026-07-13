@@ -1,11 +1,11 @@
 {
-  "version": "2.3.1",
-  "build": "20260713-03",
-  "updatedAt": "2026-07-13T19:00:00-03:00",
+  "version": "2.5.0",
+  "build": "20260713-05",
+  "updatedAt": "2026-07-13T21:00:00-03:00",
   "changes": [
-    "Botão de atualização desaparece após o clique",
-    "Correção da verificação de versão",
-    "Imagens dos produtos armazenadas separadamente",
-    "Controle GISU no budget"
+    "Compradora pode devolver a PMC ao solicitante com motivo obrigatório",
+    "Solicitante só pode editar uma PMC enviada quando ela estiver devolvida para ajuste",
+    "PMC corrigida mantém o mesmo número e é reenviada para a compradora",
+    "Histórico registra devolução, motivo e reenvio da correção"
   ]
 }
