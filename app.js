@@ -284,16 +284,30 @@ function fillCentroCusto(){
   if(entidade) centros=centros.filter(c=>c.entidade===entidade);
   $('#centroCusto').innerHTML='<option value="">Selecione</option>'+centros.map(c=>`<option value="${esc(c.centroCusto+'/'+c.classeValor+' | '+c.centroCustoNome+' | '+c.classeValorNome)}">${esc(c.entidade)} | ${esc(c.centroCusto+'/'+c.classeValor)} | ${esc(c.centroCustoNome)} | ${esc(c.classeValorNome)}</option>`).join('');
 }
+function familiaPrincipalAtual(){
+  const primeiro=$$('.item-card')[0]?.querySelector('.item-familia');
+  return familiaCodigo(primeiro?.value||'');
+}
+function sincronizarFamiliaItens(){
+  const cards=$$('.item-card'); if(!cards.length) return;
+  const principal=familiaCodigo(cards[0].querySelector('.item-familia').value);
+  cards.forEach((c,idx)=>{
+    const select=c.querySelector('.item-familia');
+    if(idx===0){ select.disabled=false; select.title='Selecione a família válida para toda a PMC.'; }
+    else { select.value=principal; select.disabled=true; select.title='A família é definida pelo primeiro item da PMC.'; }
+  });
+}
 function addItem(data={}){
   const frag=$('#itemTemplate').content.cloneNode(true); const card=frag.querySelector('.item-card');
-  const familiaSelect=card.querySelector('.item-familia'); familiaSelect.innerHTML='<option value="">Selecione a família</option>'+FAMILIAS_PRODUTO.map(f=>`<option value="${escAttr(f.codigo)}">${esc(f.codigo)} - ${esc(f.descricao)}</option>`).join(''); familiaSelect.value=familiaCodigo(data.familia)||'';
+  const familiaSelect=card.querySelector('.item-familia'); familiaSelect.innerHTML='<option value="">Selecione a família</option>'+FAMILIAS_PRODUTO.map(f=>`<option value="${escAttr(f.codigo)}">${esc(f.codigo)} - ${esc(f.descricao)}</option>`).join('');
+  const principal=familiaPrincipalAtual(); familiaSelect.value=principal||familiaCodigo(data.familia)||'';
   card.querySelector('.item-codigo').value=data.codigoProduto||''; card.querySelector('.item-descricao').value=data.descricao||'';
   const unidadeSelect=card.querySelector('.item-unMedida'); if(data.unMedida && ![...unidadeSelect.options].some(o=>o.value===data.unMedida)){const opt=document.createElement('option');opt.value=data.unMedida;opt.textContent=data.unMedida;unidadeSelect.appendChild(opt);} unidadeSelect.value=data.unMedida||''; card.querySelector('.item-quantidade').value=data.quantidade||''; card.querySelector('.item-valorEstimado').value=data.valorEstimado||''; card.querySelector('.item-linkReferencia').value=data.linkReferencia||'';
-  card.querySelector('.remove-item').onclick=()=>{ if($$('.item-card').length>1) card.remove(); else toast('A solicitação precisa ter pelo menos um item.'); renumerarItens(); };
-  card.querySelector('.item-familia').addEventListener('change',()=>normalizarFamiliaInput(card.querySelector('.item-familia')));
-  $('#itensContainer').appendChild(card); renumerarItens();
+  card.querySelector('.remove-item').onclick=()=>{ if($$('.item-card').length>1){ card.remove(); sincronizarFamiliaItens(); } else toast('A solicitação precisa ter pelo menos um item.'); renumerarItens(); };
+  familiaSelect.addEventListener('change',()=>{normalizarFamiliaInput(familiaSelect); sincronizarFamiliaItens();});
+  $('#itensContainer').appendChild(card); renumerarItens(); sincronizarFamiliaItens();
 }
-function renumerarItens(){ $$('.item-card').forEach((c,i)=>c.querySelector('.item-title b').textContent=`Item ${i+1}`); }
+function renumerarItens(){ $$('.item-card').forEach((c,i)=>c.querySelector('.item-title b').textContent=`Item ${i+1}`); sincronizarFamiliaItens(); }
 async function proximoNumeroPedido(){
   const usados=state.solicitacoes.map(s=>Number(s.numeroPedido||0)).filter(n=>Number.isInteger(n)&&n>0);
   return String((usados.length?Math.max(...usados):0)+1).padStart(4,'0');
@@ -318,6 +332,9 @@ function coletarAnexosLinks(){
 }
 async function salvarSolicitacao(comoRascunho=false){
   const itens=[];
+  sincronizarFamiliaItens();
+  const familiaPmc=familiaPrincipalAtual();
+  if(!comoRascunho && !familiaPmc) return toast('Selecione a família do primeiro produto. Ela será aplicada automaticamente a toda a PMC.');
   for(const card of $$('.item-card')){
     normalizarFamiliaInput(card.querySelector('.item-familia'));
     const item={id:crypto.randomUUID(), familia:card.querySelector('.item-familia').value.trim(), codigoProduto:card.querySelector('.item-codigo').value.trim(), descricao:card.querySelector('.item-descricao').value.trim(), unMedida:card.querySelector('.item-unMedida').value.trim(), quantidade:Number(card.querySelector('.item-quantidade').value), valorEstimado:Number(card.querySelector('.item-valorEstimado').value||0), linkReferencia:card.querySelector('.item-linkReferencia').value.trim(), imagemProduto:'', status:comoRascunho?'Rascunho':'Solicitada', comprador:'', dataFinalizada:'', valorComprado:0, documentosFornecedores:[], comentarios:[]};
@@ -429,7 +446,7 @@ window.openDetail=function(id){
   const s=state.solicitacoes.find(x=>x.id===id); if(!s) return; const canEdit = ['admin','compras','gestor'].includes(state.user.perfil); const canDelete=['admin','compras'].includes(state.user.perfil);
   const itensHtml=s.itens.map((i,idx)=>`<div class="detail-item"><div class="detail-item-heading"><h4>Item ${idx+1} — ${esc(i.codigoProduto||'Sem código')}</h4>${canEdit?`<button class="primary item-update-button" type="button" onclick="openItemUpdate('${s.id}','${i.id}')">Atualizar produto</button>`:''}</div><div class="detail-grid">${item('Status do item',badge(i.status||s.status))}${item('Compradora',i.comprador||'-')}${item('Data finalizada',i.dataFinalizada?fmtDate(i.dataFinalizada):'-')}${item('Status da entrega',badge(i.statusEntrega||'Não iniciado'))}${item('Data da entrega',i.dataEntrega?fmtDate(i.dataEntrega):'-')}${item('Família/código',familiaLabel(i.familia))}${item('Código Protheus',i.codigoProduto||'-')}${item('Quantidade',i.quantidade+' '+(i.unMedida||''))}${item('Valor estimado',money(i.valorEstimado))}${item('Valor efetivamente comprado',money(i.valorComprado||0))}${item('Saldo da família nos 90 dias',saldoFamiliaHtml(i.familia,i.id))}${item('Descrição',i.descricao,'wide')}${item('Estudo dos orçamentos',quoteAnalysisHtml(i),'wide')}${item('Orçamentos por fornecedor',documentosHtml(i),'wide')}${item('Pedido(s) de compra / NFE',i.nfeUrl?`<a href="${escAttr(i.nfeUrl)}" target="_blank">Abrir documento</a>${(i.nfeNomes||[]).length?`<br><small>${(i.nfeNomes||[]).map(esc).join('<br>')}</small>`:(i.nfeNome?`<br><small>${esc(i.nfeNome)}</small>`:'')}`:((i.nfeNomes||[]).length?(i.nfeNomes||[]).map(esc).join('<br>'):(i.nfeNome?esc(i.nfeNome):'-')),'wide')}${item('Link referência',i.linkReferencia?`<a href="${escAttr(i.linkReferencia)}" target="_blank">Abrir referência</a>`:'-','wide')}${item('Imagem',i.imagemProduto?`<img class="produto-img" src="${escAttr(i.imagemProduto)}" alt="Imagem do produto">`:'-','wide')}</div></div>`).join('');
   $('#detailContent').classList.toggle('buyer-compact', canEdit);
-  $('#detailContent').innerHTML=`<div class="detail-actions-row"><div class="detail-document-actions"><button class="primary pdf-order-btn" type="button" onclick="downloadPedidoWord('${s.id}')">Gerar modelo de cotação (.docx)</button><span>Documento Word editável, com somente os itens e campos necessários para o fornecedor.</span></div><button class="history-button" type="button" onclick="openHistory('${s.id}')">Histórico</button></div><h3>Solicitação PMC nº ${esc(s.numeroPedido||'-')}</h3><div class="detail-grid">${item('Data do pedido',fmtDate(s.criadoEm))}${item('Data da necessidade',s.dataNecessidade?fmtDate(s.dataNecessidade):'-')}${item('Solicitante',s.solicitante)}${item('Setor',s.setor)}${item('Unidade',s.unidade)}${item('Entidade',s.entidade)}${item('Centro/Classe',s.centroCusto)}${item('Finalidade',s.finalidade)}${item('Status geral calculado',badge(s.status))}${item('Urgência',s.urgencia)}${item('Justificativa',s.justificativa,'wide')}${item('Comentário geral da PMC',s.comentarioGeral||'Nenhum comentário informado.','wide')}${item('Anexo/orçamento',s.anexo?`<a href="${escAttr(s.anexo)}" target="_blank">Abrir orçamento/anexo</a>`:'-','wide')}${item('Alerta',s.alertaTexto?`<span class="fragment-alert-red">${esc(s.alertaTexto)}</span>`:'Sem alerta','wide')}</div>${canEdit?`<div class="panel pmc-comment-editor"><label><b>Comentário geral da PMC</b><textarea id="pmcComentarioGeral" rows="3" placeholder="Registre aqui observações válidas para toda a PMC.">${esc(s.comentarioGeral||'')}</textarea></label><button class="primary" type="button" onclick="savePmcComment('${s.id}')">Salvar comentário geral</button></div>`:''}<h3>Itens da solicitação</h3>${itensHtml}
+  $('#detailContent').innerHTML=`<div class="detail-actions-row"><div class="detail-document-actions"><button class="primary pdf-order-btn" type="button" onclick="downloadPedidoWord('${s.id}')">Gerar modelo de cotação (.docx)</button><button class="pdf-pmc-btn" type="button" onclick="downloadPmcPdf('${s.id}')">Baixar PDF da PMC</button><span>O PDF reúne todos os dados preenchidos da PMC em formato próprio para impressão.</span></div><button class="history-button" type="button" onclick="openHistory('${s.id}')">Histórico</button></div><h3>Solicitação PMC nº ${esc(s.numeroPedido||'-')}</h3><div class="detail-grid">${item('Data do pedido',fmtDate(s.criadoEm))}${item('Data da necessidade',s.dataNecessidade?fmtDate(s.dataNecessidade):'-')}${item('Solicitante',s.solicitante)}${item('Setor',s.setor)}${item('Unidade',s.unidade)}${item('Entidade',s.entidade)}${item('Centro/Classe',s.centroCusto)}${item('Finalidade',s.finalidade)}${item('Status geral calculado',badge(s.status))}${item('Urgência',s.urgencia)}${item('Justificativa',s.justificativa,'wide')}${item('Comentário geral da PMC',s.comentarioGeral||'Nenhum comentário informado.','wide')}${item('Anexo/orçamento',s.anexo?`<a href="${escAttr(s.anexo)}" target="_blank">Abrir orçamento/anexo</a>`:'-','wide')}${item('Alerta',s.alertaTexto?`<span class="fragment-alert-red">${esc(s.alertaTexto)}</span>`:'Sem alerta','wide')}</div>${canEdit?`<div class="panel pmc-comment-editor"><label><b>Comentário geral da PMC</b><textarea id="pmcComentarioGeral" rows="3" placeholder="Registre aqui observações válidas para toda a PMC.">${esc(s.comentarioGeral||'')}</textarea></label><button class="primary" type="button" onclick="savePmcComment('${s.id}')">Salvar comentário geral</button></div>`:''}<h3>Itens da solicitação</h3>${itensHtml}
     ${canDelete?`<hr><button class="danger-btn" onclick="delSol('${s.id}')">Excluir solicitação completa</button>`:''}`;
   if(!['admin','compras'].includes(state.user?.perfil)) $('#detailContent .detail-document-actions')?.remove();
   if((s.anexos||[]).length){
@@ -658,10 +675,11 @@ function renderCompradora(){
   $('#compradoraTable tbody').innerHTML=rows.map(s=>{
     const itens=s.itens||[];
     const cancelada=s.status==='Cancelado'||(itens.length&&itens.every(i=>i.status==='Cancelado'));
+    const corStatus=classeCorPainel(s);
     const familias=unique(itens.map(i=>familiaCodigo(i.familia)).filter(Boolean));
     const compradores=unique(itens.map(i=>i.comprador).filter(Boolean));
     const finalizadas=itens.map(i=>i.dataFinalizada).filter(Boolean).sort();
-    return `<tr class="${cancelada?'purchase-cancelled':''}">
+    return `<tr class="pmc-status-row ${corStatus} ${cancelada?'purchase-cancelled':''}">
       <td><b class="pmc-number">PMC ${esc(s.numeroPedido||'-')}</b><br><small>${itens.length} produto${itens.length===1?'':'s'}</small></td>
       <td><b>${esc(s.solicitante||'-')}</b><br><small>${esc(s.setor||'-')}</small></td>
       <td><small>Pedido: ${fmtDate(s.criadoEm)}${s.dataNecessidade?'<br>Necessidade: '+fmtDate(s.dataNecessidade):''}${finalizadas.length?'<br>Última finalização: '+fmtDate(finalizadas.at(-1)):''}</small></td>
@@ -887,6 +905,52 @@ function fmtDateTime(d){return new Date(d).toLocaleString('pt-BR');}
 function money(v){return Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});}
 function esc(s){return String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));}
 function escAttr(s){return esc(s).replace(/'/g,'&#39;');}
+function classeCorPainel(s){
+  const status=String(s?.status||'Pendente');
+  const entregas=(s?.itens||[]).map(i=>i.statusEntrega||'Não iniciado');
+  if(status==='Cancelado') return 'pmc-row-cancelado';
+  if(status==='Comprado' || (entregas.length&&entregas.every(x=>x==='Entregue'))) return 'pmc-row-finalizado';
+  if(status==='Aprovado') return 'pmc-row-realizado';
+  if(['Em análise','Aguardando aprovação','Em cotação','Em compra'].includes(status)) return 'pmc-row-andamento';
+  return 'pmc-row-pendente';
+}
+window.downloadPmcPdf=function(id){
+  const s=state.solicitacoes.find(x=>x.id===id); if(!s) return toast('PMC não encontrada.');
+  if(!window.jspdf?.jsPDF) return toast('Não foi possível carregar o gerador de PDF. Verifique a conexão com a internet.');
+  const {jsPDF}=window.jspdf; const doc=new jsPDF({unit:'mm',format:'a4'});
+  const blue=[20,70,135], light=[238,244,252];
+  const clean=v=>String(v??'-').replace(/\s+/g,' ').trim()||'-';
+  const fieldRows=[
+    ['Número da PMC',s.numeroPedido||'-','Status',s.status||'-'],
+    ['Data do pedido',fmtDate(s.criadoEm),'Data da necessidade',s.dataNecessidade?fmtDate(s.dataNecessidade):'-'],
+    ['Solicitante',s.solicitante||'-','Setor',s.setor||'-'],
+    ['Unidade',s.unidade||'-','Entidade',s.entidade||'-'],
+    ['Centro / Classe',s.centroCusto||'-','Finalidade',s.finalidade||'-'],
+    ['Urgência',s.urgencia||'-','Compradora(s)',s.comprador||'-'],
+    ['Justificativa',s.justificativa||'-','Comentário geral',s.comentarioGeral||'-']
+  ].map(r=>r.map(clean));
+  doc.setFillColor(...blue); doc.rect(0,0,210,27,'F');
+  doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(18); doc.text(`PMC ${clean(s.numeroPedido)}`,14,12);
+  doc.setFontSize(10); doc.setFont('helvetica','normal'); doc.text('Solicitação de compra - relatório completo para conferência e impressão',14,19);
+  doc.setTextColor(30,40,55); doc.autoTable({startY:33,body:fieldRows,theme:'grid',styles:{fontSize:8.5,cellPadding:2.2,overflow:'linebreak'},columnStyles:{0:{fontStyle:'bold',fillColor:light,cellWidth:30},1:{cellWidth:62},2:{fontStyle:'bold',fillColor:light,cellWidth:30},3:{cellWidth:62}},margin:{left:14,right:14}});
+  const itemRows=(s.itens||[]).map((i,idx)=>[
+    idx+1, familiaLabel(i.familia), i.codigoProduto||'-', i.descricao||'-', `${i.quantidade||0} ${i.unMedida||''}`.trim(), money(i.valorEstimado||0), i.status||'-', i.comprador||'-', i.dataFinalizada?fmtDate(i.dataFinalizada):'-', money(i.valorComprado||0), i.statusEntrega||'Não iniciado', i.dataEntrega?fmtDate(i.dataEntrega):'-'
+  ]);
+  let y=doc.lastAutoTable.finalY+8; doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(...blue); doc.text('Produtos da PMC',14,y);
+  doc.autoTable({startY:y+3,head:[['#','Família','Cód. Protheus','Descrição','Qtd./Un.','Estimado','Status','Compradora','Finalização','Comprado','Entrega','Data entrega']],body:itemRows,theme:'grid',styles:{fontSize:6.3,cellPadding:1.5,overflow:'linebreak',valign:'middle'},headStyles:{fillColor:blue,textColor:255,fontStyle:'bold'},columnStyles:{0:{cellWidth:6},1:{cellWidth:20},2:{cellWidth:16},3:{cellWidth:31},4:{cellWidth:14},5:{cellWidth:16},6:{cellWidth:18},7:{cellWidth:20},8:{cellWidth:16},9:{cellWidth:16},10:{cellWidth:18},11:{cellWidth:16}},margin:{left:7,right:7},didDrawPage:()=>{doc.setFontSize(7);doc.setTextColor(100);doc.text(`PMC ${clean(s.numeroPedido)} - página ${doc.internal.getNumberOfPages()}`,14,291);}});
+  const extras=[];
+  (s.anexos||[]).forEach(a=>extras.push(['Anexo da PMC',`${a.nome||'Anexo'} - ${a.url||'-'}`]));
+  (s.itens||[]).forEach((i,idx)=>{
+    if(i.linkReferencia) extras.push([`Item ${idx+1} - referência`,i.linkReferencia]);
+    (i.documentosFornecedores||[]).forEach(o=>extras.push([`Item ${idx+1} - orçamento`,`${o.fornecedor||'-'} | Qtd.: ${o.quantidadeCotada||'-'} | Unit.: ${money(o.valorUnitario||0)} | Total: ${money(o.valorTotal||0)}${o.urlDocumento?' | '+o.urlDocumento:''}`]));
+    if(i.nfeUrl || (i.nfeNomes||[]).length || i.nfeNome) extras.push([`Item ${idx+1} - pedido/NFE`,[i.nfeUrl,...(i.nfeNomes||[]),i.nfeNome].filter(Boolean).join(' | ')]);
+  });
+  if(extras.length){ y=doc.lastAutoTable.finalY+8; doc.setFontSize(12);doc.setTextColor(...blue);doc.text('Anexos, links e orçamentos',14,y);doc.autoTable({startY:y+3,body:extras,theme:'grid',styles:{fontSize:7.5,cellPadding:2,overflow:'linebreak'},columnStyles:{0:{fontStyle:'bold',fillColor:light,cellWidth:42},1:{cellWidth:140}},margin:{left:14,right:14}}); }
+  const totalEstimado=(s.itens||[]).reduce((t,i)=>t+Number(i.valorEstimado||0),0), totalComprado=(s.itens||[]).reduce((t,i)=>t+Number(i.valorComprado||0),0);
+  y=(doc.lastAutoTable?.finalY||y)+8; if(y>270){doc.addPage();y=20;} doc.setFontSize(10);doc.setTextColor(30);doc.setFont('helvetica','bold');doc.text(`Total estimado: ${money(totalEstimado)}   |   Total efetivamente comprado: ${money(totalComprado)}`,14,y);
+  doc.save(`PMC_${clean(s.numeroPedido).replace(/[^a-zA-Z0-9_-]/g,'_')}.pdf`);
+  toast('PDF da PMC gerado com sucesso.');
+};
 function badge(s){return `<span class="badge b-${s.split(' ')[0]}">${esc(s)}</span>`;}
 function item(k,v,cls=''){return `<div class="${cls}"><small>${k}</small><br><b>${typeof v==='string'?v:v}</b></div>`;}
 start();

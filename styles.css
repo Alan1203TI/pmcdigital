@@ -347,3 +347,22 @@ body.modal-open{overflow:hidden}
 
 .purchase-flow-title{margin:18px 0 10px;padding-top:14px;border-top:1px solid var(--border,#d8e0ee)}
 .pmc-comment-editor{margin:18px 0}.pmc-comment-editor label{display:block}.pmc-comment-editor textarea{width:100%;margin-top:8px}.pmc-comment-editor button{margin-top:10px}
+
+
+/* Cores de acompanhamento da PMC - a linha inteira indica a etapa do fluxo */
+#compradoraTable tr.pmc-status-row td{transition:background .18s ease,border-color .18s ease}
+#compradoraTable tr.pmc-row-pendente td{background:#ffe4e6!important;border-color:#f5a3aa!important;color:#7f1d1d}
+#compradoraTable tr.pmc-row-andamento td{background:#fff4bf!important;border-color:#e5c755!important;color:#684d00}
+#compradoraTable tr.pmc-row-realizado td{background:#dbeafe!important;border-color:#8db8ee!important;color:#123f75}
+#compradoraTable tr.pmc-row-finalizado td{background:#dcfce7!important;border-color:#86d59f!important;color:#14532d}
+#compradoraTable tr.pmc-row-cancelado td,#compradoraTable tr.purchase-cancelled td{background:#ffedd5!important;border-color:#fdba74!important;color:#7c2d12}
+#compradoraTable tr.pmc-status-row:hover td{filter:brightness(.985)}
+#compradoraTable tr.pmc-row-pendente .badge{background:#b91c1c!important;color:#fff!important}
+#compradoraTable tr.pmc-row-andamento .badge{background:#ca8a04!important;color:#fff!important}
+#compradoraTable tr.pmc-row-realizado .badge{background:#2563eb!important;color:#fff!important}
+#compradoraTable tr.pmc-row-finalizado .badge{background:#15803d!important;color:#fff!important}
+#compradoraTable tr.pmc-row-cancelado .badge,#compradoraTable tr.purchase-cancelled .badge{background:#ea580c!important;color:#fff!important}
+.pdf-pmc-btn{background:#fff!important;color:var(--fiemg-blue)!important;border:1px solid var(--fiemg-blue)!important;font-weight:800}
+.detail-document-actions{display:flex!important;align-items:center;gap:8px;flex-wrap:wrap}
+.detail-document-actions span{flex-basis:100%}
+.item-familia:disabled{background:#edf2f7!important;color:#38506d!important;cursor:not-allowed;opacity:1!important}
