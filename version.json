@@ -1,9 +1,10 @@
 {
-  "version": "2.6.1",
-  "build": "20260713-07",
-  "updatedAt": "2026-07-13T22:05:00-03:00",
+  "version": "2.6.2",
+  "build": "20260714-01",
+  "updatedAt": "2026-07-14T14:30:00-03:00",
   "changes": [
-    "Janela de ampliação da imagem mostra somente o código do produto",
-    "Descrição do produto removida do cabeçalho do visualizador"
+    "Removida a leitura automática/IA de orçamentos",
+    "Cadastro manual de vários fornecedores por produto",
+    "Botão para adicionar mais um fornecedor antes de salvar"
   ]
 }
