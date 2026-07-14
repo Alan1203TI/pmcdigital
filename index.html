@@ -9,7 +9,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <link rel="stylesheet" href="styles.css?v=20260714-02">
+  <link rel="stylesheet" href="styles.css?v=20260714-03">
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -235,7 +235,7 @@
         <div class="panel"><h3>Notificações por e-mail</h3><div class="config-grid"><label>Chave pública EmailJS<input id="emailPublicKey"></label><label>Service ID<input id="emailServiceId"></label><label>Template ID<input id="emailTemplateId"></label><label>E-mail da compradora<input id="emailCompradora" type="email"></label></div><small class="field-help">O template pode usar: pmc_numero, solicitante, setor, itens, link_sistema e destinatario.</small><div class="email-config-actions"><button id="salvarEmailConfig" class="primary" type="button">Salvar configurações de e-mail</button><span id="emailConfigStatus" class="muted"></span></div></div>
         <div class="panel"><button id="limparDemo" class="danger-btn">Apagar solicitações de demonstração</button></div>
       </section>
-      <footer class="app-footer"><span>Desenvolvido por</span><strong>Alan Camilo Rodrigues</strong><small>Técnico de TI • Desenvolvedor</small><small class="app-version">PMC Digital v2.3.1</small></footer>
+      <footer class="app-footer"><span>Desenvolvido por</span><strong>Alan Camilo Rodrigues</strong><small>Técnico de TI • Desenvolvedor</small><small class="app-version">PMC Digital v2.7.0</small></footer>
     </section>
   </main>
 
@@ -245,6 +245,28 @@
       <span id="updateBannerText">Uma atualização do PMC Digital está pronta.</span>
     </div>
     <button id="updateNowBtn" type="button">Atualizar agora</button>
+  </div>
+
+  <div id="pmcAssistant" class="pmc-assistant" aria-live="polite">
+    <button id="pmcAssistantLauncher" class="pmc-assistant-launcher" type="button" aria-label="Abrir assistente PMC IA" aria-expanded="false">
+      <span class="pmc-assistant-launcher-icon">✦</span>
+      <span class="pmc-assistant-launcher-copy"><strong>PMC IA</strong><small>Como posso ajudar?</small></span>
+      <span id="pmcAssistantBadge" class="pmc-assistant-badge">1</span>
+    </button>
+    <section id="pmcAssistantPanel" class="pmc-assistant-panel" hidden>
+      <header class="pmc-assistant-header">
+        <div class="pmc-assistant-brand"><span class="pmc-assistant-avatar">✦</span><div><strong>PMC IA</strong><small>Assistente do PMC Digital</small></div></div>
+        <div class="pmc-assistant-head-actions"><button id="pmcAssistantClear" type="button" title="Limpar conversa">↻</button><button id="pmcAssistantClose" type="button" aria-label="Fechar">×</button></div>
+      </header>
+      <div id="pmcAssistantContext" class="pmc-assistant-context">Ajuda contextual: Dashboard</div>
+      <div id="pmcAssistantMessages" class="pmc-assistant-messages"></div>
+      <div id="pmcAssistantSuggestions" class="pmc-assistant-suggestions"></div>
+      <form id="pmcAssistantForm" class="pmc-assistant-form">
+        <textarea id="pmcAssistantInput" rows="1" maxlength="500" placeholder="Digite sua dúvida sobre o PMC Digital..."></textarea>
+        <button type="submit" aria-label="Enviar pergunta">➤</button>
+      </form>
+      <footer class="pmc-assistant-footer">Respostas baseadas nas regras e funções do PMC Digital.</footer>
+    </section>
   </div>
 
   <dialog id="fragmentDialog" class="fragment-dialog"><div id="fragmentContent"></div><div class="dialog-actions"><button id="cancelFragment" type="button">Voltar e revisar</button><button id="confirmFragment" class="primary" type="button">Salvar mesmo assim</button></div></dialog>
@@ -293,6 +315,7 @@
   <dialog id="confirmDialog" class="m365-dialog"><div class="m365-dialog-head"><span class="m365-dialog-icon warning">!</span><div><h3 id="confirmDialogTitle">Confirmar ação</h3><p id="confirmDialogText"></p></div></div><div class="dialog-actions"><button id="confirmDialogCancel" type="button">Cancelar</button><button id="confirmDialogOk" class="primary" type="button">Confirmar</button></div></dialog>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.4/dist/jspdf.plugin.autotable.min.js"></script>
-  <script type="module" src="app.js?v=20260714-02"></script>
+  <script type="module" src="app.js?v=20260714-03"></script>
+  <script src="assistant.js?v=20260714-03"></script>
 </body>
 </html>

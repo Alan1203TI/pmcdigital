@@ -1,10 +1,10 @@
 {
-  "version": "2.6.3",
-  "build": "20260714-02",
-  "updatedAt": "2026-07-14T15:30:00-03:00",
+  "version": "2.7.0",
+  "build": "20260714-03",
+  "updatedAt": "2026-07-14T17:00:00-03:00",
   "changes": [
-    "Corrigido o carregamento da biblioteca de geração do documento Word",
-    "Restaurada a função loadExternalScript usada pelo modelo de cotação",
-    "Mantido o cadastro manual de vários fornecedores por produto"
+    "Adicionado o assistente contextual PMC IA",
+    "Incluídas respostas rápidas por tela e por perfil",
+    "Adicionadas orientações sobre Budget, GISU, orçamentos, anexos, status e e-mail"
   ]
 }
