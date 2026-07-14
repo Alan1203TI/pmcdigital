@@ -373,15 +373,18 @@ body.modal-open{overflow:hidden}
 
 /* Atualização automática e controle de versão */
 .app-version{opacity:.72;margin-left:.45rem;white-space:nowrap}
-.update-banner{position:fixed;right:20px;bottom:20px;z-index:99999;max-width:430px;display:flex;align-items:center;gap:18px;padding:16px 18px;border:1px solid #c9d5e8;border-radius:14px;background:#fff;box-shadow:0 16px 48px rgba(16,43,76,.22);color:#17324d}
+.update-banner{position:fixed;inset:0;z-index:999999;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(10,25,48,.72);backdrop-filter:blur(5px);color:#17324d}
 .update-banner[hidden]{display:none!important}
-.update-banner div{display:flex;flex-direction:column;gap:3px}
-.update-banner strong{font-size:15px}
-.update-banner span{font-size:13px;color:#52677c;line-height:1.35}
-.update-banner button{border:0;border-radius:9px;padding:10px 14px;background:#0067b1;color:#fff;font-weight:700;cursor:pointer;white-space:nowrap}
-.update-banner button:hover{filter:brightness(.94)}
-.update-banner.is-updating button{pointer-events:none;opacity:.75}
-@media(max-width:640px){.update-banner{left:12px;right:12px;bottom:12px;max-width:none;align-items:flex-start;flex-direction:column}.update-banner button{width:100%}}
+.update-dialog{width:min(620px,100%);display:grid;grid-template-columns:64px 1fr;gap:18px;padding:28px;border:1px solid #c9d5e8;border-radius:20px;background:#fff;box-shadow:0 28px 90px rgba(3,18,38,.38)}
+.update-dialog-icon{width:58px;height:58px;border-radius:18px;display:grid;place-items:center;background:linear-gradient(135deg,#234ba8,#5479db);color:#fff;font-size:30px;font-weight:800}
+.update-dialog-copy{min-width:0}.update-dialog .eyebrow{display:block;color:#e45b22;font-size:12px;font-weight:800;letter-spacing:.08em;margin-bottom:5px}
+.update-dialog h2{margin:0 0 8px;color:#173f83;font-size:25px}.update-dialog p{margin:0;color:#52677c;line-height:1.5}
+.update-version-row{display:flex;flex-wrap:wrap;gap:10px 22px;margin:18px 0 12px;padding:12px 14px;border-radius:10px;background:#f1f5fb;font-size:13px}.update-version-row strong{color:#173f83}
+.update-changes-list{margin:8px 0 14px;padding-left:20px;color:#334e68;line-height:1.55}.update-changes-list:empty{display:none}
+.update-required-note{font-weight:700!important;color:#9a3d15!important}
+.update-dialog>button{grid-column:1/-1;border:0;border-radius:11px;padding:14px 20px;background:#2857c5;color:#fff;font-size:16px;font-weight:800;cursor:pointer;box-shadow:0 8px 22px rgba(40,87,197,.26)}
+.update-dialog>button:hover{filter:brightness(.95)}.update-banner.is-updating .update-dialog>button{pointer-events:none;opacity:.78}
+@media(max-width:640px){.update-banner{padding:14px}.update-dialog{grid-template-columns:1fr;padding:22px}.update-dialog-icon{width:52px;height:52px}.update-dialog h2{font-size:21px}.update-dialog>button{grid-column:1}}
 
 /* PMC v2.4.0 — visual consolidado por PMC */
 .pmc-mini-card{padding:14px 16px}.pmc-mini-main{display:flex;align-items:center;justify-content:space-between;gap:16px}.pmc-mini-main>div{min-width:0}.pmc-mini-main button{flex:0 0 auto}.admin-resend-btn{border-color:#174a8b;color:#174a8b;background:#fff}.admin-resend-btn:hover{background:#edf4ff}.admin-resend-btn:disabled{opacity:.55;cursor:not-allowed}

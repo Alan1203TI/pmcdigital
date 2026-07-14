@@ -8,38 +8,107 @@ const activePage=()=>document.querySelector('.page.active')?.id||'dashboard';
 const profile=()=>normalize($('#mainHeaderUserPerfil')?.textContent||'solicitante');
 const firstName=()=>String($('#mainHeaderUserName')?.textContent||'').trim().split(' ')[0];
 const escapeHtml=v=>String(v??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+function tokenize(value){
+ return normalize(value).split(' ').filter(word=>word.length>1 && !['a','o','as','os','de','da','do','das','dos','um','uma','para','por','com','como','que','eu','me','meu','minha','no','na','nos','nas','e'].includes(word));
+}
+function editDistance(a,b){
+ a=normalize(a); b=normalize(b);
+ const row=Array.from({length:b.length+1},(_,i)=>i);
+ for(let i=1;i<=a.length;i++){
+  let prev=row[0]; row[0]=i;
+  for(let j=1;j<=b.length;j++){
+   const temp=row[j];
+   row[j]=Math.min(row[j]+1,row[j-1]+1,prev+(a[i-1]===b[j-1]?0:1));
+   prev=temp;
+  }
+ }
+ return row[b.length];
+}
+function wordSimilar(a,b){
+ if(a===b)return true;
+ if(a.length<4||b.length<4)return false;
+ return editDistance(a,b)<=Math.max(1,Math.floor(Math.max(a.length,b.length)*0.25));
+}
+
+const fixedQuestionIntent={
+ 'como criar uma pmc':'criar_pmc','criar uma pmc':'criar_pmc','nova pmc':'criar_pmc',
+ 'como acompanhar meu pedido':'acompanhar','acompanhar meu pedido':'acompanhar',
+ 'o que significam as cores':'status','como preencher a nova pmc':'criar_pmc',
+ 'como adicionar outro produto':'familia','para que serve salvar rascunho':'rascunho',
+ 'como anexar imagem':'imagem','como continuar um rascunho':'rascunho',
+ 'rascunho possui numero de pmc':'rascunho','como abrir uma pmc':'acompanhar',
+ 'como pesquisar uma compra':'acompanhar','posso editar uma pmc enviada':'editar_pmc',
+ 'como funciona o budget':'budget','o que sao os 90 dias':'budget','o que e gisu':'gisu',
+ 'como cadastrar orcamentos':'orcamento','como devolver para ajuste':'devolver',
+ 'onde anexar pedido ou nfe':'nfe','como finalizar uma compra':'entrega',
+ 'como alterar o perfil de um usuario':'perfis','quais sao os perfis do sistema':'perfis',
+ 'como configurar o email':'email','como funciona a atualizacao automatica':'versao',
+ 'como baixar o pdf da pmc':'pdf','como consultar o historico':'historico',
+ 'como ampliar a imagem do produto':'imagem','como acompanhar um pedido':'acompanhar'
+};
+
+const intents=[
+ {id:'saudacao',phrases:['oi','ola','bom dia','boa tarde','boa noite','e ai'],keywords:['oi','ola'],answer:()=>`Olá${firstName()?', '+firstName():''}! Sou a PMC IA. Posso orientar sobre criação de PMC, Budget, orçamentos, compras, GISU, anexos, status e administração do sistema.`},
+ {id:'criar_pmc',phrases:['como criar uma pmc','como faco uma pmc','como faço uma pmc','quero criar uma pmc','quero fazer uma pmc','onde crio uma pmc','criar pmc','nova pmc','fazer pmc','abrir uma pmc','cadastrar pmc','iniciar pmc','nova solicitacao','fazer solicitacao','iniciar pedido','solicitar compra','cadastrar pedido','abrir solicitacao'],keywords:['criar','nova','pmc','solicitacao','pedido','compra'],answer:()=>`Para criar uma PMC:\n1. Abra **Nova PMC**.\n2. Preencha os dados gerais.\n3. Selecione a família e informe os produtos.\n4. Preencha a justificativa.\n5. Clique em **Enviar PMC**.\n\nTodos os itens da mesma PMC devem pertencer à mesma família.`},
+ {id:'familia',phrases:['familia do produto','mesma familia','trocar familia','qual familia','itens mesma familia'],keywords:['familia','produto','itens'],answer:()=> 'A família é definida no primeiro produto. Os produtos seguintes recebem automaticamente a mesma família, pois cada PMC deve conter itens de uma única família.'},
+ {id:'protheus',phrases:['codigo protheus','consultar protheus','onde encontro o codigo','consulta produto fiemg'],keywords:['codigo','protheus','consulta'],answer:()=> 'Use o link **Consulta Produto FIEMG**, disponível na tela Nova PMC, para localizar o código Protheus e a descrição correta do material ou serviço.'},
+ {id:'data_necessidade',phrases:['data necessidade','data da necessidade','quando preencher data','data prevista'],keywords:['data','necessidade','prevista'],answer:()=> 'A Data da Necessidade é opcional. Preencha somente quando houver uma data prevista para utilização ou recebimento do produto.'},
+ {id:'imagem',phrases:['imagem do produto','foto do produto','ampliar imagem','dar zoom','anexar imagem','colocar foto'],keywords:['imagem','foto','zoom','ampliar'],answer:()=> ['compras','admin','gestor'].some(x=>profile().includes(x))?'Abra a PMC e clique na miniatura ou em **Clique para ampliar**. A janela permite aumentar, diminuir e restaurar o zoom, além de arrastar a imagem.':'Na Nova PMC, use o campo **Imagem do produto**. O sistema comprime a imagem automaticamente antes de salvá-la.'},
+ {id:'rascunho',phrases:['salvar rascunho','continuar rascunho','salvar depois','onde ficam rascunhos','rascunho possui numero'],keywords:['rascunho','salvar','depois'],answer:()=> 'O botão **Salvar rascunho** guarda a solicitação sem gerar o número definitivo da PMC. Depois, abra **Rascunhos**, revise os dados e envie quando estiver pronta.'},
+ {id:'editar_pmc',phrases:['editar pmc','alterar pmc enviada','corrigir pmc','posso editar','mudar pedido enviado'],keywords:['editar','alterar','corrigir','pmc','enviada'],answer:()=> 'Uma PMC enviada não pode ser editada normalmente. O solicitante somente poderá alterá-la quando a compradora usar **Devolver para ajuste**. Após a correção, ela é reenviada mantendo o mesmo número.'},
+ {id:'devolver',phrases:['devolver para ajuste','devolver pmc','pmc devolvida','pedir ajuste','corrigir solicitacao'],keywords:['devolver','ajuste','devolvida','correcao'],answer:()=> 'Na tela de detalhes, a compradora clica em **Devolver para ajuste**, informa claramente o que precisa ser corrigido e confirma. O solicitante verá o motivo, poderá editar e reenviar a mesma PMC.'},
+ {id:'budget',phrases:['como funciona o budget','budget','saldo da familia','limite de 3000','regra dos 90 dias','90 dias','quanto posso comprar','saldo disponivel'],keywords:['budget','saldo','limite','3000','90','dias'],answer:()=> 'O Budget mostra o limite móvel por família. Compras finalizadas pela unidade consomem o saldo durante 90 dias contados da data de finalização. A tela exibe utilizado, disponível, última compra e próxima liberação.'},
+ {id:'gisu',phrases:['o que e gisu','gisu','licitacao','compra por licitacao','acima de 3000'],keywords:['gisu','licitacao'],answer:()=> 'GISU identifica compras realizadas por licitação. A compradora marca a PMC como GISU e informa o valor total realizado. Esse valor aparece no Budget da família, mas não reduz o limite de R$ 3.000,00 da unidade.'},
+ {id:'orcamento',phrases:['cadastrar orcamento','adicionar fornecedor','mais de um fornecedor','registrar cotacao','inserir orcamento','orcamento manual'],keywords:['orcamento','fornecedor','cotacao','preco'],answer:()=> 'Em **Atualizar produto**, a compradora cadastra manualmente cada orçamento. Informe fornecedor, quantidade, valor unitário, valor total e link opcional. Use **Adicionar mais um fornecedor** para registrar outros orçamentos.'},
+ {id:'menor_preco',phrases:['menor preco','melhor orcamento','comparar precos','qual fornecedor mais barato'],keywords:['menor','melhor','preco','orcamento'],answer:()=> 'O sistema compara os valores unitários dos orçamentos cadastrados para o produto. Revise os dados antes de registrar o fornecedor utilizado na compra.'},
+ {id:'nfe',phrases:['anexar nfe','nota fiscal','pedido de compra','anexar pedido','onde coloco a nota','subir nfe'],keywords:['nfe','nota','fiscal','pedido','anexar'],answer:()=> 'Abra a PMC, clique em **Atualizar produto** e vá à seção **Compra e entrega**. No campo **Selecionar pedido(s) de compra / NFE**, é possível escolher mais de um arquivo.'},
+ {id:'status',phrases:['cores do status','o que significam as cores','status do pedido','cor da pmc','cores do painel'],keywords:['status','cores','cor'],answer:()=>`Cores do painel:\n• Pendente/Solicitada: vermelho claro\n• Em andamento: amarelo\n• Realizado/Aprovado: azul\n• Comprado/Finalizado: verde\n• Cancelado: laranja claro`},
+ {id:'cancelar',phrases:['cancelar produto','cancelar pmc','pedido cancelado'],keywords:['cancelar','cancelado'],answer:()=> 'Ao cancelar um produto ou uma PMC, o registro permanece no sistema com destaque visual, preservando o histórico.'},
+ {id:'acompanhar',phrases:['como acompanhar meu pedido','acompanhar meu pedido','como vejo meu pedido','onde vejo meu pedido','acompanhar pedido','meu pedido','onde vejo minha pmc','abrir pmc','consultar pedido','ver andamento'],keywords:['acompanhar','pedido','abrir','andamento','consultar'],answer:()=> 'No Dashboard ou na página **Pedidos**, localize a PMC e clique em **Abrir PMC**. Os produtos, status, compradora, datas, anexos e histórico aparecem nos detalhes.'},
+ {id:'pdf',phrases:['baixar pdf','imprimir pmc','pdf da pmc','gerar pdf'],keywords:['pdf','imprimir','baixar'],answer:()=> 'Abra os detalhes da PMC e clique em **Baixar PDF da PMC**. O arquivo reúne dados gerais, produtos, valores, status, datas e anexos informados.'},
+ {id:'word',phrases:['gerar word','modelo de cotacao','documento de cotacao','baixar docx'],keywords:['word','docx','modelo','cotacao'],answer:()=> 'Abra os detalhes da PMC e clique em **Gerar modelo de cotação (.docx)**. O documento também pode ser recriado para PMCs antigas usando os dados atuais.'},
+ {id:'email',phrases:['reenviar email','email nao chegou','notificacao por email','para quem vai o email','configurar email'],keywords:['email','notificacao','reenviar'],answer:()=> profile().includes('admin')?'O administrador pode usar **Reenviar PMC por e-mail** nos Pedidos ou nos detalhes. O destinatário é o e-mail da compradora definido em Configurações.':'Ao enviar a PMC, o sistema tenta notificar a compradora por e-mail. O acompanhamento principal deve ser feito pelo Dashboard e pela página Pedidos.'},
+ {id:'historico',phrases:['ver historico','historico da pmc','auditoria','quem alterou'],keywords:['historico','auditoria','alterou'],answer:()=> 'Abra a PMC e clique em **Histórico** para consultar devoluções, reenvios e alterações registradas.'},
+ {id:'compradora',phrases:['compradora responsavel','nome da compradora','quem e a compradora'],keywords:['compradora','responsavel'],answer:()=> 'O nome da compradora responsável é preenchido automaticamente com o usuário logado quando ela atualiza o produto.'},
+ {id:'entrega',phrases:['finalizar compra','marcar como comprado','data de entrega','status da entrega','produto entregue'],keywords:['entrega','finalizar','comprado'],answer:()=> 'Na atualização do produto, preencha status, data de finalização, valor efetivamente comprado, status da entrega e data da entrega. Depois clique em **Salvar dados deste produto**.'},
+ {id:'perfis',phrases:['perfis do sistema','perfil solicitante','perfil compradora','perfil admin','permissoes'],keywords:['perfil','usuario','solicitante','admin','administrador'],answer:()=>`Perfis principais:\n• Solicitante: Dashboard, Nova PMC, Rascunhos e Budget.\n• Compradora: cotações, compras e entregas.\n• Administrador: acesso completo, usuários e configurações.`},
+ {id:'versao',phrases:['atualizar versao','nova versao','limpar cache','sistema nao atualiza'],keywords:['versao','cache','atualizar'],answer:()=> 'Quando houver uma nova versão, aparece **Atualizar agora**. Após o clique, o aviso some, o sistema recarrega os arquivos novos e só volta quando outra versão for publicada.'},
+ {id:'onedrive',phrases:['link onedrive','sharepoint','anexo orcamento','link do drive'],keywords:['onedrive','sharepoint','drive','link'],answer:()=> 'O link OneDrive/SharePoint é opcional. Use-o quando existir orçamento, especificação ou outro documento armazenado no Drive.'},
+ {id:'ajuda',phrases:['o que voce faz','como pode ajudar','ajuda','quais perguntas'],keywords:['ajuda'],answer:()=> 'Posso explicar menus, campos, regra dos 90 dias, GISU, criação e devolução de PMC, orçamentos, anexos, NFE, status, e-mails e funções administrativas.'}
+];
+function scoreIntent(question,intent){
+ const q=normalize(question),qWords=tokenize(q);
+ let score=0;
+ for(const phrase of intent.phrases||[]){
+  const np=normalize(phrase);
+  if(q===np)score=Math.max(score,100);
+  else if(q.includes(np)||np.includes(q))score=Math.max(score,72+Math.min(np.length,q.length)/10);
+  const pWords=tokenize(np);
+  let matched=0;
+  for(const pw of pWords){if(qWords.some(qw=>wordSimilar(qw,pw)))matched++;}
+  if(pWords.length)score=Math.max(score,(matched/pWords.length)*60);
+ }
+ let keywordMatches=0;
+ for(const kw of intent.keywords||[]){
+  const nkw=normalize(kw);
+  if(q.includes(nkw)||qWords.some(w=>wordSimilar(w,nkw)))keywordMatches++;
+ }
+ score+=Math.min(keywordMatches*8,32);
+ return score;
+}
 function answer(question){
- const q=normalize(question),p=activePage(),pf=profile(),has=(...x)=>x.some(t=>q.includes(normalize(t)));
+ const q=normalize(question),p=activePage();
  if(!q)return 'Digite uma dúvida sobre o funcionamento do PMC Digital.';
- if(has('oi','ola','bom dia','boa tarde','boa noite'))return `Olá${firstName()?', '+firstName():''}! Sou a PMC IA. Posso orientar sobre criação de PMC, Budget, orçamentos, compras, GISU, anexos, status e administração do sistema.`;
- if(has('criar pmc','nova pmc','fazer pmc','solicitacao nova'))return `Para criar uma PMC:\n1. Abra **Nova PMC**.\n2. Preencha os dados gerais.\n3. Selecione a família e informe os produtos.\n4. Preencha a justificativa.\n5. Clique em **Enviar PMC**.\n\nTodos os itens da mesma PMC devem pertencer à mesma família.`;
- if(has('familia','mesma familia'))return 'A família é definida no primeiro produto. Os produtos seguintes recebem automaticamente a mesma família, pois cada PMC deve conter itens de uma única família.';
- if(has('codigo protheus','protheus'))return 'Use o link **Consulta Produto FIEMG**, disponível na tela Nova PMC, para localizar o código Protheus e a descrição correta do material ou serviço.';
- if(has('data necessidade','data da necessidade'))return 'A Data da Necessidade é opcional. Preencha somente quando houver uma data prevista para utilização ou recebimento do produto.';
- if(has('imagem','foto do produto','ampliar','zoom'))return ['compras','admin','gestor'].some(x=>pf.includes(x))?'Abra a PMC e clique na miniatura ou em **Clique para ampliar**. A janela permite aumentar, diminuir e restaurar o zoom, além de arrastar a imagem.':'Na Nova PMC, use o campo **Imagem do produto**. O sistema comprime a imagem automaticamente antes de salvá-la.';
- if(has('rascunho','salvar depois'))return 'O botão **Salvar rascunho** guarda a solicitação sem gerar o número definitivo da PMC. Depois, abra **Rascunhos**, revise os dados e envie quando estiver pronta.';
- if(has('editar pmc','alterar pmc enviada','corrigir pmc'))return 'Uma PMC enviada não pode ser editada normalmente. O solicitante somente poderá alterá-la quando a compradora usar **Devolver para ajuste**. Após a correção, ela é reenviada mantendo o mesmo número.';
- if(has('devolver','ajuste','devolvida'))return 'Na tela de detalhes, a compradora clica em **Devolver para ajuste**, informa claramente o que precisa ser corrigido e confirma. O solicitante verá o motivo, poderá editar e reenviar a mesma PMC.';
- if(has('budget','saldo','limite 3000','r 3000','90 dias'))return 'O Budget mostra o limite móvel por família. Compras finalizadas pela unidade consomem o saldo durante 90 dias contados da data de finalização. A tela exibe utilizado, disponível, última compra e próxima liberação.';
- if(has('gisu','licitacao'))return 'GISU identifica compras realizadas por licitação. A compradora marca a PMC como GISU e informa o valor total realizado. Esse valor aparece no Budget da família, mas não reduz o limite de R$ 3.000,00 da unidade.';
- if(has('orcamento','fornecedor','cotacao'))return 'Em **Atualizar produto**, a compradora cadastra manualmente cada orçamento. Informe fornecedor, quantidade, valor unitário, valor total e link opcional. Use **Adicionar mais um fornecedor** para registrar outros orçamentos.';
- if(has('menor preco','melhor orcamento'))return 'O sistema compara os valores unitários dos orçamentos cadastrados para o produto. Revise os dados antes de registrar o fornecedor utilizado na compra.';
- if(has('nfe','nota fiscal','pedido de compra','anexar pedido'))return 'Abra a PMC, clique em **Atualizar produto** e vá à seção **Compra e entrega**. No campo **Selecionar pedido(s) de compra / NFE**, é possível escolher mais de um arquivo.';
- if(has('status','cores','cor do pedido'))return `Cores do painel:\n• Pendente/Solicitada: vermelho claro\n• Em andamento: amarelo\n• Realizado/Aprovado: azul\n• Comprado/Finalizado: verde\n• Cancelado: laranja claro`;
- if(has('cancelar','cancelado'))return 'Ao cancelar um produto ou uma PMC, o registro permanece no sistema com destaque visual, preservando o histórico.';
- if(has('acompanhar','meu pedido','abrir pmc','pedidos'))return 'No Dashboard ou na página **Pedidos**, localize a PMC e clique em **Abrir PMC**. Os produtos, status, compradora, datas, anexos e histórico aparecem nos detalhes.';
- if(has('pdf','imprimir pmc','baixar pdf'))return 'Abra os detalhes da PMC e clique em **Baixar PDF da PMC**. O arquivo reúne dados gerais, produtos, valores, status, datas e anexos informados.';
- if(has('word','modelo de cotacao','documento de cotacao'))return 'Abra os detalhes da PMC e clique em **Gerar modelo de cotação (.docx)**. O documento também pode ser recriado para PMCs antigas usando os dados atuais.';
- if(has('email','e mail','notificacao','reenviar'))return pf.includes('admin')?'O administrador pode usar **Reenviar PMC por e-mail** nos Pedidos ou nos detalhes. O destinatário é o e-mail da compradora definido em Configurações.':'Ao enviar a PMC, o sistema tenta notificar a compradora por e-mail. O acompanhamento principal deve ser feito pelo Dashboard e pela página Pedidos.';
- if(has('historico','auditoria'))return 'Abra a PMC e clique em **Histórico** para consultar devoluções, reenvios e alterações registradas.';
- if(has('compradora','responsavel'))return 'O nome da compradora responsável é preenchido automaticamente com o usuário logado quando ela atualiza o produto.';
- if(has('entrega','finalizar compra','comprado'))return 'Na atualização do produto, preencha status, data de finalização, valor efetivamente comprado, status da entrega e data da entrega. Depois clique em **Salvar dados deste produto**.';
- if(has('usuario','perfil','solicitante','admin','administrador'))return `Perfis principais:\n• Solicitante: Dashboard, Nova PMC, Rascunhos e Budget.\n• Compradora: cotações, compras e entregas.\n• Administrador: acesso completo, usuários e configurações.`;
- if(has('atualizar versao','cache','nova versao'))return 'Quando houver uma nova versão, aparece **Atualizar agora**. Após o clique, o aviso some, o sistema recarrega os arquivos novos e só volta quando outra versão for publicada.';
- if(has('link onedrive','sharepoint','anexo orcamento'))return 'O link OneDrive/SharePoint é opcional. Use-o quando existir orçamento, especificação ou outro documento armazenado no Drive.';
- if(has('ajuda','o que voce faz','como pode ajudar'))return 'Posso explicar menus, campos, regra dos 90 dias, GISU, criação e devolução de PMC, orçamentos, anexos, NFE, status, e-mails e funções administrativas.';
+ const directId=fixedQuestionIntent[q];
+ if(directId){const direct=intents.find(intent=>intent.id===directId);if(direct)return direct.answer();}
+ const ranked=intents.map(intent=>({intent,score:scoreIntent(q,intent)})).sort((a,b)=>b.score-a.score);
+ if(ranked[0]&&ranked[0].score>=36)return ranked[0].intent.answer();
+ if(ranked[0]&&ranked[0].score>=28){
+  const label=(ranked[0].intent.phrases||[])[0]||ranked[0].intent.id;
+  return `Parece que sua dúvida é sobre **${label}**. Tente reformular com mais detalhes ou selecione uma das sugestões abaixo.`;
+ }
  const contextual={nova:'Nesta tela, posso orientar sobre dados gerais, família, código Protheus, produtos, imagens, anexos, rascunho e envio.',referencias:'Nesta tela, posso explicar limite de 90 dias, saldo disponível, última compra, próxima liberação e GISU.',compradora:'Nesta tela, posso orientar sobre orçamentos, compra, entrega, NFE, devolução e finalização.',detalhe:'Nesta tela, posso explicar PDF, Word, histórico, devolução, GISU e atualização dos produtos.'};
- return `${contextual[p]||'Não encontrei uma resposta exata para essa pergunta.'}\n\nTente perguntar: **criar PMC**, **Budget**, **GISU**, **orçamento**, **NFE**, **devolver para ajuste**, **status** ou **e-mail**.`;
+ return `${contextual[p]||'Ainda não consegui identificar exatamente sua dúvida.'}\n\nPosso ajudar com: **criar uma PMC**, **acompanhar pedidos**, **Budget e limite de 90 dias**, **orçamentos**, **Word e PDF**, **GISU**, **devolver para ajuste**, **status**, **anexos**, **NFE** e **perfis de usuário**.`;
 }
 function format(text){return escapeHtml(text).replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');}
 function addMessage(text,who='bot',save=true){const box=$('#pmcAssistantMessages');if(!box)return;const row=document.createElement('div');row.className=`pmc-chat-row ${who}`;row.innerHTML=`<div class="pmc-chat-bubble">${format(text)}</div>`;box.appendChild(row);box.scrollTop=box.scrollHeight;if(save)try{const h=JSON.parse(sessionStorage.getItem('pmc_ai_history')||'[]');h.push({text,who});sessionStorage.setItem('pmc_ai_history',JSON.stringify(h.slice(-20)));}catch(_){}}

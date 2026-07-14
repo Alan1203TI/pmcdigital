@@ -1,4 +1,4 @@
-const PMC_APP_VERSION = '2.7.0';
+const PMC_APP_VERSION = '2.8.0';
 const PMC_VERSION_CHECK_INTERVAL = 5 * 60 * 1000;
 let PMC_PENDING_VERSION = '';
 
@@ -62,17 +62,27 @@ async function checkPmcVersion({ silent = false } = {}) {
     try { updatingTo = sessionStorage.getItem('pmc_update_in_progress') || ''; } catch (_) {}
     if (updatingTo === latest) {
       hidePmcUpdateBanner();
+      // Se a atualização não concluir por causa de cache ou falha de rede,
+      // libera uma nova tentativa automaticamente após alguns segundos.
+      window.setTimeout(() => {
+        try { sessionStorage.removeItem('pmc_update_in_progress'); } catch (_) {}
+        checkPmcVersion({ silent: true });
+      }, 10000);
       return;
     }
 
     const banner = document.getElementById('updateBanner');
     const message = document.getElementById('updateBannerText');
     const button = document.getElementById('updateNowBtn');
-    const changes = Array.isArray(info.changes) ? info.changes.filter(Boolean).slice(0, 2) : [];
+    const changes = Array.isArray(info.changes) ? info.changes.filter(Boolean).slice(0, 5) : [];
+    const currentVersion = document.getElementById('updateCurrentVersion');
+    const latestVersion = document.getElementById('updateLatestVersion');
+    const changesList = document.getElementById('updateChangesList');
+    if (currentVersion) currentVersion.textContent = PMC_APP_VERSION;
+    if (latestVersion) latestVersion.textContent = latest;
+    if (changesList) changesList.innerHTML = changes.map(change => `<li>${String(change).replace(/[&<>"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[char]))}</li>`).join('');
 
-    if (message) message.textContent = changes.length
-      ? `Versão ${latest}: ${changes.join(' • ')}`
-      : `A versão ${latest} do PMC Digital está disponível.`;
+    if (message) message.textContent = `A versão ${latest} está disponível com melhorias importantes.`;
     if (button) {
       button.disabled = false;
       button.textContent = 'Atualizar agora';
