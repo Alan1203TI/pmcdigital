@@ -1,4 +1,4 @@
-const PMC_APP_VERSION = '2.8.0';
+const PMC_APP_VERSION = '2.9.0';
 const PMC_VERSION_CHECK_INTERVAL = 5 * 60 * 1000;
 let PMC_PENDING_VERSION = '';
 

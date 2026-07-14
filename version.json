@@ -1,11 +1,11 @@
 {
-  "version": "2.8.0",
+  "version": "2.9.0",
   "build": "20260714-06",
-  "updatedAt": "2026-07-14T20:30:00-03:00",
+  "updatedAt": "2026-07-14",
   "changes": [
-    "PMC IA refinada com reconhecimento de sinônimos e perguntas fixas",
-    "Sugestões rápidas da PMC IA corrigidas",
-    "Modal central obrigatório para novas versões",
-    "Melhorias nas respostas quando a pergunta não for reconhecida"
+    "Novo assistente Pergunte ao Alan",
+    "Interface de ajuda redesenhada",
+    "Acesso rápido às principais dúvidas",
+    "Melhorias no reconhecimento de perguntas"
   ]
 }
