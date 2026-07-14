@@ -957,6 +957,49 @@ function renderUsuarios(){
 window.saveUserProfile=async function(id){ const u=state.usuarios.find(x=>x.id===id); if(!u||state.user.perfil!=='admin') return; u.perfil=$(`#perfil_${id}`).value; await db.collection('pmcUsuarios').doc(id).update({perfil:u.perfil,atualizadoEm:firebase.firestore.FieldValue.serverTimestamp(),atualizadoPorUid:state.user.uid}); renderUsuarios(); toast('Perfil atualizado.'); }
 window.delUser=id=>{ const u=state.usuarios.find(x=>x.id===id); if(!u||u.email.toLowerCase()===ADMIN_EMAIL) return; confirmAction(`Desativar o usuário ${u.nome}?`,async()=>{await db.collection('pmcUsuarios').doc(id).update({ativo:false,atualizadoEm:firebase.firestore.FieldValue.serverTimestamp(),atualizadoPorUid:state.user.uid}); state.usuarios=state.usuarios.filter(x=>x.id!==id); renderUsuarios(); toast('Usuário desativado.');},'Desativar usuário');}
 
+function loadExternalScript(src, globalName){
+  return new Promise((resolve,reject)=>{
+    if(globalName && window[globalName]) return resolve(window[globalName]);
+
+    const absoluteSrc=new URL(src,window.location.href).href;
+    let script=[...document.scripts].find(el=>el.src===absoluteSrc);
+    let settled=false;
+
+    const finish=()=>{
+      if(settled) return;
+      settled=true;
+      if(globalName && !window[globalName]){
+        reject(new Error(`A biblioteca ${globalName} foi carregada, mas não ficou disponível.`));
+        return;
+      }
+      resolve(globalName?window[globalName]:true);
+    };
+    const fail=()=>{
+      if(settled) return;
+      settled=true;
+      reject(new Error(`Não foi possível carregar a biblioteca externa: ${src}`));
+    };
+
+    if(script){
+      if(script.dataset.loaded==='true') return finish();
+      script.addEventListener('load',finish,{once:true});
+      script.addEventListener('error',fail,{once:true});
+      setTimeout(()=>{ if(globalName && window[globalName]) finish(); },100);
+      setTimeout(fail,15000);
+      return;
+    }
+
+    script=document.createElement('script');
+    script.src=src;
+    script.async=true;
+    script.crossOrigin='anonymous';
+    script.onload=()=>{ script.dataset.loaded='true'; finish(); };
+    script.onerror=fail;
+    document.head.appendChild(script);
+    setTimeout(fail,15000);
+  });
+}
+
 async function ensureDocxLibrary(){
   if(window.docx?.Document && window.docx?.Packer) return window.docx;
   await loadExternalScript('https://unpkg.com/docx@8.5.0/build/index.umd.js','docx');

@@ -1,10 +1,10 @@
 {
-  "version": "2.6.2",
-  "build": "20260714-01",
-  "updatedAt": "2026-07-14T14:30:00-03:00",
+  "version": "2.6.3",
+  "build": "20260714-02",
+  "updatedAt": "2026-07-14T15:30:00-03:00",
   "changes": [
-    "Removida a leitura automática/IA de orçamentos",
-    "Cadastro manual de vários fornecedores por produto",
-    "Botão para adicionar mais um fornecedor antes de salvar"
+    "Corrigido o carregamento da biblioteca de geração do documento Word",
+    "Restaurada a função loadExternalScript usada pelo modelo de cotação",
+    "Mantido o cadastro manual de vários fornecedores por produto"
   ]
 }
