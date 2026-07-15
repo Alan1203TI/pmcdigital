@@ -1,11 +1,10 @@
 {
-  "version": "2.9.0",
-  "build": "20260714-06",
-  "updatedAt": "2026-07-14",
+  "version": "2.9.1",
+  "build": "20260715-01",
+  "updatedAt": "2026-07-15",
   "changes": [
-    "Novo assistente Pergunte ao Alan",
-    "Interface de ajuda redesenhada",
-    "Acesso rápido às principais dúvidas",
-    "Melhorias no reconhecimento de perguntas"
+    "Correção do erro ao entrar no sistema",
+    "Remoção segura do total geral dos budgets",
+    "Ajuste de cache e versão"
   ]
 }

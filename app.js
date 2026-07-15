@@ -931,7 +931,6 @@ function renderReferencias(){
   $('#budgetComSaldo').textContent=todos.filter(x=>x.situacao==='saldo').length;
   $('#budgetQuaseLimite').textContent=todos.filter(x=>x.situacao==='quase').length;
   $('#budgetSemSaldo').textContent=todos.filter(x=>x.situacao==='sem').length;
-  $('#budgetTotalDisponivel').textContent=money(todos.reduce((t,x)=>t+x.disponivel,0));
   $('#budgetTable tbody').innerHTML=rows.map(x=>{
     const cls=x.situacao==='sem'?'budget-over':x.situacao==='quase'?'budget-warning':'budget-ok';
     const label=x.situacao==='sem'?'Sem saldo':x.situacao==='quase'?'Próxima do limite':'Disponível';
