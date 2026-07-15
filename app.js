@@ -1,4 +1,4 @@
-const PMC_APP_VERSION = '2.9.0';
+const PMC_APP_VERSION = '2.9.2';
 const PMC_VERSION_CHECK_INTERVAL = 5 * 60 * 1000;
 let PMC_PENDING_VERSION = '';
 
@@ -61,13 +61,10 @@ async function checkPmcVersion({ silent = false } = {}) {
     let updatingTo = '';
     try { updatingTo = sessionStorage.getItem('pmc_update_in_progress') || ''; } catch (_) {}
     if (updatingTo === latest) {
+      // O usuário já solicitou esta mesma versão. Mantém o modal oculto durante
+      // esta sessão para evitar que ele reapareça repetidamente enquanto o
+      // navegador/GitHub Pages conclui a renovação dos arquivos em cache.
       hidePmcUpdateBanner();
-      // Se a atualização não concluir por causa de cache ou falha de rede,
-      // libera uma nova tentativa automaticamente após alguns segundos.
-      window.setTimeout(() => {
-        try { sessionStorage.removeItem('pmc_update_in_progress'); } catch (_) {}
-        checkPmcVersion({ silent: true });
-      }, 10000);
       return;
     }
 

@@ -1,10 +1,10 @@
 {
-  "version": "2.9.1",
-  "build": "20260715-01",
+  "version": "2.9.2",
+  "build": "20260715-02",
   "updatedAt": "2026-07-15",
   "changes": [
-    "Correção do erro ao entrar no sistema",
-    "Remoção segura do total geral dos budgets",
-    "Ajuste de cache e versão"
+    "Correção do aviso de atualização repetitivo",
+    "Sincronização da versão carregada com o version.json",
+    "O modal permanece oculto após o usuário solicitar a atualização"
   ]
 }
